@@ -1,0 +1,147 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="filterColumnNotInRangeBtn.SuperTip" xml:space="preserve">
+    <value>Click below header that you want to filter and it will show range picker and pick range that you want to use for filtering that will be exclude from the column values and click ok (works for tables and pivots, but cna be slower for pivots, so do not apply big filters for big data pivots or save before use)</value>
+  </data>
+  <data name="filterColumnFromRangeInRangeButton.SuperTip" xml:space="preserve">
+    <value>Click below header that you want to filter and it will show range picker and pick range that you want to use for filtering and click ok (works for tables and pivots, but cna be slower for pivots, so do not apply big filters for big data pivots or save before use)</value>
+  </data>
+  <data name="filterColumnFromRangeNotInRangeButton.SuperTip" xml:space="preserve">
+    <value>Click below header that you want to filter and it will show range picker and pick range that you want to use for filtering that will be exclude from the column values and click ok (works for tables and pivots, but cna be slower for pivots, so do not apply big filters for big data pivots or save before use)</value>
+  </data>
+  <data name="filterColumnInRegexButton.SuperTip" xml:space="preserve">
+    <value>Click below header that you want to filter and it will show input box and paste Regular Expresions (Regex) pattern that you want to use for filtering and click ok (works for tables and pivots, but cna be slower for pivots, so do not apply big filters for big data pivots or save before use)</value>
+  </data>
+  <data name="filterColumnNotInRegexButton.SuperTip" xml:space="preserve">
+    <value>Click below header that you want to filter and it will show input box and paste Regular Expresions (Regex) pattern that you want to use for filtering that will be exclude from the column values and click ok (works for tables and pivots, but cna be slower for pivots, so do not apply big filters for big data pivots or save before use)</value>
+  </data>
+  <data name="filterColumnSplitButton.SuperTip" xml:space="preserve">
+    <value>Click below header that you want to filter and it will show range picker and pick range that you want to use for filtering and click ok (works for tables and pivots, but cna be slower for pivots, so do not apply big filters for big data pivots or save before use)</value>
+  </data>
+  <data name="formatTrueFalseButton.SuperTip" xml:space="preserve">
+    <value>Select square range and it will apply conditional formatting for TRUE and FALSE values and will apply code to the sheet that double click into cell with TRUE and FALSE values will flip it (then will replace formula to value)</value>
+  </data>
+  <data name="runS4ExtractButton.SuperTip" xml:space="preserve">
+    <value>Will show form that you can run predefined SAP export often from selected range values. It can be run by double click and it show macros that begin with "LoginToS4AndGet" (you can close form by Esc key or right click on form body)</value>
+  </data>
+  <data name="browserButton.SuperTip" xml:space="preserve">
+    <value>Will lauch Edge powered browser as form and with choosen website that can import into your active workbook any Excel file (first sheet) or txt/csv file when auto import is checked (leave browser open if you dont want to login every time)</value>
+  </data>
+</root>
