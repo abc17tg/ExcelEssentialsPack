@@ -177,7 +177,7 @@ namespace ExcelAddInByMarcinOlszewski.Forms
         {
             if (macrosListView.SelectedItems.Count > 0)
             {
-                UtilsExcel.RunMacro(macrosListView.SelectedItems[macrosListView.SelectedItems.Count - 1].ToolTipText);
+                UtilsExcel.RunMacro(macrosListView.SelectedItems[macrosListView.SelectedItems.Count - 1].ToolTipText, m_macroWorkbook.Name);
                 this.Close();
             }
         }
@@ -189,7 +189,6 @@ namespace ExcelAddInByMarcinOlszewski.Forms
                 this.Close();
             }
         }
-
 
         // Save the selected index and top item index when the ListView loses focus
         private void macrosListView_MouseLeave(object sender, EventArgs e)

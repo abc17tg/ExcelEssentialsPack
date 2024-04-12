@@ -35,7 +35,7 @@
             this.dataGridView = new System.Windows.Forms.DataGridView();
             this.ResultColumn = new System.Windows.Forms.DataGridViewButtonColumn();
             this.CountColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Select = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.SelectColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.Clear = new System.Windows.Forms.DataGridViewButtonColumn();
             this.cancelBtn = new System.Windows.Forms.Button();
             this.okBtn = new System.Windows.Forms.Button();
@@ -84,7 +84,7 @@
             this.dataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.ResultColumn,
             this.CountColumn,
-            this.Select,
+            this.SelectColumn,
             this.Clear});
             this.dataGridView.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
             this.dataGridView.Location = new System.Drawing.Point(4, 37);
@@ -115,9 +115,9 @@
             // 
             // Select
             // 
-            this.Select.HeaderText = "Select with colour";
-            this.Select.Name = "Select";
-            this.Select.Width = 80;
+            this.SelectColumn.HeaderText = "Select with colour";
+            this.SelectColumn.Name = "Select";
+            this.SelectColumn.Width = 80;
             // 
             // Clear
             // 
@@ -170,7 +170,7 @@
         private System.Windows.Forms.DataGridView dataGridView;
         private System.Windows.Forms.DataGridViewButtonColumn ResultColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn CountColumn;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn Select;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn SelectColumn;
         private System.Windows.Forms.DataGridViewButtonColumn Clear;
         private System.Windows.Forms.Button cancelBtn;
         private System.Windows.Forms.Button okBtn;
