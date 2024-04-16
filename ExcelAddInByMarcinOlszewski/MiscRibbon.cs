@@ -6,9 +6,11 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
+using System.Xml.Linq;
 using ExcelAddInByMarcinOlszewski.Forms;
 using ExcelAddInByMarcinOlszewski.Scripts;
 using Microsoft.Office.Tools.Ribbon;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Rebar;
 using Excel = Microsoft.Office.Interop.Excel;
 using WTC = ImportTableToExcel.WorksheetFromTxtCreator;
 
@@ -30,8 +32,11 @@ namespace ExcelAddInByMarcinOlszewski
             List<RibbonButton> createPivotButtons = createPivotFromTemplateMenu.Items.Where(p => p.GetType().Name == "RibbonButtonImpl").Cast<RibbonButton>().ToList();
             createPivotButtons.AddRange((createPivotFromTemplateMenu.Items.Where(p => p.GetType().Name == "RibbonMenuImpl").ToList().First() as RibbonMenu).Items.Where(p => p.GetType().Name == "RibbonButtonImpl").Cast<RibbonButton>().ToList());
             foreach (var pvBtn in createPivotButtons)
-                pvBtn.Click += (s, _) => UtilsExcel.RunMacro((s as RibbonButton).Name.Replace("Button", ""));
-            
+            {
+                pvBtn.SuperTip = $"PivotTablesTemplates.{pvBtn.Name.Replace("Button", "")}";
+                pvBtn.Click += (s, _) => UtilsExcel.RunMacro($"PivotTablesTemplates.{(s as RibbonButton).Name.Replace("Button", "")}");
+            }
+
             List<string> queries = Sde.SdeQueries();
             if (queries != null)
                 foreach (var query in queries)
@@ -42,8 +47,8 @@ namespace ExcelAddInByMarcinOlszewski
                 }
 
             List<string> bookmarks = BrowserViewForm.GetBookmarks().Keys.ToList();
-            if(bookmarks != null)
-                foreach(var bookmark in bookmarks)
+            if (bookmarks != null)
+                foreach (var bookmark in bookmarks)
                 {
                     RibbonDropDownItem ribbonDropDownItem = Factory.CreateRibbonDropDownItem();
                     ribbonDropDownItem.Label = bookmark;
@@ -145,32 +150,38 @@ namespace ExcelAddInByMarcinOlszewski
 
         private void evaluateFormulaButton_Click(object sender, RibbonControlEventArgs e)
         {
-            UtilsExcel.RunMacro("EvaluateAndReplaceFormula");
+            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
+            //UtilsExcel.RunMacro("Converting.EvaluateAndReplaceFormula");
         }
 
         private void repasteAsValuesButton_Click(object sender, RibbonControlEventArgs e)
         {
-            UtilsExcel.RunMacro("RepasteSelectedRangeAsValues");
+            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
+            //UtilsExcel.RunMacro("Converting.RepasteSelectedRangeAsValues");
         }
 
         private void removeEmptyButton_Click(object sender, RibbonControlEventArgs e)
         {
-            UtilsExcel.RunMacro("RemoveCells.RemoveEmptyCells");
+            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
+            //UtilsExcel.RunMacro("RemoveCells.RemoveEmptyCells");
         }
 
         private void removeNaButton_Click(object sender, RibbonControlEventArgs e)
         {
-            UtilsExcel.RunMacro("DeleteNAFromSelection");
+            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
+            //UtilsExcel.RunMacro("RemoveCells.DeleteNAFromSelection");
         }
 
         private void prependTextButton_Click(object sender, RibbonControlEventArgs e)
         {
-            UtilsExcel.RunMacro("PrependText");
+            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
+            //UtilsExcel.RunMacro("Utils.PrependText");
         }
 
         private void trimButton_Click(object sender, RibbonControlEventArgs e)
         {
-            UtilsExcel.RunMacro("Utils.RemoveLeadingTrailingSpaces");
+            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
+            //UtilsExcel.RunMacro("Utils.RemoveLeadingTrailingSpaces");
         }
 
         private void formatNumberButton_Click(object sender, RibbonControlEventArgs e)
@@ -186,17 +197,20 @@ namespace ExcelAddInByMarcinOlszewski
 
         private void hideRowsWithTextButton_Click(object sender, RibbonControlEventArgs e)
         {
-            UtilsExcel.RunMacro("HideRowsWithValue");
+            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
+            //UtilsExcel.RunMacro("HideRows.HideRowsWithValue");
         }
 
         private void takeRowsWithTextButton_Click(object sender, RibbonControlEventArgs e)
         {
-            UtilsExcel.RunMacro("GetRowsThatContainTextValueInput");
+            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
+            //UtilsExcel.RunMacro("GetRowsThatContainTextValue.GetRowsThatContainTextValueInput");
         }
 
         private void searchDialogButton_Click(object sender, RibbonControlEventArgs e)
         {
-            UtilsExcel.RunMacro("OpenFinder");
+            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
+            //UtilsExcel.RunMacro("HeadersListForm.OpenFinder");
             /*SearchColumnsForm form = new SearchColumnsForm(Globals.ThisAddIn.Application);
             form.Show();
             form.FormClosed += (s, _) =>
@@ -253,12 +267,14 @@ namespace ExcelAddInByMarcinOlszewski
 
         private void colorRowsButton_Click(object sender, RibbonControlEventArgs e)
         {
-            UtilsExcel.RunMacro("ColorSelectedRows");
+            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
+            //UtilsExcel.RunMacro("ColorRows.ColorSelectedRows");
         }
 
         private void formatTrueFalseButton_Click(object sender, RibbonControlEventArgs e)
         {
-            UtilsExcel.RunMacro("ConditionalFormattingTRUEandFALSE");
+            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
+            //UtilsExcel.RunMacro("Utils.ConditionalFormattingTRUEandFALSE");
         }
 
         private void filterColumnInRangeSplitButton_Click(object sender, RibbonControlEventArgs e)
@@ -287,7 +303,6 @@ namespace ExcelAddInByMarcinOlszewski
 
         private void sortingAbsButton_Click(object sender, RibbonControlEventArgs e)
         {
-            //Utils.RunMacro("");
             Excel.Application app = Globals.ThisAddIn.Application;
             Excel.Range rng = app.ActiveWindow.RangeSelection;
             UtilsExcel.SortColumnByAbsoluteValues(rng);
@@ -298,7 +313,7 @@ namespace ExcelAddInByMarcinOlszewski
             Excel.Application app = Globals.ThisAddIn.Application;
             UtilsExcel.FilterByRegex(app.Selection, false);
         }
-        
+
         private void filterColumnNotInRegexButton_Click(object sender, RibbonControlEventArgs e)
         {
             Excel.Application app = Globals.ThisAddIn.Application;
@@ -307,12 +322,14 @@ namespace ExcelAddInByMarcinOlszewski
 
         private void saveEachWorksheetsAsTxtButton_Click(object sender, RibbonControlEventArgs e)
         {
-            UtilsExcel.RunMacro("SaveSheetsAsTextFiles");
+            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
+            //UtilsExcel.RunMacro("DivideFile.SaveSheetsAsTextFiles");
         }
 
         private void saveEachSheetAsSplitBtn_Click(object sender, RibbonControlEventArgs e)
         {
-            UtilsExcel.RunMacro("SaveSheetsAsExcelFiles");
+            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonSplitButton).Id, m_macroWorkbook));
+            //UtilsExcel.RunMacro("DivideFile.SaveSheetsAsExcelFiles");
         }
 
         private void duplicateWorkbookBtn_Click(object sender, RibbonControlEventArgs e)
@@ -384,7 +401,7 @@ namespace ExcelAddInByMarcinOlszewski
             //UtilsExcel.RunMacro("DivideTableToParts");
             Excel.Application app = Globals.ThisAddIn.Application;
             Excel.Range rng = app.ActiveWindow.RangeSelection;
-            if(rng.Cells.Count<2)
+            if (rng.Cells.Count < 2)
                 rng = rng.CurrentRegion;
 
             if (!int.TryParse(Microsoft.VisualBasic.Interaction.InputBox("To parts", "Divide into parts", "2"), out int parts))
@@ -398,7 +415,8 @@ namespace ExcelAddInByMarcinOlszewski
 
         private void getFilePathButton_Click(object sender, RibbonControlEventArgs e)
         {
-            UtilsExcel.RunMacro("GetCurrentFilePath");
+            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
+            //UtilsExcel.RunMacro("FilesSubs.GetCurrentFilePath");
         }
 
         private void deleteWorksheetButton_Click(object sender, RibbonControlEventArgs e)
@@ -611,7 +629,7 @@ namespace ExcelAddInByMarcinOlszewski
         {
             Excel.Application app = Globals.ThisAddIn.Application;
             Excel.Range rng = app.ActiveWindow.RangeSelection;
-            if(rng.IsPivotCell() && rng.PivotCell.PivotTable != null)
+            if (rng.IsPivotCell() && rng.PivotCell.PivotTable != null)
             {
                 var pv = rng.PivotCell.PivotTable;
                 bool toggle = !pv.ColumnGrand && !pv.RowGrand;
@@ -630,6 +648,31 @@ namespace ExcelAddInByMarcinOlszewski
                 var pf = rng.PivotCell.PivotField;
                 pf.Subtotals[1] = !pf.Subtotals[1];
                 subtotalsToggleButton.Checked = pf.Subtotals[1];
+            }
+        }
+
+        private void checkMacrosButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            try
+            {
+                string filePath = Path.Combine(FileManager.PropertiesFilesPath, "ButtonSubroutineMapping.xml");
+                XElement xe = XElement.Load(filePath);
+
+                // Using LINQ to extract ButtonID and Subroutine values
+                var mappings = from mapping in xe.Elements("Mapping")
+                               select new
+                               {
+                                   ButtonID = mapping.Element("ButtonID").Value.Trim(),
+                                   Subroutine = mapping.Element("Subroutine").Value.Trim()
+                               };
+
+                string message = string.Join("\n", mappings.Select(m => $"{m.ButtonID}\t{m.Subroutine}\t{(Macro.Exists(m.Subroutine.Split('.')[1], m.Subroutine.Split('.')[0], m_macroWorkbook) ? "✔" : "❌")}"));
+                MessageBoxForm messageBox = new MessageBoxForm(message, "Macros mapping", true);
+                messageBox.Show();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

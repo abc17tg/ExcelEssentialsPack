@@ -97,7 +97,6 @@
             this.pivotTemplatesGroup = this.Factory.CreateRibbonGroup();
             this.createPivotFromTemplateMenu = this.Factory.CreateRibbonMenu();
             this.createPvFromLoadedButton = this.Factory.CreateRibbonButton();
-            this.createPvFromLoadedPlusButton = this.Factory.CreateRibbonButton();
             this.separator3 = this.Factory.CreateRibbonSeparator();
             this.createPvFromInboundButton = this.Factory.CreateRibbonButton();
             this.createPvFromInboundPlusButton = this.Factory.CreateRibbonButton();
@@ -135,7 +134,7 @@
             this.pivotFormatGroup = this.Factory.CreateRibbonGroup();
             this.formatClickedPivotButton = this.Factory.CreateRibbonButton();
             this.formatAllPivotButton = this.Factory.CreateRibbonButton();
-            this.refreshPivots = this.Factory.CreateRibbonButton();
+            this.refreshPivotsButton = this.Factory.CreateRibbonButton();
             this.grandTotalsToggleButton = this.Factory.CreateRibbonToggleButton();
             this.subtotalsToggleButton = this.Factory.CreateRibbonToggleButton();
             this.dataImportTab = this.Factory.CreateRibbonTab();
@@ -154,6 +153,7 @@
             this.browserButton = this.Factory.CreateRibbonButton();
             this.browserWebsitesComboBox = this.Factory.CreateRibbonComboBox();
             this.importFromBrowserCheckBox = this.Factory.CreateRibbonCheckBox();
+            this.checkMacrosButton = this.Factory.CreateRibbonButton();
             this.miscTab.SuspendLayout();
             this.importGroup.SuspendLayout();
             this.modifiersGroup.SuspendLayout();
@@ -712,6 +712,7 @@
             // setupGroup
             // 
             this.setupGroup.Items.Add(this.goToPropertiesButton);
+            this.setupGroup.Items.Add(this.checkMacrosButton);
             this.setupGroup.Label = "Setup";
             this.setupGroup.Name = "setupGroup";
             // 
@@ -743,7 +744,6 @@
             // createPivotFromTemplateMenu
             // 
             this.createPivotFromTemplateMenu.Items.Add(this.createPvFromLoadedButton);
-            this.createPivotFromTemplateMenu.Items.Add(this.createPvFromLoadedPlusButton);
             this.createPivotFromTemplateMenu.Items.Add(this.separator3);
             this.createPivotFromTemplateMenu.Items.Add(this.createPvFromInboundButton);
             this.createPivotFromTemplateMenu.Items.Add(this.createPvFromInboundPlusButton);
@@ -782,14 +782,6 @@
             this.createPvFromLoadedButton.Name = "createPvFromLoadedButton";
             this.createPvFromLoadedButton.OfficeImageId = "AppointmentColor3";
             this.createPvFromLoadedButton.ShowImage = true;
-            // 
-            // createPvFromLoadedPlusButton
-            // 
-            this.createPvFromLoadedPlusButton.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
-            this.createPvFromLoadedPlusButton.Label = "Loaded+";
-            this.createPvFromLoadedPlusButton.Name = "createPvFromLoadedPlusButton";
-            this.createPvFromLoadedPlusButton.OfficeImageId = "AppointmentColor3";
-            this.createPvFromLoadedPlusButton.ShowImage = true;
             // 
             // separator3
             // 
@@ -1026,13 +1018,13 @@
             this.runPvTemplateBtn.SuperTip = "Will show form that search all pivot templates that start with \"CreatePvForm\" and" +
     " can be run with double click (to close the form click Esc or right click on for" +
     "m)";
-            this.runPvTemplateBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.runPvTemplateBtn_Click);
+            this.runPvTemplateBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.runPvTemplateButton_Click);
             // 
             // pivotFormatGroup
             // 
             this.pivotFormatGroup.Items.Add(this.formatClickedPivotButton);
             this.pivotFormatGroup.Items.Add(this.formatAllPivotButton);
-            this.pivotFormatGroup.Items.Add(this.refreshPivots);
+            this.pivotFormatGroup.Items.Add(this.refreshPivotsButton);
             this.pivotFormatGroup.Items.Add(this.grandTotalsToggleButton);
             this.pivotFormatGroup.Items.Add(this.subtotalsToggleButton);
             this.pivotFormatGroup.Label = "Format pivot";
@@ -1056,14 +1048,14 @@
             this.formatAllPivotButton.SuperTip = "Format all pivot tables in current sheet";
             this.formatAllPivotButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.formatAllPivotButton_Click);
             // 
-            // refreshPivots
+            // refreshPivotsButton
             // 
-            this.refreshPivots.Label = "Refresh all pv";
-            this.refreshPivots.Name = "refreshPivots";
-            this.refreshPivots.OfficeImageId = "RefreshWebView";
-            this.refreshPivots.ShowImage = true;
-            this.refreshPivots.SuperTip = "Refresh all pivot tables in current sheet";
-            this.refreshPivots.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.refreshPivots_Click);
+            this.refreshPivotsButton.Label = "Refresh all pv";
+            this.refreshPivotsButton.Name = "refreshPivotsButton";
+            this.refreshPivotsButton.OfficeImageId = "RefreshWebView";
+            this.refreshPivotsButton.ShowImage = true;
+            this.refreshPivotsButton.SuperTip = "Refresh all pivot tables in current sheet";
+            this.refreshPivotsButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.refreshPivotsButton_Click);
             // 
             // grandTotalsToggleButton
             // 
@@ -1223,6 +1215,13 @@
             this.importFromBrowserCheckBox.Name = "importFromBrowserCheckBox";
             this.importFromBrowserCheckBox.SuperTip = "Auto import downloaded Excel files and txt/csv files";
             // 
+            // checkMacrosButton
+            // 
+            this.checkMacrosButton.Label = "Check macros";
+            this.checkMacrosButton.Name = "checkMacrosButton";
+            this.checkMacrosButton.SuperTip = "It will check if all macros that are assigned to buttons are present";
+            this.checkMacrosButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.checkMacrosButton_Click);
+            // 
             // MiscRibbon
             // 
             this.Name = "MiscRibbon";
@@ -1313,10 +1312,9 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup pivotFormatGroup;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton formatClickedPivotButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton formatAllPivotButton;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton refreshPivots;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton refreshPivotsButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonMenu createPivotFromTemplateMenu;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton createPvFromLoadedButton;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton createPvFromLoadedPlusButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton createPvFromInboundButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton createPvFromInboundPlusButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton createPvFromOutboundButton;
@@ -1390,6 +1388,7 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonButton filterColumnNotInRegexButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup setupGroup;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton goToPropertiesButton;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton checkMacrosButton;
     }
 
     partial class ThisRibbonCollection

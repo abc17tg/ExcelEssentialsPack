@@ -36,7 +36,7 @@
     <PublishUrl>C:\Users\olszewsm\Documents\Programs\Publish\ExcelCustomRibbon\</PublishUrl>
     <InstallUrl />
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>1.0.0.9</ApplicationVersion>
+    <ApplicationVersion>1.0.0.13</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>7</UpdateInterval>
@@ -385,6 +385,12 @@
     <Compile Include="Forms\InputRangeForm.Designer.cs">
       <DependentUpon>InputRangeForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\MessageBoxForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\MessageBoxForm.Designer.cs">
+      <DependentUpon>MessageBoxForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\PvTemplatesListForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -474,6 +480,9 @@
     <EmbeddedResource Include="Forms\InputRangeForm.resx">
       <DependentUpon>InputRangeForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\MessageBoxForm.resx">
+      <DependentUpon>MessageBoxForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\PvTemplatesListForm.resx">
       <DependentUpon>PvTemplatesListForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -530,6 +539,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\sql.png" />
+    <Content Include="Properties Files\ButtonSubroutineMapping.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Properties Files\FunctionsWbName.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
