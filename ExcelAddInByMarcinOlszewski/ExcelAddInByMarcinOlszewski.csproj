@@ -421,6 +421,12 @@
     <Compile Include="Forms\SqlExcelTableForm.Designer.cs">
       <DependentUpon>SqlExcelTableForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\WorkbookPickerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\WorkbookPickerForm.Designer.cs">
+      <DependentUpon>WorkbookPickerForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -494,6 +500,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\SqlExcelTableForm.resx">
       <DependentUpon>SqlExcelTableForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\WorkbookPickerForm.resx">
+      <DependentUpon>WorkbookPickerForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MiscRibbon.resx">
       <DependentUpon>MiscRibbon.cs</DependentUpon>

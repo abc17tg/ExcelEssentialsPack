@@ -10,10 +10,8 @@ using System.Xml.Linq;
 using ExcelAddInByMarcinOlszewski.Forms;
 using ExcelAddInByMarcinOlszewski.Scripts;
 using Microsoft.Office.Tools.Ribbon;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Rebar;
 using Excel = Microsoft.Office.Interop.Excel;
 using WTC = ImportTableToExcel.WorksheetFromTxtCreator;
-
 
 namespace ExcelAddInByMarcinOlszewski
 {
@@ -673,6 +671,56 @@ namespace ExcelAddInByMarcinOlszewski
             catch (Exception ex)
             {
                 MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void updateMacrosButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Multiselect = true;
+            openFileDialog.Filter = "Update files|*.bas;*.macro";
+            var result = openFileDialog.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                WorkbookPickerForm workbookPicker = new WorkbookPickerForm(m_macroWorkbook);
+                var result2 = workbookPicker.ShowDialog();
+                if (result2 == DialogResult.OK)
+                {
+                    string logs = string.Empty;
+                    foreach (string fileName in openFileDialog.FileNames)
+                    {
+                        string extension = Path.GetExtension(fileName);
+                        switch (extension.ToLower())
+                        {
+                            case ".bas":
+                                logs += $"\n{fileName}\t{(UtilsExcel.UpdateModule(fileName, workbookPicker.Workbook) ? "✔" : "❌")}";
+                                break;
+                            case ".macro":
+                                logs += $"\n{fileName}\t{(UtilsExcel.UpdateMacro(fileName, workbookPicker.Workbook) ? "✔" : "❌")}";
+                                break;
+                            default:
+                                MessageBox.Show("Unsupported file type.");
+                                break;
+                        }
+                    }
+                    MessageBox.Show(logs, "Result of update");
+                }
+            }
+        }
+
+        private void exportMacrosButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            WorkbookPickerForm workbookPicker = new WorkbookPickerForm(m_macroWorkbook);
+            var result = workbookPicker.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                string path = workbookPicker.Workbook.ExportMacros();
+                var msgResult = MessageBox.Show($"Operation exporting macros ended with {(!string.IsNullOrEmpty(path) ? "success.\n\nOpen directory?" : "fail")}", "Export macros result", !string.IsNullOrEmpty(path) ? MessageBoxButtons.YesNo : MessageBoxButtons.OK);
+                if (msgResult == DialogResult.Yes)
+                {
+                    if (!FileManager.IsExplorerPathOpen(path))
+                        Process.Start("explorer.exe", path);
+                }
             }
         }
     }

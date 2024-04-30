@@ -80,9 +80,9 @@ namespace ExcelAddInByMarcinOlszewski.Forms
                             result = MessageBox.Show("Delete file after import?", "Delete file", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                             if (result == DialogResult.Yes)
                                 File.Delete(this.DownloadedFilePath);
-                            result = MessageBox.Show("Close browser?", "Close browser", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                            if (result == DialogResult.Yes)
-                                this.Close();
+                            //result = MessageBox.Show("Close browser?", "Close browser", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                            //if (result == DialogResult.Yes)
+                            //    this.Close();
                             return;
                         }
                         else
@@ -92,9 +92,9 @@ namespace ExcelAddInByMarcinOlszewski.Forms
                         result = MessageBox.Show("Delete file after import?", "Delete file", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                         if (result == DialogResult.Yes)
                             File.Delete(this.DownloadedFilePath);
-                        result = MessageBox.Show("Close browser?", "Close browser", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                        if (result == DialogResult.Yes)
-                            this.Close();
+                        //result = MessageBox.Show("Close browser?", "Close browser", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                        //if (result == DialogResult.Yes)
+                        //    this.Close();
                         return;
                     }
                     else if (Utils.ExcelExt.Contains(Path.GetExtension(this.DownloadedFilePath), StringComparer.OrdinalIgnoreCase))
@@ -110,15 +110,15 @@ namespace ExcelAddInByMarcinOlszewski.Forms
                         result = MessageBox.Show("Delete file after import?", "Delete file", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                         if (result == DialogResult.Yes)
                             File.Delete(this.DownloadedFilePath);
-                        result = MessageBox.Show("Close browser?", "Close browser", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                        if (result == DialogResult.Yes)
-                            this.Close();
+                        //result = MessageBox.Show("Close browser?", "Close browser", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                        //if (result == DialogResult.Yes)
+                        //    this.Close();
                         return;
                     }
                     Process.Start("explorer.exe", Path.GetDirectoryName(DownloadedFilePath));
-                    result = MessageBox.Show("Close browser?", "Close browser", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                    if (result == DialogResult.Yes)
-                        this.Close();
+                    //result = MessageBox.Show("Close browser?", "Close browser", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    //if (result == DialogResult.Yes)
+                    //    this.Close();
                     return;
                 }
                 catch

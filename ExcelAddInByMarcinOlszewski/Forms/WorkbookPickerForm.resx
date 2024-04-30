@@ -117,37 +117,4 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="filterColumnNotInRangeBtn.SuperTip" xml:space="preserve">
-    <value>Click below header that you want to filter and it will show range picker and pick range that you want to use for filtering that will be exclude from the column values and click ok (works for tables and pivots, but cna be slower for pivots, so do not apply big filters for big data pivots or save before use)</value>
-  </data>
-  <data name="filterColumnFromRangeInRangeButton.SuperTip" xml:space="preserve">
-    <value>Click below header that you want to filter and it will show range picker and pick range that you want to use for filtering and click ok (works for tables and pivots, but cna be slower for pivots, so do not apply big filters for big data pivots or save before use)</value>
-  </data>
-  <data name="filterColumnFromRangeNotInRangeButton.SuperTip" xml:space="preserve">
-    <value>Click below header that you want to filter and it will show range picker and pick range that you want to use for filtering that will be exclude from the column values and click ok (works for tables and pivots, but cna be slower for pivots, so do not apply big filters for big data pivots or save before use)</value>
-  </data>
-  <data name="filterColumnInRegexButton.SuperTip" xml:space="preserve">
-    <value>Click below header that you want to filter and it will show input box and paste Regular Expresions (Regex) pattern that you want to use for filtering and click ok (works for tables and pivots, but cna be slower for pivots, so do not apply big filters for big data pivots or save before use)</value>
-  </data>
-  <data name="filterColumnNotInRegexButton.SuperTip" xml:space="preserve">
-    <value>Click below header that you want to filter and it will show input box and paste Regular Expresions (Regex) pattern that you want to use for filtering that will be exclude from the column values and click ok (works for tables and pivots, but cna be slower for pivots, so do not apply big filters for big data pivots or save before use)</value>
-  </data>
-  <data name="filterColumnSplitButton.SuperTip" xml:space="preserve">
-    <value>Click below header that you want to filter and it will show range picker and pick range that you want to use for filtering and click ok (works for tables and pivots, but cna be slower for pivots, so do not apply big filters for big data pivots or save before use)</value>
-  </data>
-  <data name="formatTrueFalseButton.SuperTip" xml:space="preserve">
-    <value>Select square range and it will apply conditional formatting for TRUE and FALSE values and will apply code to the sheet that double click into cell with TRUE and FALSE values will flip it (then will replace formula to value)</value>
-  </data>
-  <data name="updateMacrosButton.SuperTip" xml:space="preserve">
-    <value>Will open file picker select files and it will add to current macro workbook macros or update existing one. If you modyfied one of them (created with different names will be transfered to updated files) for your liking is better if you change content by yourself (To use you need to have in Excel trust settings trust VBA project object model.)</value>
-  </data>
-  <data name="runPvTemplateBtn.SuperTip" xml:space="preserve">
-    <value>Will show form that search all pivot templates that start with "CreatePvForm" and can be run with double click. (To use you need to have in Excel trust settings trust VBA project object model). (to close the form click Esc or right click on form)</value>
-  </data>
-  <data name="runS4ExtractButton.SuperTip" xml:space="preserve">
-    <value>Will show form that you can run predefined SAP export often from selected range values. It can be run by double click and it show macros that begin with "LoginToS4AndGet". To run you need to have SAP scripting enabled, allow all saving paths without warning and in Excel trust settings trust VBA project object model. (you can close form by Esc key or right click on form body)</value>
-  </data>
-  <data name="browserButton.SuperTip" xml:space="preserve">
-    <value>Will lauch Edge powered browser as form and with choosen website that can import into your active workbook any Excel file (first sheet) or txt/csv file when auto import is checked (leave browser open if you dont want to login every time)</value>
-  </data>
 </root>

@@ -60,7 +60,7 @@ namespace ImportTableToExcel
             DataTable dataTable = new DataTable();
             List<object[]> allData = new List<object[]>();
 
-            using (StreamReader sr = new StreamReader(filePath))
+            using (StreamReader sr = new StreamReader(filePath, true))
             {
                 // Read the first line to create column headers
                 string[] headers = sr.ReadLine().Split(delimiter);

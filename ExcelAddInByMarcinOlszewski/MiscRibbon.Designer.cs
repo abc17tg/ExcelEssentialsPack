@@ -45,6 +45,7 @@
             this.evaluateFormulaButton = this.Factory.CreateRibbonButton();
             this.repasteAsValuesButton = this.Factory.CreateRibbonButton();
             this.sortingAbsButton = this.Factory.CreateRibbonButton();
+            this.copyAsPictureButton = this.Factory.CreateRibbonButton();
             this.separator11 = this.Factory.CreateRibbonSeparator();
             this.removeEmptyButton = this.Factory.CreateRibbonButton();
             this.removeNaButton = this.Factory.CreateRibbonButton();
@@ -84,7 +85,6 @@
             this.saveThisWorksheetAsTxt = this.Factory.CreateRibbonButton();
             this.divideTableToPartsAndSaveButton = this.Factory.CreateRibbonButton();
             this.getFilePathButton = this.Factory.CreateRibbonButton();
-            this.copyAsPictureButton = this.Factory.CreateRibbonButton();
             this.separator2 = this.Factory.CreateRibbonSeparator();
             this.deleteWorksheetButton = this.Factory.CreateRibbonButton();
             this.deleteOtherWorksheetsButton = this.Factory.CreateRibbonButton();
@@ -93,6 +93,8 @@
             this.runMacroButton = this.Factory.CreateRibbonButton();
             this.setupGroup = this.Factory.CreateRibbonGroup();
             this.goToPropertiesButton = this.Factory.CreateRibbonButton();
+            this.updateMacrosButton = this.Factory.CreateRibbonButton();
+            this.checkMacrosButton = this.Factory.CreateRibbonButton();
             this.pivotToolsTab = this.Factory.CreateRibbonTab();
             this.pivotTemplatesGroup = this.Factory.CreateRibbonGroup();
             this.createPivotFromTemplateMenu = this.Factory.CreateRibbonMenu();
@@ -137,6 +139,8 @@
             this.refreshPivotsButton = this.Factory.CreateRibbonButton();
             this.grandTotalsToggleButton = this.Factory.CreateRibbonToggleButton();
             this.subtotalsToggleButton = this.Factory.CreateRibbonToggleButton();
+            this.pivotToolsGroup = this.Factory.CreateRibbonGroup();
+            this.combinedTableFromPvValuesButton = this.Factory.CreateRibbonButton();
             this.dataImportTab = this.Factory.CreateRibbonTab();
             this.sqlImportGroup = this.Factory.CreateRibbonGroup();
             this.sqlEditorBtn = this.Factory.CreateRibbonButton();
@@ -153,7 +157,7 @@
             this.browserButton = this.Factory.CreateRibbonButton();
             this.browserWebsitesComboBox = this.Factory.CreateRibbonComboBox();
             this.importFromBrowserCheckBox = this.Factory.CreateRibbonCheckBox();
-            this.checkMacrosButton = this.Factory.CreateRibbonButton();
+            this.exportMacrosButton = this.Factory.CreateRibbonButton();
             this.miscTab.SuspendLayout();
             this.importGroup.SuspendLayout();
             this.modifiersGroup.SuspendLayout();
@@ -166,6 +170,7 @@
             this.pivotToolsTab.SuspendLayout();
             this.pivotTemplatesGroup.SuspendLayout();
             this.pivotFormatGroup.SuspendLayout();
+            this.pivotToolsGroup.SuspendLayout();
             this.dataImportTab.SuspendLayout();
             this.sqlImportGroup.SuspendLayout();
             this.sapImportGroup.SuspendLayout();
@@ -175,7 +180,6 @@
             // 
             // miscTab
             // 
-            this.miscTab.ControlId.ControlIdType = Microsoft.Office.Tools.Ribbon.RibbonControlIdType.Office;
             this.miscTab.Groups.Add(this.importGroup);
             this.miscTab.Groups.Add(this.modifiersGroup);
             this.miscTab.Groups.Add(this.filterGroup);
@@ -220,6 +224,7 @@
             this.modifiersGroup.Items.Add(this.evaluateFormulaButton);
             this.modifiersGroup.Items.Add(this.repasteAsValuesButton);
             this.modifiersGroup.Items.Add(this.sortingAbsButton);
+            this.modifiersGroup.Items.Add(this.copyAsPictureButton);
             this.modifiersGroup.Items.Add(this.separator11);
             this.modifiersGroup.Items.Add(this.removeEmptyButton);
             this.modifiersGroup.Items.Add(this.removeNaButton);
@@ -281,6 +286,15 @@
     "values and sort from biggest to smallest and remove column (do not use for pivot" +
     " tables)";
             this.sortingAbsButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.sortingAbsButton_Click);
+            // 
+            // copyAsPictureButton
+            // 
+            this.copyAsPictureButton.Label = "Copy as picture";
+            this.copyAsPictureButton.Name = "copyAsPictureButton";
+            this.copyAsPictureButton.OfficeImageId = "Camera";
+            this.copyAsPictureButton.ShowImage = true;
+            this.copyAsPictureButton.SuperTip = "Copy selected square range as picture";
+            this.copyAsPictureButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.copyAsPictureButton_Click);
             // 
             // separator11
             // 
@@ -569,7 +583,7 @@
             this.fileAndExportGroup.Items.Add(this.saveThisWorksheetAsTxt);
             this.fileAndExportGroup.Items.Add(this.divideTableToPartsAndSaveButton);
             this.fileAndExportGroup.Items.Add(this.getFilePathButton);
-            this.fileAndExportGroup.Items.Add(this.copyAsPictureButton);
+            this.fileAndExportGroup.Items.Add(this.exportMacrosButton);
             this.fileAndExportGroup.Items.Add(this.separator2);
             this.fileAndExportGroup.Items.Add(this.deleteWorksheetButton);
             this.fileAndExportGroup.Items.Add(this.deleteOtherWorksheetsButton);
@@ -653,15 +667,6 @@
             this.getFilePathButton.SuperTip = "Paste file path of workbook into selected cell";
             this.getFilePathButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.getFilePathButton_Click);
             // 
-            // copyAsPictureButton
-            // 
-            this.copyAsPictureButton.Label = "Copy as picture";
-            this.copyAsPictureButton.Name = "copyAsPictureButton";
-            this.copyAsPictureButton.OfficeImageId = "Camera";
-            this.copyAsPictureButton.ShowImage = true;
-            this.copyAsPictureButton.SuperTip = "Copy selected square range as picture";
-            this.copyAsPictureButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.copyAsPictureButton_Click);
-            // 
             // separator2
             // 
             this.separator2.Name = "separator2";
@@ -706,19 +711,20 @@
             this.runMacroButton.Name = "runMacroButton";
             this.runMacroButton.OfficeImageId = "PlayMacro";
             this.runMacroButton.ShowImage = true;
-            this.runMacroButton.SuperTip = "More user friendly macro runner and searcher";
+            this.runMacroButton.SuperTip = "More user friendly macro runner and searcher. (To use you need to have in Excel t" +
+    "rust settings trust VBA project object model.)";
             this.runMacroButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.runMacroButton_Click);
             // 
             // setupGroup
             // 
             this.setupGroup.Items.Add(this.goToPropertiesButton);
+            this.setupGroup.Items.Add(this.updateMacrosButton);
             this.setupGroup.Items.Add(this.checkMacrosButton);
             this.setupGroup.Label = "Setup";
             this.setupGroup.Name = "setupGroup";
             // 
             // goToPropertiesButton
             // 
-            this.goToPropertiesButton.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
             this.goToPropertiesButton.Label = "Properties files";
             this.goToPropertiesButton.Name = "goToPropertiesButton";
             this.goToPropertiesButton.OfficeImageId = "ProjectManageDeliverables";
@@ -726,10 +732,29 @@
             this.goToPropertiesButton.SuperTip = "Will open location of properties files";
             this.goToPropertiesButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.goToPropertiesButton_Click);
             // 
+            // updateMacrosButton
+            // 
+            this.updateMacrosButton.Label = "Update macros";
+            this.updateMacrosButton.Name = "updateMacrosButton";
+            this.updateMacrosButton.OfficeImageId = "PublishWorkflow";
+            this.updateMacrosButton.ShowImage = true;
+            this.updateMacrosButton.SuperTip = resources.GetString("updateMacrosButton.SuperTip");
+            this.updateMacrosButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.updateMacrosButton_Click);
+            // 
+            // checkMacrosButton
+            // 
+            this.checkMacrosButton.Label = "Check macros";
+            this.checkMacrosButton.Name = "checkMacrosButton";
+            this.checkMacrosButton.OfficeImageId = "MacroDefault";
+            this.checkMacrosButton.ShowImage = true;
+            this.checkMacrosButton.SuperTip = "It will check if all macros that are assigned to buttons are present";
+            this.checkMacrosButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.checkMacrosButton_Click);
+            // 
             // pivotToolsTab
             // 
             this.pivotToolsTab.Groups.Add(this.pivotTemplatesGroup);
             this.pivotToolsTab.Groups.Add(this.pivotFormatGroup);
+            this.pivotToolsTab.Groups.Add(this.pivotToolsGroup);
             this.pivotToolsTab.Label = "Pivot\'s tools";
             this.pivotToolsTab.Name = "pivotToolsTab";
             // 
@@ -1015,9 +1040,7 @@
             this.runPvTemplateBtn.Name = "runPvTemplateBtn";
             this.runPvTemplateBtn.OfficeImageId = "PivotTableNewStyle";
             this.runPvTemplateBtn.ShowImage = true;
-            this.runPvTemplateBtn.SuperTip = "Will show form that search all pivot templates that start with \"CreatePvForm\" and" +
-    " can be run with double click (to close the form click Esc or right click on for" +
-    "m)";
+            this.runPvTemplateBtn.SuperTip = resources.GetString("runPvTemplateBtn.SuperTip");
             this.runPvTemplateBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.runPvTemplateButton_Click);
             // 
             // pivotFormatGroup
@@ -1074,6 +1097,22 @@
             this.subtotalsToggleButton.ShowImage = true;
             this.subtotalsToggleButton.SuperTip = "Toggle subtotals in selected pivot table";
             this.subtotalsToggleButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.subtotalsToggleButton_Click);
+            // 
+            // pivotToolsGroup
+            // 
+            this.pivotToolsGroup.Items.Add(this.combinedTableFromPvValuesButton);
+            this.pivotToolsGroup.Label = "Pivot tools";
+            this.pivotToolsGroup.Name = "pivotToolsGroup";
+            // 
+            // combinedTableFromPvValuesButton
+            // 
+            this.combinedTableFromPvValuesButton.Label = "Table from values";
+            this.combinedTableFromPvValuesButton.Name = "combinedTableFromPvValuesButton";
+            this.combinedTableFromPvValuesButton.OfficeImageId = "GroupOrganizationChartSelect";
+            this.combinedTableFromPvValuesButton.ShowImage = true;
+            this.combinedTableFromPvValuesButton.SuperTip = "Select values cells in pivot table and it will create combined table from data th" +
+    "at would be created by double click";
+            this.combinedTableFromPvValuesButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.combinedTableFromPvValuesButton_Click);
             // 
             // dataImportTab
             // 
@@ -1215,12 +1254,14 @@
             this.importFromBrowserCheckBox.Name = "importFromBrowserCheckBox";
             this.importFromBrowserCheckBox.SuperTip = "Auto import downloaded Excel files and txt/csv files";
             // 
-            // checkMacrosButton
+            // exportMacrosButton
             // 
-            this.checkMacrosButton.Label = "Check macros";
-            this.checkMacrosButton.Name = "checkMacrosButton";
-            this.checkMacrosButton.SuperTip = "It will check if all macros that are assigned to buttons are present";
-            this.checkMacrosButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.checkMacrosButton_Click);
+            this.exportMacrosButton.Label = "Export macros";
+            this.exportMacrosButton.Name = "exportMacrosButton";
+            this.exportMacrosButton.OfficeImageId = "FileMenuPublishHeader";
+            this.exportMacrosButton.ScreenTip = "It will export macros from choosen Workbook to filder in Downloads folder.";
+            this.exportMacrosButton.ShowImage = true;
+            this.exportMacrosButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.exportMacrosButton_Click);
             // 
             // MiscRibbon
             // 
@@ -1254,6 +1295,8 @@
             this.pivotTemplatesGroup.PerformLayout();
             this.pivotFormatGroup.ResumeLayout(false);
             this.pivotFormatGroup.PerformLayout();
+            this.pivotToolsGroup.ResumeLayout(false);
+            this.pivotToolsGroup.PerformLayout();
             this.dataImportTab.ResumeLayout(false);
             this.dataImportTab.PerformLayout();
             this.sqlImportGroup.ResumeLayout(false);
@@ -1269,8 +1312,6 @@
         }
 
         #endregion
-
-        internal Microsoft.Office.Tools.Ribbon.RibbonTab miscTab;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup modifiersGroup;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton prependTextButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonSeparator separator1;
@@ -1306,7 +1347,6 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonButton divideTableToPartsAndSaveButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton sortingAbsButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton copyAsPictureButton;
-        private Microsoft.Office.Tools.Ribbon.RibbonTab pivotToolsTab;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup pivotTemplatesGroup;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton generatePivotTemlateCodeButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup pivotFormatGroup;
@@ -1347,7 +1387,6 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonSeparator separator8;
         internal Microsoft.Office.Tools.Ribbon.RibbonSeparator separator9;
         internal Microsoft.Office.Tools.Ribbon.RibbonSeparator separator10;
-        private Microsoft.Office.Tools.Ribbon.RibbonTab dataImportTab;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup sqlImportGroup;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup sapImportGroup;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup sdeImportGroup;
@@ -1389,6 +1428,13 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup setupGroup;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton goToPropertiesButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton checkMacrosButton;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton updateMacrosButton;
+        public Microsoft.Office.Tools.Ribbon.RibbonTab miscTab;
+        public Microsoft.Office.Tools.Ribbon.RibbonTab pivotToolsTab;
+        public Microsoft.Office.Tools.Ribbon.RibbonTab dataImportTab;
+        internal Microsoft.Office.Tools.Ribbon.RibbonGroup pivotToolsGroup;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton combinedTableFromPvValuesButton;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton exportMacrosButton;
     }
 
     partial class ThisRibbonCollection

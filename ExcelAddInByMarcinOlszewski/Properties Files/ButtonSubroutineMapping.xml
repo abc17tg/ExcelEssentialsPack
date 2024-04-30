@@ -72,4 +72,8 @@
     <ButtonID>saveEachSheetAsSplitBtn</ButtonID>
     <Subroutine>DivideFile.SaveSheetsAsExcelFiles</Subroutine>
   </Mapping>
+  <Mapping>
+    <ButtonID>combinedTableFromPvValuesButton</ButtonID>
+    <Subroutine>PivotTablesFormat.CombinePivotTableDetailsFromSelection</Subroutine>
+  </Mapping>
 </ButtonSubroutineMappings>

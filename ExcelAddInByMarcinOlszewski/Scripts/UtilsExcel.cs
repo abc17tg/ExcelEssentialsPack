@@ -5,6 +5,7 @@ using System.Linq;
 using ExcelAddInByMarcinOlszewski;
 using System.Windows.Forms;
 using Excel = Microsoft.Office.Interop.Excel;
+using ExcelVB = Microsoft.Vbe.Interop;
 using System.Runtime.InteropServices;
 using ExcelAddInByMarcinOlszewski.Forms;
 using System.Data;
@@ -483,7 +484,7 @@ public static class UtilsExcel
         parts = Math.Min(parts, totalRows);
 
         Excel.Range headerRow = tableRng.Rows[1];
-        
+
         using (new ExcelExecutionBlock(app))
         {
             for (int i = 0; i < parts; i++)
@@ -585,7 +586,9 @@ public static class UtilsExcel
         string thousandsSeparator;
         string sWRS;
         string format;
+        List<Excel.Range> dateColumns;
 
+        string pattern = "(?=.*d)(?=.*m)(?=.*y)";
         sWRS = string.Format("{0:#,##0.00}", 1000);
         thousandsSeparator = sWRS.Substring(1, 1).Replace((char)160, ' ');
         decimalSeparator = sWRS.Substring(5, 1);
@@ -593,20 +596,40 @@ public static class UtilsExcel
         sWRS = string.Format("{0:#,##0.00}", -1);
         using (new ExcelExecutionBlock(rng.Application))
         {
+            dateColumns = rng.Columns.Cast<Excel.Range>().Where(p => (p.Cells.SpecialCellsOrDefault(Excel.XlCellType.xlCellTypeConstants) ?? p).Cast<Excel.Range>()
+            .Take(5)
+            .Any(c => Regex.IsMatch(((c.NumberFormatLocal is string ? c.NumberFormatLocal : string.Empty) as string), pattern))).ToList();
+
             if (!sWRS.StartsWith("("))
             {
                 format = "[Color49]#" + thousandsSeparator + "##0" + decimalSeparator + "00;[Color9]-#" + thousandsSeparator + "##0" + decimalSeparator + "00;[Color16]0;@";
-                if (rng.NumberFormatLocal == format)
+                if ((rng.NumberFormatLocal is string ? rng.NumberFormatLocal : string.Empty) == format)
                     format = "[Color49]#" + thousandsSeparator + "##0;[Color9]-#" + thousandsSeparator + "##0;[Color16]0;@";
                 rng.NumberFormatLocal = format;
+                if (dateColumns != null && dateColumns.Count > 0)
+                    dateColumns.ForEach(p => p.NumberFormatLocal = "[Color10]yyyy.mm.dd;@");
             }
             else
             {
                 format = "[Color49]#" + thousandsSeparator + "##0" + decimalSeparator + "00;[Color9](#" + thousandsSeparator + "##0" + decimalSeparator + "00);[Color16]0;@";
-                if (rng.NumberFormatLocal == format)
+                if ((rng.NumberFormatLocal is string ? rng.NumberFormatLocal : string.Empty) == format)
                     format = "[Color49]#" + thousandsSeparator + "##0;[Color9](#" + thousandsSeparator + "##0);[Color16]0;@";
                 rng.NumberFormatLocal = format;
+                if (dateColumns != null && dateColumns.Count > 0)
+                    dateColumns.ForEach(p => p.NumberFormatLocal = "[Color10]yyyy.mm.dd;@");
             }
+        }
+    }
+
+    public static Excel.Range SpecialCellsOrDefault(this Excel.Range rng, Excel.XlCellType cellType)
+    {
+        try
+        {
+            return rng.SpecialCells(cellType);
+        }
+        catch (COMException)
+        {
+            return null;
         }
     }
 
@@ -746,6 +769,124 @@ public static class UtilsExcel
         return dt;
     }
 
+    public static bool UpdateMacro(string fileName, Excel.Workbook wb)
+    {
+        try
+        {
+            var fileLines = File.ReadLines(fileName);
+            string[] macroName2Update = fileLines.Where(p => p.Trim().StartsWith("#")).FirstOrDefault().Trim('#', ' ').Split('.');
+
+            if (macroName2Update.Length != 2)
+                return false;
+
+
+            if (!wb.VBProject.VBComponents.Cast<ExcelVB.VBComponent>().Select(p => p.Name).Contains(macroName2Update[0]))
+            {
+                var vbc = wb.VBProject.VBComponents.Add(ExcelVB.vbext_ComponentType.vbext_ct_StdModule);
+                vbc.Name = macroName2Update[0];
+                vbc.CodeModule.InsertLines(1, "Option Explicit\n\n" + string.Join("\n", fileLines.SkipWhile(p => p.Trim() == string.Empty).Skip(1)));
+                return true;
+            }
+
+            var component = wb.VBProject.VBComponents.Item(macroName2Update[0]);
+            for (int i = 1; i < wb.VBProject.VBComponents.Item(macroName2Update[0]).CodeModule.CountOfLines; i++)
+            {
+                string macroName = component.CodeModule.ProcOfLine[i, out ExcelVB.vbext_ProcKind procKind];
+                if (!string.IsNullOrWhiteSpace(macroName) && procKind == ExcelVB.vbext_ProcKind.vbext_pk_Proc && macroName == macroName2Update[1])
+                {
+                    int startLine = component.CodeModule.ProcStartLine[macroName, procKind];
+                    component.CodeModule.DeleteLines(startLine, component.CodeModule.ProcCountLines[macroName, procKind]);
+                    component.CodeModule.InsertLines(startLine, "\n" + string.Join("\n", fileLines.SkipWhile(p => p.Trim() == string.Empty).Skip(1)));
+                    return true;
+                }
+            }
+
+            string lastLine = component.CodeModule.Lines[component.CodeModule.CountOfLines, 1];
+            component.CodeModule.ReplaceLine(component.CodeModule.CountOfLines, $"{lastLine.Trim()}\n\n{string.Join("\n", fileLines.SkipWhile(p => p.Trim() == string.Empty).Skip(1))}\n");
+
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+
+    }
+
+    public static bool UpdateModule(string fileName, Excel.Workbook wb, bool replace = false)
+    {
+        try
+        {
+            string name = Path.GetFileNameWithoutExtension(fileName);
+
+            if (!wb.VBProject.VBComponents.Cast<ExcelVB.VBComponent>().Select(p => p.Name).Contains(name))
+            {
+                wb.VBProject.VBComponents.Import(fileName);
+                return true;
+            }
+
+            ExcelVB.VBComponent oldComponent = wb.VBProject.VBComponents.Item(name);
+
+            if (replace)
+            {
+                wb.VBProject.VBComponents.Remove(oldComponent);
+                wb.VBProject.VBComponents.Import(fileName);
+                return true;
+            }
+
+            string nameOfOldModule = name + "_old";
+            string oldBaseName = nameOfOldModule;
+            int j = 1;
+            while (wb.VBProject.VBComponents.Cast<ExcelVB.VBComponent>().Select(p => p.Name).Contains(nameOfOldModule))
+                nameOfOldModule = oldBaseName + j++;
+
+
+            oldComponent.Name = nameOfOldModule;
+            ExcelVB.VBComponent newComponent = wb.VBProject.VBComponents.Import(fileName);
+
+            Dictionary<string, string> oldModuleMacros = new Dictionary<string, string>();
+            List<string> newModuleMacros = new List<string>();
+
+            for (int i = 1; i < newComponent.CodeModule.CountOfLines; i++)
+            {
+                string macroName = newComponent.CodeModule.ProcOfLine[i, out ExcelVB.vbext_ProcKind procKind];
+                if (!string.IsNullOrWhiteSpace(macroName))
+                {
+                    newModuleMacros.Add(macroName);
+                    i += newComponent.CodeModule.ProcCountLines[macroName, procKind] - 1;
+                }
+            }
+
+            for (int i = 1; i < oldComponent.CodeModule.CountOfLines; i++)
+            {
+                string macroName = oldComponent.CodeModule.ProcOfLine[i, out ExcelVB.vbext_ProcKind procKind];
+                if (!string.IsNullOrWhiteSpace(macroName))
+                {
+                    oldModuleMacros.Add(macroName, oldComponent.CodeModule.Lines[oldComponent.CodeModule.ProcStartLine[macroName, procKind], oldComponent.CodeModule.ProcCountLines[macroName, procKind]]);
+                    i += oldComponent.CodeModule.ProcCountLines[macroName, procKind] - 1;
+                }
+            }
+
+            if (newModuleMacros.OrderBy(p => p) == oldModuleMacros.Select(p => p.Key.ToString()).ToList().OrderBy(p => p))
+            {
+                wb.VBProject.VBComponents.Remove(oldComponent);
+                return true;
+            }
+
+            string extraMacros = string.Join("\n\n", oldModuleMacros.Keys.Where(p => !newModuleMacros.Contains(p)).Select(p => oldModuleMacros[p].Trim()).ToList());
+            //newComponent.CodeModule.InsertLines(newComponent.CodeModule.CountOfLines, "\n" + extraMacros);
+            string lastLine = newComponent.CodeModule.Lines[newComponent.CodeModule.CountOfLines, 1];
+            newComponent.CodeModule.ReplaceLine(newComponent.CodeModule.CountOfLines, $"{lastLine.Trim()}\n\n{extraMacros}\n");
+
+            wb.VBProject.VBComponents.Remove(oldComponent);
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
     public static bool Exists<T>(this T worksheet) where T : Excel.Worksheet
     {
         try
@@ -753,8 +894,6 @@ public static class UtilsExcel
             if (worksheet == null)
                 return false;
 
-            // Attempt to access a property of the worksheet.
-            // If the worksheet has been deleted, accessing any of its properties or methods should throw a COMException.
             var testName = worksheet.Name;
             var testRowsCount = worksheet.Rows.Count;
             // If no exception is thrown, then the worksheet is still valid.
@@ -767,9 +906,6 @@ public static class UtilsExcel
         }
         catch (Exception)
         {
-            // Catch any other unexpected exceptions. Depending on your specific needs,
-            // you might want to handle these differently or rethrow them.
-            // For the purpose of this example, we'll return false to indicate the worksheet is not valid.
             return false;
         }
     }
@@ -781,23 +917,65 @@ public static class UtilsExcel
             if (rng == null || rng.Cells.Count < 1)
                 return false;
 
-            // Attempt to access a property of the range.
-            // If the worksheet has been deleted, accessing any of its properties or methods should throw a COMException.
             var testAddress = rng.Address;
-            // If no exception is thrown, then the worksheet is still valid.
+            // If no exception is thrown, then the range is still valid.
             return true;
         }
         catch (System.Runtime.InteropServices.COMException)
         {
-            // If a COMException is caught, it's likely because the worksheet no longer exists.
+            // If a COMException is caught, it's likely because the range no longer exists.
             return false;
         }
         catch (Exception)
         {
-            // Catch any other unexpected exceptions. Depending on your specific needs,
-            // you might want to handle these differently or rethrow them.
-            // For the purpose of this example, we'll return false to indicate the worksheet is not valid.
             return false;
+        }
+    }
+
+    public static string ExportMacros(this Excel.Workbook wb, string path = "")
+    {
+        try
+        {
+            if (path == string.Empty || !Directory.Exists(path))
+            {
+                using (var folderBrowserDialog = new FolderBrowserDialog())
+                {
+                    DialogResult result = folderBrowserDialog.ShowDialog();
+
+                    if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(folderBrowserDialog.SelectedPath))
+                    {
+                        string selectedPath = folderBrowserDialog.SelectedPath;
+                        string newDirectoryName = Path.GetFileNameWithoutExtension(wb.FullName);
+                        string newPath = Path.Combine(selectedPath, newDirectoryName);
+                        int i = 1;
+                        while (Directory.Exists(newPath))
+                        {
+                            newPath = Path.Combine(selectedPath, newDirectoryName + $" ({i})");
+                        }
+                        path = Directory.CreateDirectory(newPath).FullName;
+                    }
+                }
+            }
+
+            foreach (var comp in wb.VBProject.VBComponents.Cast<ExcelVB.VBComponent>().Where(p => p.Type == ExcelVB.vbext_ComponentType.vbext_ct_StdModule || p.Type == ExcelVB.vbext_ComponentType.vbext_ct_ClassModule || p.Type == ExcelVB.vbext_ComponentType.vbext_ct_MSForm))
+            {
+                comp.Export(Path.Combine(path, comp.Name + ".bas"));
+            }
+
+            foreach (var comp in wb.VBProject.VBComponents.Cast<ExcelVB.VBComponent>().Where(p => p.Type == ExcelVB.vbext_ComponentType.vbext_ct_MSForm))
+            {
+                comp.Export(Path.Combine(path, comp.Name + ".frm"));
+            }
+
+            return path;
+        }
+        catch (COMException)
+        {
+            return string.Empty;
+        }
+        catch (Exception)
+        {
+            return string.Empty;
         }
     }
 }

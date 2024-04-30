@@ -156,7 +156,7 @@ namespace ExcelAddInByMarcinOlszewski.Forms
                     case Type.Rows:
                         foreach (var row in rng.Rows.Cast<Excel.Range>())
                         {
-                            if (row.Cells.Cast<Excel.Range>().Any(p => p.Value2 != null && p.Value2.ToString().Contains(searchWordTextBox.Text)))
+                            if (row.Cells.Cast<Excel.Range>().Any(p => p.Value2 != null && (p.Value2.ToString().Contains(searchWordTextBox.Text) || p.Text.ToString().Contains(searchWordTextBox.Text))))
                             {
                                 row.Interior.Color = Color;
                                 if (invertFontColorCheckBox.Checked)
@@ -167,7 +167,7 @@ namespace ExcelAddInByMarcinOlszewski.Forms
                     case Type.Colums:
                         foreach (var col in rng.Columns.Cast<Excel.Range>())
                         {
-                            if (col.Cells.Cast<Excel.Range>().Any(p => p.Value2 != null && p.Value2.ToString().Contains(searchWordTextBox.Text)))
+                            if (col.Cells.Cast<Excel.Range>().Any(p => p.Value2 != null && (p.Value2.ToString().Contains(searchWordTextBox.Text) || p.Text.ToString().Contains(searchWordTextBox.Text))))
                             {
                                 col.Interior.Color = Color;
                                 if (invertFontColorCheckBox.Checked)
@@ -178,7 +178,7 @@ namespace ExcelAddInByMarcinOlszewski.Forms
                     case Type.Cells:
                         foreach (var cell in rng.Cells.Cast<Excel.Range>())
                         {
-                            if (cell.Value2 != null && cell.Value2.ToString().Contains(searchWordTextBox.Text))
+                            if (cell.Value2 != null && (cell.Value2.ToString().Contains(searchWordTextBox.Text) || cell.Text.ToString().Contains(searchWordTextBox.Text)))
                             {
                                 cell.Interior.Color = Color;
                                 if (invertFontColorCheckBox.Checked)

@@ -9,25 +9,25 @@ namespace ExcelAddInByMarcinOlszewski
     {
         private void generatePivotTemlateCodeButton_Click(object sender, RibbonControlEventArgs e)
         {
-            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as Button).Name, m_macroWorkbook));
+            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Name, m_macroWorkbook));
             //UtilsExcel.RunMacro("PivotTablesTemplates.GenerateCreatePivotTableCode");
         }
 
         private void formatClickedPivotButton_Click(object sender, RibbonControlEventArgs e)
         {
-            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as Button).Name, m_macroWorkbook));
+            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Name, m_macroWorkbook));
             //UtilsExcel.RunMacro("PivotTablesFormat.FormatSelectedPivotTableDesign");
         }
 
         private void formatAllPivotButton_Click(object sender, RibbonControlEventArgs e)
         {
-            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as Button).Name, m_macroWorkbook));
+            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Name, m_macroWorkbook));
             //UtilsExcel.RunMacro("PivotTablesFormat.FormatAllPivotTableDesign");
         }
 
         private void refreshPivotsButton_Click(object sender, RibbonControlEventArgs e)
         {
-            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as Button).Name, m_macroWorkbook));
+            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Name, m_macroWorkbook));
             //UtilsExcel.RunMacro("PivotTablesFormat.RefreshPivotTables");
         }
 
@@ -35,6 +35,12 @@ namespace ExcelAddInByMarcinOlszewski
         {
             PvTemplatesListForm pvTemplatesListForm = new PvTemplatesListForm(m_macroWorkbook);
             pvTemplatesListForm.ShowDialog();
+        }
+
+        private void combinedTableFromPvValuesButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Name, m_macroWorkbook));
+            //UtilsExcel.RunMacro("PivotTablesFormat.FormatSelectedPivotTableDesign");
         }
     }
 }
