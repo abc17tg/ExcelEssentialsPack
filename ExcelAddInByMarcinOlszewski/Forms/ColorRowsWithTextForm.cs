@@ -117,7 +117,7 @@ namespace ExcelAddInByMarcinOlszewski.Forms
 
         private void okBtn_Click(object sender, EventArgs e)
         {
-            Excel.Range rng = m_app.ActiveWindow.RangeSelection;
+            Excel.Range rng = m_app.ActiveWindow.RangeSelection.GetUsableRange();
             ColorRange(rng, RangeType);
             this.Close();
         }

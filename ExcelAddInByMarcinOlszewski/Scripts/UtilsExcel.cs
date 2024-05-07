@@ -887,6 +887,42 @@ public static class UtilsExcel
         }
     }
 
+    public static void HideRangeWithText(Excel.Range rng, string text, DirectionType type)
+    {
+        if (!rng.Valid() || string.IsNullOrWhiteSpace(text))
+            return;
+        using (new ExcelExecutionBlock(rng.Application))
+        {
+            switch (type)
+            {
+                case DirectionType.Rows:
+                    foreach (var row in rng.Rows.Cast<Excel.Range>())
+                    {
+                        if (row.Cells.Cast<Excel.Range>().Any(p => p.Value2 != null && (p.Value2.ToString() == text || p.Text.ToString() == text)))
+                            row.Hidden = true;
+                    }
+                    break;
+                case DirectionType.Colums:
+                    foreach (var col in rng.Columns.Cast<Excel.Range>())
+                    {
+                        if (col.Cells.Cast<Excel.Range>().Any(p => p.Value2 != null && (p.Value2.ToString() == text || p.Text.ToString() == text)))
+                            col.Hidden = true;
+                    }
+                    break;
+                case DirectionType.Cells:
+                default:
+                    return;
+            }
+        }
+    }
+
+    public enum DirectionType
+    {
+        Cells,
+        Colums,
+        Rows
+    }
+
     public static bool Exists<T>(this T worksheet) where T : Excel.Worksheet
     {
         try
@@ -929,6 +965,77 @@ public static class UtilsExcel
         catch (Exception)
         {
             return false;
+        }
+    }
+
+    public static Excel.Range GetUsableRange<T>(this T rng) where T : Excel.Range
+    {
+        if (!rng.Valid())
+            return null;
+
+        Excel.Range intersection = rng.Application.Intersect(rng, rng.Worksheet.UsedRange);
+
+        if (!intersection.Valid())
+            return null;
+
+        return intersection;
+    }
+
+    public static void ChangeToText<T>(this T rng) where T : Excel.Range
+    {
+        if (!rng.Valid())
+            return;
+
+        using (new ExcelExecutionBlock(rng.Application))
+        {
+            rng.NumberFormat = "General";
+            foreach (Excel.Range col in rng.Columns)
+            {
+                try
+                {
+                    col.TextToColumns(
+                        DataType: Excel.XlTextParsingType.xlDelimited,
+                        TextQualifier: Excel.XlTextQualifier.xlTextQualifierNone,
+                        ConsecutiveDelimiter: false,
+                        Tab: false,
+                        Semicolon: false,
+                        Comma: false,
+                        Space: false,
+                        Other: false,
+                        FieldInfo: new object[] { new object[] { 1, Excel.XlColumnDataType.xlTextFormat } }
+                    );
+                }
+                catch (Exception) { }
+            }
+        }
+    }
+
+    public static void ChangeToValue<T>(this T rng) where T : Excel.Range
+    {
+        if (!rng.Valid())
+            return;
+
+        using (new ExcelExecutionBlock(rng.Application))
+        {
+            rng.NumberFormat = "General";
+            foreach (Excel.Range col in rng.Columns)
+            {
+                try
+                {
+                    col.TextToColumns(
+                        DataType: Excel.XlTextParsingType.xlDelimited,
+                        TextQualifier: Excel.XlTextQualifier.xlTextQualifierNone,
+                        ConsecutiveDelimiter: false,
+                        Tab: false,
+                        Semicolon: false,
+                        Comma: false,
+                        Space: false,
+                        Other: false,
+                        FieldInfo: new object[] { new object[] { 1, Excel.XlColumnDataType.xlGeneralFormat } }
+                    );
+                }
+                catch (Exception) { }
+            }
         }
     }
 

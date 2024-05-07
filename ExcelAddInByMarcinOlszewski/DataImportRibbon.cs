@@ -34,7 +34,7 @@ namespace ExcelAddInByMarcinOlszewski
                 return;
 
             Excel.Application app = Globals.ThisAddIn.Application;
-            Excel.Range rng = app.ActiveWindow.RangeSelection;
+            Excel.Range rng = app.ActiveWindow.RangeSelection.GetUsableRange();
 
             if (!rng.Valid() || rng.Columns.Count > 1 || rng.Cells.Count > 50000)
                 return;

@@ -43,6 +43,7 @@
             // 
             // dataGridView
             // 
+            this.dataGridView.AllowUserToAddRows = false;
             this.dataGridView.AllowUserToOrderColumns = true;
             this.dataGridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.ColumnHeader;
             dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
@@ -53,11 +54,12 @@
             dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
             dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
             this.dataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
-            this.dataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            this.dataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.parametersTableLayoutPanel.SetColumnSpan(this.dataGridView, 4);
             this.dataGridView.Cursor = System.Windows.Forms.Cursors.Cross;
             this.dataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridView.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnF2;
+            this.dataGridView.ImeMode = System.Windows.Forms.ImeMode.On;
             this.dataGridView.Location = new System.Drawing.Point(3, 33);
             this.dataGridView.Name = "dataGridView";
             this.dataGridView.Size = new System.Drawing.Size(1025, 379);
@@ -99,6 +101,7 @@
             this.headersCheckBox.TabIndex = 28;
             this.headersCheckBox.Text = "Headers";
             this.headersCheckBox.UseVisualStyleBackColor = true;
+            this.headersCheckBox.CheckedChanged += new System.EventHandler(this.headersCheckBox_CheckedChanged);
             // 
             // pasteButton
             // 

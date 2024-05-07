@@ -13,9 +13,13 @@ namespace ExcelAddInByMarcinOlszewski.Forms
         public string Query;
         Excel.Application ExcelApp;
 
+        private NumberFormatInfo m_nfi;
+
         public DataTableForm(DataTable dataTable, string query, Excel.Application app)
         {
             InitializeComponent();
+            m_nfi = new CultureInfo("en-US", false).NumberFormat;
+            m_nfi.NumberGroupSeparator = " ";
             DataTable = dataTable;
             Query = query;
             ExcelApp = app;
@@ -23,9 +27,8 @@ namespace ExcelAddInByMarcinOlszewski.Forms
             dataGridView.AutoGenerateColumns = true;
             dataGridView.DataSource = DataTable;
             dataGridView.RowPostPaint += dataGridView_RowPostPaint;
-            var nfi = new CultureInfo("en-US", false).NumberFormat;
-            nfi.NumberGroupSeparator = " ";
-            dataTableDimentionsLabel.Text = $"Rows: {(DataTable.Rows.Count + (headersCheckBox.Checked ? 1 : 0)).ToString("N0", nfi)}\nColumns: {DataTable.Columns.Count.ToString("N0", nfi)}";
+            dataGridView.ReadOnly = false;
+            RefreshDimentions();
         }
 
         private void dataGridView_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
@@ -72,6 +75,16 @@ namespace ExcelAddInByMarcinOlszewski.Forms
         {
             /*dataGridView.DataSource = DataTable;
             dataGridView.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.ColumnHeader);*/
+        }
+
+        private void RefreshDimentions()
+        {
+            dataTableDimentionsLabel.Text = $"{(headersCheckBox.Checked ? "Rows with headers" : "Rows")}: {(DataTable.Rows.Count + (headersCheckBox.Checked ? 1 : 0)).ToString("N0", m_nfi)}\nColumns: {DataTable.Columns.Count.ToString("N0", m_nfi)}";
+        }
+
+        private void headersCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            RefreshDimentions();
         }
     }
 }

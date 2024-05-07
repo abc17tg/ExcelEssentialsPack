@@ -65,7 +65,8 @@
             this.filterColumnFromRangeNotInRangeButton = this.Factory.CreateRibbonButton();
             this.filterColumnInRegexButton = this.Factory.CreateRibbonButton();
             this.filterColumnNotInRegexButton = this.Factory.CreateRibbonButton();
-            this.hideRowsWithTextButton = this.Factory.CreateRibbonButton();
+            this.hideRowsWithTextSplitButton = this.Factory.CreateRibbonSplitButton();
+            this.hideColumnsWithTextButton = this.Factory.CreateRibbonButton();
             this.takeRowsWithTextButton = this.Factory.CreateRibbonButton();
             this.validationGroup = this.Factory.CreateRibbonGroup();
             this.colorRowsUniqueButton = this.Factory.CreateRibbonButton();
@@ -85,6 +86,7 @@
             this.saveThisWorksheetAsTxt = this.Factory.CreateRibbonButton();
             this.divideTableToPartsAndSaveButton = this.Factory.CreateRibbonButton();
             this.getFilePathButton = this.Factory.CreateRibbonButton();
+            this.exportMacrosButton = this.Factory.CreateRibbonButton();
             this.separator2 = this.Factory.CreateRibbonSeparator();
             this.deleteWorksheetButton = this.Factory.CreateRibbonButton();
             this.deleteOtherWorksheetsButton = this.Factory.CreateRibbonButton();
@@ -157,7 +159,6 @@
             this.browserButton = this.Factory.CreateRibbonButton();
             this.browserWebsitesComboBox = this.Factory.CreateRibbonComboBox();
             this.importFromBrowserCheckBox = this.Factory.CreateRibbonCheckBox();
-            this.exportMacrosButton = this.Factory.CreateRibbonButton();
             this.miscTab.SuspendLayout();
             this.importGroup.SuspendLayout();
             this.modifiersGroup.SuspendLayout();
@@ -402,7 +403,7 @@
             // filterGroup
             // 
             this.filterGroup.Items.Add(this.filterColumnSplitButton);
-            this.filterGroup.Items.Add(this.hideRowsWithTextButton);
+            this.filterGroup.Items.Add(this.hideRowsWithTextSplitButton);
             this.filterGroup.Items.Add(this.takeRowsWithTextButton);
             this.filterGroup.Label = "Filtering";
             this.filterGroup.Name = "filterGroup";
@@ -471,15 +472,25 @@
             this.filterColumnNotInRegexButton.SuperTip = resources.GetString("filterColumnNotInRegexButton.SuperTip");
             this.filterColumnNotInRegexButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.filterColumnNotInRegexButton_Click);
             // 
-            // hideRowsWithTextButton
+            // hideRowsWithTextSplitButton
             // 
-            this.hideRowsWithTextButton.Label = "Hide rows with text";
-            this.hideRowsWithTextButton.Name = "hideRowsWithTextButton";
-            this.hideRowsWithTextButton.OfficeImageId = "GroupTableMerge";
-            this.hideRowsWithTextButton.ShowImage = true;
-            this.hideRowsWithTextButton.SuperTip = "Will show dialog that will ask for text and it will hide all the entire rows from" +
+            this.hideRowsWithTextSplitButton.Items.Add(this.hideColumnsWithTextButton);
+            this.hideRowsWithTextSplitButton.Label = "Hide rows with text";
+            this.hideRowsWithTextSplitButton.Name = "hideRowsWithTextSplitButton";
+            this.hideRowsWithTextSplitButton.OfficeImageId = "GroupTableMerge";
+            this.hideRowsWithTextSplitButton.SuperTip = "Will show dialog that will ask for text and it will hide all the entire rows from" +
     " selected square range ";
-            this.hideRowsWithTextButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.hideRowsWithTextButton_Click);
+            this.hideRowsWithTextSplitButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.hideRowsWithTextSplitButton_Click);
+            // 
+            // hideColumnsWithTextButton
+            // 
+            this.hideColumnsWithTextButton.Label = "Hide columns with text";
+            this.hideColumnsWithTextButton.Name = "hideColumnsWithTextButton";
+            this.hideColumnsWithTextButton.OfficeImageId = "GroupTableMerge";
+            this.hideColumnsWithTextButton.ShowImage = true;
+            this.hideColumnsWithTextButton.SuperTip = "Will show dialog that will ask for text and it will hide all the entire columns f" +
+    "rom selected square range ";
+            this.hideColumnsWithTextButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.hideColumnsWithTextButton_Click);
             // 
             // takeRowsWithTextButton
             // 
@@ -666,6 +677,15 @@
             this.getFilePathButton.ShowImage = true;
             this.getFilePathButton.SuperTip = "Paste file path of workbook into selected cell";
             this.getFilePathButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.getFilePathButton_Click);
+            // 
+            // exportMacrosButton
+            // 
+            this.exportMacrosButton.Label = "Export macros";
+            this.exportMacrosButton.Name = "exportMacrosButton";
+            this.exportMacrosButton.OfficeImageId = "FileMenuPublishHeader";
+            this.exportMacrosButton.ScreenTip = "It will export macros from choosen Workbook to filder in Downloads folder.";
+            this.exportMacrosButton.ShowImage = true;
+            this.exportMacrosButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.exportMacrosButton_Click);
             // 
             // separator2
             // 
@@ -1254,15 +1274,6 @@
             this.importFromBrowserCheckBox.Name = "importFromBrowserCheckBox";
             this.importFromBrowserCheckBox.SuperTip = "Auto import downloaded Excel files and txt/csv files";
             // 
-            // exportMacrosButton
-            // 
-            this.exportMacrosButton.Label = "Export macros";
-            this.exportMacrosButton.Name = "exportMacrosButton";
-            this.exportMacrosButton.OfficeImageId = "FileMenuPublishHeader";
-            this.exportMacrosButton.ScreenTip = "It will export macros from choosen Workbook to filder in Downloads folder.";
-            this.exportMacrosButton.ShowImage = true;
-            this.exportMacrosButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.exportMacrosButton_Click);
-            // 
             // MiscRibbon
             // 
             this.Name = "MiscRibbon";
@@ -1325,7 +1336,7 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonButton formatNumberButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup filterGroup;
         internal Microsoft.Office.Tools.Ribbon.RibbonSplitButton filterColumnSplitButton;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton hideRowsWithTextButton;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton hideColumnsWithTextButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton takeRowsWithTextButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup validationGroup;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton colorRowsUniqueButton;
@@ -1435,6 +1446,7 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup pivotToolsGroup;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton combinedTableFromPvValuesButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton exportMacrosButton;
+        internal Microsoft.Office.Tools.Ribbon.RibbonSplitButton hideRowsWithTextSplitButton;
     }
 
     partial class ThisRibbonCollection

@@ -62,8 +62,9 @@ namespace ExcelAddInByMarcinOlszewski.Forms
             sqlEditorScintilla.ContextMenu = cm;
 
             m_excelApp = application;
-            if (m_excelApp.ActiveWindow.RangeSelection != null)
-                Table = m_excelApp.ActiveWindow.RangeSelection.GetDataTable(dataHasHeadersCheckBox.Checked);
+            Excel.Range rng = m_excelApp.ActiveWindow.RangeSelection.GetUsableRange();
+            if (rng.Valid())
+                Table = rng.GetDataTable(dataHasHeadersCheckBox.Checked);
         }
 
 
@@ -94,14 +95,16 @@ namespace ExcelAddInByMarcinOlszewski.Forms
 
         private void PasteRng()
         {
-            if (m_excelApp.Selection is Excel.Range)
-                sqlEditorScintilla.ReplaceSelection(UtilsExcel.FormatRangeToSqlPattern(m_excelApp.Selection));
+            Excel.Range rng = m_excelApp.ActiveWindow.RangeSelection;
+            if (rng.Valid())
+                sqlEditorScintilla.ReplaceSelection(UtilsExcel.FormatRangeToSqlPattern(rng));
         }
 
         private void loadButton_Click(object sender, EventArgs e)
         {
-            if (m_excelApp.ActiveWindow.RangeSelection != null)
-                Table = m_excelApp.ActiveWindow.RangeSelection.GetDataTable(dataHasHeadersCheckBox.Checked);
+            Excel.Range rng = m_excelApp.ActiveWindow.RangeSelection;
+            if (rng.Valid())
+                Table = rng.GetDataTable(dataHasHeadersCheckBox.Checked);
         }
 
         private void runBtn_Click(object sender, EventArgs e)

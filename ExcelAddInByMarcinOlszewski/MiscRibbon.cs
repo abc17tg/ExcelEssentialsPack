@@ -92,58 +92,14 @@ namespace ExcelAddInByMarcinOlszewski
         {
             //Utils.RunMacro("ConvertSelectedRangeToText");
             Excel.Application app = Globals.ThisAddIn.Application;
-            using (new ExcelExecutionBlock(app))
-            {
-                Excel.Range rng = app.ActiveWindow.RangeSelection;
-                rng.NumberFormat = "General";
-                foreach (Excel.Range col in rng.Columns)
-                {
-                    try
-                    {
-                        col.TextToColumns(
-                        DataType: Excel.XlTextParsingType.xlDelimited,
-                        TextQualifier: Excel.XlTextQualifier.xlTextQualifierNone,
-                        ConsecutiveDelimiter: false,
-                        Tab: false,
-                        Semicolon: false,
-                        Comma: false,
-                        Space: false,
-                        Other: false,
-                        FieldInfo: new object[] { new object[] { 1, Excel.XlColumnDataType.xlTextFormat } }
-                    );
-                    }
-                    catch { }
-                }
-            }
+            app.ActiveWindow.RangeSelection.GetUsableRange().ChangeToText();
         }
 
         private void changeToValueButton_Click(object sender, RibbonControlEventArgs e)
         {
             //Utils.RunMacro("ConvertSelectedRangeToValues");
             Excel.Application app = Globals.ThisAddIn.Application;
-            using (new ExcelExecutionBlock(app))
-            {
-                Excel.Range rng = app.ActiveWindow.RangeSelection;
-                rng.NumberFormat = "General";
-                foreach (Excel.Range col in rng.Columns)
-                {
-                    try
-                    {
-                        col.TextToColumns(
-                        DataType: Excel.XlTextParsingType.xlDelimited,
-                        TextQualifier: Excel.XlTextQualifier.xlTextQualifierNone,
-                        ConsecutiveDelimiter: false,
-                        Tab: false,
-                        Semicolon: false,
-                        Comma: false,
-                        Space: false,
-                        Other: false,
-                        FieldInfo: new object[] { new object[] { 1, Excel.XlColumnDataType.xlGeneralFormat } }
-                    );
-                    }
-                    catch { }
-                }
-            }
+            app.ActiveWindow.RangeSelection.GetUsableRange().ChangeToValue();
         }
 
         private void evaluateFormulaButton_Click(object sender, RibbonControlEventArgs e)
@@ -193,10 +149,20 @@ namespace ExcelAddInByMarcinOlszewski
 
         }
 
-        private void hideRowsWithTextButton_Click(object sender, RibbonControlEventArgs e)
+        private void hideRowsWithTextSplitButton_Click(object sender, RibbonControlEventArgs e)
         {
-            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
+            Excel.Application app = Globals.ThisAddIn.Application;
+            string text = Microsoft.VisualBasic.Interaction.InputBox("Type text that will hide rows with it in cell", "Text input", string.Empty);
+            UtilsExcel.HideRangeWithText(app.ActiveWindow.RangeSelection.GetUsableRange(), text, UtilsExcel.DirectionType.Rows);
+            //UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonSplitButton).Id, m_macroWorkbook));
             //UtilsExcel.RunMacro("HideRows.HideRowsWithValue");
+        }
+
+        private void hideColumnsWithTextButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            Excel.Application app = Globals.ThisAddIn.Application;
+            string text = Microsoft.VisualBasic.Interaction.InputBox("Type text that will hide columns with it in cell", "Text input", string.Empty);
+            UtilsExcel.HideRangeWithText(app.ActiveWindow.RangeSelection.GetUsableRange(), text, UtilsExcel.DirectionType.Colums);
         }
 
         private void takeRowsWithTextButton_Click(object sender, RibbonControlEventArgs e)
@@ -222,7 +188,8 @@ namespace ExcelAddInByMarcinOlszewski
             try
             {
                 Excel.Application app = Globals.ThisAddIn.Application;
-                Excel.Range rng = app.ActiveWindow.RangeSelection.Columns[1];
+                Excel.Range rngSel = app.ActiveWindow.RangeSelection.GetUsableRange();
+                Excel.Range rng = rngSel.Columns[1];
                 Dictionary<string, Color> valueColorD = new Dictionary<string, Color>();
                 List<string> values;
                 values = rng.Cells.Cast<Excel.Range>().Select(p => ((object)p.Value)?.ToString() ?? "").Distinct().ToList();
@@ -233,16 +200,16 @@ namespace ExcelAddInByMarcinOlszewski
 
                 using (new ExcelExecutionBlock(app))
                 {
-                    app.ActiveWindow.RangeSelection.Borders.LineStyle = Excel.XlLineStyle.xlLineStyleNone;
+                    rngSel.Borders.LineStyle = Excel.XlLineStyle.xlLineStyleNone;
 
-                    foreach (Excel.Range r in app.ActiveWindow.RangeSelection.Rows.Cast<Excel.Range>())
+                    foreach (Excel.Range r in rngSel.Rows.Cast<Excel.Range>())
                         r.Interior.Color = valueColorD[((object)r.Columns[1].Value)?.ToString() ?? ""];
 
                     Excel.Range row;
                     string val = null, oldVal = null;
-                    for (int i = 1; i <= app.ActiveWindow.RangeSelection.Rows.Count; i++)
+                    for (int i = 1; i <= rngSel.Rows.Count; i++)
                     {
-                        row = app.ActiveWindow.RangeSelection.Rows[i] as Excel.Range;
+                        row = rngSel.Rows[i] as Excel.Range;
                         oldVal = val;
                         val = ((object)row.Columns[1].Value)?.ToString() ?? "";
                         row.Interior.Color = valueColorD[val];
@@ -260,7 +227,7 @@ namespace ExcelAddInByMarcinOlszewski
                     }
                 }
             }
-            catch { }
+            catch(Exception) { }
         }
 
         private void colorRowsButton_Click(object sender, RibbonControlEventArgs e)
@@ -278,25 +245,25 @@ namespace ExcelAddInByMarcinOlszewski
         private void filterColumnInRangeSplitButton_Click(object sender, RibbonControlEventArgs e)
         {
             Excel.Application app = Globals.ThisAddIn.Application;
-            UtilsExcel.FilterByRange(app.Selection);
+            UtilsExcel.FilterByRange(app.ActiveWindow.RangeSelection);
         }
 
         private void filterColumnNotInRangeButton_Click(object sender, RibbonControlEventArgs e)
         {
             Excel.Application app = Globals.ThisAddIn.Application;
-            UtilsExcel.FilterByRange(app.Selection, true);
+            UtilsExcel.FilterByRange(app.ActiveWindow.RangeSelection, true);
         }
 
         private void filterColumnFromRangeInRangeButton_Click(object sender, RibbonControlEventArgs e)
         {
             Excel.Application app = Globals.ThisAddIn.Application;
-            UtilsExcel.FilterByRange(app.Selection, false, true);
+            UtilsExcel.FilterByRange(app.ActiveWindow.RangeSelection, false, true);
         }
 
         private void filterColumnFromRangeNotInRangeButton_Click(object sender, RibbonControlEventArgs e)
         {
             Excel.Application app = Globals.ThisAddIn.Application;
-            UtilsExcel.FilterByRange(app.Selection, true, true);
+            UtilsExcel.FilterByRange(app.ActiveWindow.RangeSelection, true, true);
         }
 
         private void sortingAbsButton_Click(object sender, RibbonControlEventArgs e)
@@ -309,13 +276,13 @@ namespace ExcelAddInByMarcinOlszewski
         private void filterColumnInRegexButton_Click(object sender, RibbonControlEventArgs e)
         {
             Excel.Application app = Globals.ThisAddIn.Application;
-            UtilsExcel.FilterByRegex(app.Selection, false);
+            UtilsExcel.FilterByRegex(app.ActiveWindow.RangeSelection, false);
         }
 
         private void filterColumnNotInRegexButton_Click(object sender, RibbonControlEventArgs e)
         {
             Excel.Application app = Globals.ThisAddIn.Application;
-            UtilsExcel.FilterByRegex(app.Selection, true);
+            UtilsExcel.FilterByRegex(app.ActiveWindow.RangeSelection, true);
         }
 
         private void saveEachWorksheetsAsTxtButton_Click(object sender, RibbonControlEventArgs e)
@@ -544,14 +511,14 @@ namespace ExcelAddInByMarcinOlszewski
 
         private void copyAsPictureButton_Click(object sender, RibbonControlEventArgs e)
         {
-            (Globals.ThisAddIn.Application.Selection as Excel.Range).CopyPicture(Excel.XlPictureAppearance.xlScreen,
+            Globals.ThisAddIn.Application.Selection.GetUsableRange().CopyPicture(Excel.XlPictureAppearance.xlScreen,
                 Excel.XlCopyPictureFormat.xlBitmap);
         }
 
         private void removeDuplicatesButton_Click(object sender, RibbonControlEventArgs e)
         {
             Excel.Application app = Globals.ThisAddIn.Application;
-            Excel.Range rng = app.ActiveWindow.RangeSelection;
+            Excel.Range rng = app.ActiveWindow.RangeSelection.GetUsableRange();
 
             if (!rng.Valid())
                 return;
@@ -723,5 +690,6 @@ namespace ExcelAddInByMarcinOlszewski
                 }
             }
         }
+
     }
 }

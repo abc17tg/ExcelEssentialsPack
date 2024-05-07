@@ -154,16 +154,18 @@ namespace ExcelAddInByMarcinOlszewski
 
         private void pasteRngBtn_Click(object sender, EventArgs e)
         {
-            if (App.Selection is Excel.Range)
-                sqlEditorScintilla.ReplaceSelection(UtilsExcel.FormatRangeToSqlPattern(App.Selection));
+            Excel.Range rng = App.ActiveWindow.RangeSelection;
+            if (rng.Valid())
+                sqlEditorScintilla.ReplaceSelection(UtilsExcel.FormatRangeToSqlPattern(rng));
         }
 
         private void pasteRngFilterBtn_Click(object sender, EventArgs e)
         {
-            if (!(App.Selection is Excel.Range))
+            Excel.Range rng = App.ActiveWindow.RangeSelection;
+            if (!rng.Valid())
                 return;
 
-            string rngText = UtilsExcel.GenerateSqlFilterFromExcelSelection(App.Selection);
+            string rngText = UtilsExcel.GenerateSqlFilterFromExcelSelection(rng);
             if (!string.IsNullOrEmpty(rngText))
                 sqlEditorScintilla.ReplaceSelection(rngText);
         }
@@ -211,7 +213,7 @@ namespace ExcelAddInByMarcinOlszewski
             else if (!pasteResultsToSelectionCheckBox.Checked)
                 runQuery = new Task(() => SqlServerManager.GetDataFromServerToNewSheet(query, SqlConn, PasteHeaders, NewSheetName == m_sheetNameTextBoxPlaceholder ? DefaultSheetName : NewSheetName));
             else
-                runQuery = new Task(() => SqlServerManager.GetDataFromServerToSelection(query, SqlConn, App.Selection as Excel.Range, PasteHeaders));
+                runQuery = new Task(() => SqlServerManager.GetDataFromServerToSelection(query, SqlConn, App.ActiveWindow.RangeSelection, PasteHeaders));
 
             if (++RunningQueries == 1)
                 Text = $"{FormTitle} [{RunningQueries}] running queries";
