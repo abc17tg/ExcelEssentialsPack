@@ -182,13 +182,16 @@ namespace ExcelAddInByMarcinOlszewski
             };*/
         }
 
-        private void colorRowsUniqueButton_Click(object sender, RibbonControlEventArgs e)
+        private void colorRowsUniqueSplitButton_Click(object sender, RibbonControlEventArgs e)
         {
             //Utils.RunMacro("ColorSelectedRowsUnique");
             try
             {
                 Excel.Application app = Globals.ThisAddIn.Application;
                 Excel.Range rngSel = app.ActiveWindow.RangeSelection.GetUsableRange();
+                if (rngSel == null)
+                    return;
+
                 Excel.Range rng = rngSel.Columns[1];
                 Dictionary<string, Color> valueColorD = new Dictionary<string, Color>();
                 List<string> values;
@@ -197,6 +200,10 @@ namespace ExcelAddInByMarcinOlszewski
                 colorsList.Shuffle();
                 for (int i = 0; i < values.Count; i++)
                     valueColorD.Add(values[i], colorsList[i]);
+
+                try
+                { valueColorD[""] = Color.WhiteSmoke; }
+                catch (Exception) { }
 
                 using (new ExcelExecutionBlock(app))
                 {
@@ -227,7 +234,64 @@ namespace ExcelAddInByMarcinOlszewski
                     }
                 }
             }
-            catch(Exception) { }
+            catch (Exception) { }
+        }
+
+        private void colorCellsUniqueButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            try
+            {
+                Excel.Application app = Globals.ThisAddIn.Application;
+                Excel.Range rngSel = app.ActiveWindow.RangeSelection.GetUsableRange();
+                if (rngSel == null)
+                    return;
+
+                Dictionary<string, Color> valueColorD = new Dictionary<string, Color>();
+                List<string> values;
+                values = rngSel.Cells.Cast<Excel.Range>().Select(p => ((object)p.Value)?.ToString() ?? "").Distinct().ToList();
+                List<Color> colorsList = Utils.GenerateColorPalette(values.Count);
+                colorsList.Shuffle();
+                for (int i = 0; i < values.Count; i++)
+                    valueColorD.Add(values[i], colorsList[i]);
+                try
+                { valueColorD[""] = Color.WhiteSmoke; }
+                catch (Exception) { }
+
+                using (new ExcelExecutionBlock(app))
+                {
+                    rngSel.Borders.LineStyle = Excel.XlLineStyle.xlLineStyleNone;
+
+                    foreach (Excel.Range c in rngSel.Cells.Cast<Excel.Range>())
+                        c.Interior.Color = valueColorD[((object)c.Value)?.ToString() ?? ""];
+
+                    Excel.Range cell;
+                    string val = null, oldVal = null;
+                    
+                    foreach (Excel.Range col in rngSel.Columns.Cast<Excel.Range>())
+                    {
+                        for (int i = 1; i <= col.Cells.Count; i++)
+                        {
+                            cell = col.Cells[i] as Excel.Range;
+                            oldVal = val;
+                            val = ((object)cell.Value)?.ToString() ?? "";
+                            cell.Interior.Color = valueColorD[val];
+
+                            if (i == 1)
+                                continue;
+
+                            if (!val.Equals(oldVal, StringComparison.Ordinal))
+                            {
+                                Excel.Border border = cell.Borders[Excel.XlBordersIndex.xlEdgeTop];
+                                border.Color = ColorTranslator.FromOle((int)((double)cell.Interior.Color)).DarkenColor(0.5f).ToArgb();
+                                border.Weight = Excel.XlBorderWeight.xlThin;
+                                border.LineStyle = Excel.XlLineStyle.xlContinuous;
+                            }
+                        }
+                    }
+
+                }
+            }
+            catch (Exception) { }
         }
 
         private void colorRowsButton_Click(object sender, RibbonControlEventArgs e)

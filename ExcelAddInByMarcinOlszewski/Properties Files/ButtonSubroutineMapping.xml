@@ -29,10 +29,6 @@
     <Subroutine>GetRowsThatContainTextValue.GetRowsThatContainTextValueInput</Subroutine>
   </Mapping>
   <Mapping>
-    <ButtonID>hideRowsWithTextButton</ButtonID>
-    <Subroutine>HideRows.HideRowsWithValue</Subroutine>
-  </Mapping>
-  <Mapping>
     <ButtonID>searchDialogButton</ButtonID>
     <Subroutine>HeadersListForm.OpenFinder</Subroutine>
   </Mapping>

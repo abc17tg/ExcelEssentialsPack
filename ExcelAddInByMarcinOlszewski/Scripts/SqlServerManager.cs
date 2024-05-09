@@ -96,7 +96,7 @@ namespace ExcelAddInByMarcinOlszewski
 
         public static void GetDataFromServerToSelection(string query, SqlConn sqlConn, Excel.Range rng, bool headers = true)
         {
-            SqlResult sqlResult = GetDataFromServer(query, sqlConn);
+            SqlResult sqlResult = GetDataFromServer(query, sqlConn, 180);
             if (sqlResult.HasErrors || sqlResult.DataTable.Rows.Count < 1)
             {
                 MessageBox.Show($"No data extracted\n{(sqlResult.Errors == null ? string.Empty : sqlResult.Errors)}", "Query finished", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
