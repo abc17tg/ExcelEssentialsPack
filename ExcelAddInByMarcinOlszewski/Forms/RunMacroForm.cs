@@ -75,13 +75,6 @@ namespace ExcelAddInByMarcinOlszewski.Forms
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
-
-        /* void PvTemplatesListForm_KeyDown(object sender, KeyEventArgs e)
-         {
-             if (e.KeyCode == Keys.Escape)
-                 this.Close();
-         }*/
-
         private void RunMacroForm_Load(object sender, EventArgs e)
         {
             Utils.MoveFormToCursor(this);
@@ -90,11 +83,6 @@ namespace ExcelAddInByMarcinOlszewski.Forms
         private void refreshBtn_Click(object sender, EventArgs e)
         {
             RefreshList();
-        }
-
-        private void RefreshWbList()
-        {
-
         }
 
         private void RefreshList()
@@ -177,7 +165,7 @@ namespace ExcelAddInByMarcinOlszewski.Forms
         {
             if (macrosListView.SelectedItems.Count > 0)
             {
-                UtilsExcel.RunMacro(macrosListView.SelectedItems[macrosListView.SelectedItems.Count - 1].ToolTipText, m_macroWorkbook.Name);
+                UtilsExcel.RunMacro(macrosListView.SelectedItems[macrosListView.SelectedItems.Count - 1].ToolTipText, (m_macroWorkbook.FullName == m_macroWorkbook.Name ? $"\'{m_macroWorkbook.Name}\'" : m_macroWorkbook.Name));
                 this.Close();
             }
         }
@@ -228,7 +216,7 @@ namespace ExcelAddInByMarcinOlszewski.Forms
             {
                 if (macrosListView.SelectedItems.Count > 0)
                 {
-                    UtilsExcel.RunMacro(macrosListView.SelectedItems[macrosListView.SelectedItems.Count - 1].ToolTipText);
+                    UtilsExcel.RunMacro(macrosListView.SelectedItems[macrosListView.SelectedItems.Count - 1].ToolTipText, (m_macroWorkbook.FullName == m_macroWorkbook.Name ? $"\'{m_macroWorkbook.Name}\'" : m_macroWorkbook.Name));
                     this.Close();
                 }
             }

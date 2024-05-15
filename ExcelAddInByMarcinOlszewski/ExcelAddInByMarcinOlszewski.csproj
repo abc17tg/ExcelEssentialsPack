@@ -33,10 +33,10 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <PublishUrl>C:\Users\olszewsm\Documents\Documents\Custom ribbon\Releses\CustomRibbon_v1.5\ExcelCustomRibbon\</PublishUrl>
+    <PublishUrl>C:\Users\olszewsm\Documents\Documents\Custom ribbon\Releses\CustomRibbon_v1.6\ExcelCustomRibbon\</PublishUrl>
     <InstallUrl />
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>1.0.0.15</ApplicationVersion>
+    <ApplicationVersion>1.0.0.16</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>7</UpdateInterval>
@@ -394,23 +394,17 @@
     <Compile Include="Forms\MessageBoxForm.Designer.cs">
       <DependentUpon>MessageBoxForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\PvTemplatesListForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\PvTemplatesListForm.Designer.cs">
-      <DependentUpon>PvTemplatesListForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Forms\RunMacroForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\RunMacroForm.Designer.cs">
       <DependentUpon>RunMacroForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\SapS4ExtractionForm.cs">
+    <Compile Include="Forms\RunMacroWithSearchPhraseForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\SapS4ExtractionForm.Designer.cs">
-      <DependentUpon>SapS4ExtractionForm.cs</DependentUpon>
+    <Compile Include="Forms\RunMacroWithSearchPhraseForm.Designer.cs">
+      <DependentUpon>RunMacroWithSearchPhraseForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\SearchColumnsForm.cs">
       <SubType>Form</SubType>
@@ -492,9 +486,6 @@
     <EmbeddedResource Include="Forms\MessageBoxForm.resx">
       <DependentUpon>MessageBoxForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\PvTemplatesListForm.resx">
-      <DependentUpon>PvTemplatesListForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Forms\RunMacroForm.resx">
       <DependentUpon>RunMacroForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -554,22 +545,25 @@
     <Content Include="Properties Files\ButtonSubroutineMapping.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Properties Files\FormsMacrosSearchKeys.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Properties Files\FunctionsWbName.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Properties Files\MacrosWbName.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Properties Files\PvTemplatesTextColorMapping.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <None Include="Resources\rocketLogo.scale-400.png" />
     <None Include="Resources\S4-HANA-cloud.png" />
+    <Content Include="Properties Files\RunMacroWithSearchPhraseFormColorMapping.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Properties Files\SdePath.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Properties Files\WebsitesListMap.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="Resources\Microsoft_Edge_logo_%282019%29.svg.png" />
     <Content Include="SQL Queries\SqlServer\test - Copy %282%29.sql">

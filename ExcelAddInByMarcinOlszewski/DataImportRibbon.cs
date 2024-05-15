@@ -24,7 +24,8 @@ namespace ExcelAddInByMarcinOlszewski
 
         private void runS4ExtractButton_Click(object sender, RibbonControlEventArgs e)
         {
-            SapS4ExtractionForm form = new SapS4ExtractionForm(m_macroWorkbook);
+            //SapS4ExtractionForm form = new SapS4ExtractionForm(m_macroWorkbook);
+            RunMacroWithSearchPhraseForm form = new RunMacroWithSearchPhraseForm(m_macroWorkbook, "SapS4ExtractionSearch");
             form.Show();
         }
 

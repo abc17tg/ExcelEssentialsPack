@@ -138,6 +138,9 @@
   <data name="formatTrueFalseButton.SuperTip" xml:space="preserve">
     <value>Select square range and it will apply conditional formatting for TRUE and FALSE values and will apply code to the sheet that double click into cell with TRUE and FALSE values will flip it (then will replace formula to value)</value>
   </data>
+  <data name="runCustomFormButton.SuperTip" xml:space="preserve">
+    <value>List macros that begin with any custom phrase and run macro (To use you need to have in Excel trust settings trust VBA project object model and create custom phrases in XML FormsMacrosSearchKeys.xml in Properties Files under "RunCustom")</value>
+  </data>
   <data name="runPvTemplateBtn.SuperTip" xml:space="preserve">
     <value>Will show form that search all pivot templates that start with "CreatePvForm" and can be run with double click. (To use you need to have in Excel trust settings trust VBA project object model). (to close the form click Esc or right click on form)</value>
   </data>

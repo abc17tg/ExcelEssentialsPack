@@ -1,5 +1,4 @@
-﻿using System.Windows.Forms;
-using ExcelAddInByMarcinOlszewski.Forms;
+﻿using ExcelAddInByMarcinOlszewski.Forms;
 using ExcelAddInByMarcinOlszewski.Scripts;
 using Microsoft.Office.Tools.Ribbon;
 
@@ -33,8 +32,9 @@ namespace ExcelAddInByMarcinOlszewski
 
         private void runPvTemplateButton_Click(object sender, RibbonControlEventArgs e)
         {
-            PvTemplatesListForm pvTemplatesListForm = new PvTemplatesListForm(m_macroWorkbook);
-            pvTemplatesListForm.ShowDialog();
+            //PvTemplatesListForm form = new PvTemplatesListForm(m_macroWorkbook);
+            RunMacroWithSearchPhraseForm form = new RunMacroWithSearchPhraseForm(m_macroWorkbook, "PivotTableSearch", true);
+            form.Show();
         }
 
         private void combinedTableFromPvValuesButton_Click(object sender, RibbonControlEventArgs e)

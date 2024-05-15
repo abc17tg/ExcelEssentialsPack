@@ -575,7 +575,7 @@ namespace ExcelAddInByMarcinOlszewski
 
         private void copyAsPictureButton_Click(object sender, RibbonControlEventArgs e)
         {
-            Globals.ThisAddIn.Application.Selection.GetUsableRange().CopyPicture(Excel.XlPictureAppearance.xlScreen,
+            Globals.ThisAddIn.Application.ActiveWindow.RangeSelection.GetUsableRange().CopyPicture(Excel.XlPictureAppearance.xlScreen,
                 Excel.XlCopyPictureFormat.xlBitmap);
         }
 
@@ -755,5 +755,10 @@ namespace ExcelAddInByMarcinOlszewski
             }
         }
 
+        private void runCustomFormButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            RunMacroWithSearchPhraseForm form = new RunMacroWithSearchPhraseForm(m_macroWorkbook, "RunCustom");
+            form.Show();
+        }
     }
 }
