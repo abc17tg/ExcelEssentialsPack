@@ -33,10 +33,10 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <PublishUrl>C:\Users\olszewsm\Documents\Documents\Custom ribbon\Releses\CustomRibbon_v1.6\ExcelCustomRibbon\</PublishUrl>
+    <PublishUrl>C:\Users\olszewsm\Documents\Documents\Custom ribbon\Releses\CustomRibbon_v1.8\ExcelCustomRibbon\</PublishUrl>
     <InstallUrl />
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>1.0.0.16</ApplicationVersion>
+    <ApplicationVersion>1.7.0.22</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>7</UpdateInterval>
@@ -382,6 +382,12 @@
     <Compile Include="Forms\FileDropForm.Designer.cs">
       <DependentUpon>FileDropForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\FormatDelimitedForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FormatDelimitedForm.Designer.cs">
+      <DependentUpon>FormatDelimitedForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\InputRangeForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -480,6 +486,9 @@
     <EmbeddedResource Include="Forms\FileDropForm.resx">
       <DependentUpon>FileDropForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FormatDelimitedForm.resx">
+      <DependentUpon>FormatDelimitedForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\InputRangeForm.resx">
       <DependentUpon>InputRangeForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -566,6 +575,8 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="Resources\Microsoft_Edge_logo_%282019%29.svg.png" />
+    <None Include="Resources\table-lookup-5121.ico" />
+    <None Include="Resources\search-outline-filled.png" />
     <Content Include="SQL Queries\SqlServer\test - Copy %282%29.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

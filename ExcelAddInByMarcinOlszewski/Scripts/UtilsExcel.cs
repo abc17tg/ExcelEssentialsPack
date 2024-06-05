@@ -12,6 +12,9 @@ using System.Data;
 using ExcelAddInByMarcinOlszewski.Scripts;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using System.Numerics;
+using System.Drawing;
+using static SQLite.TableMapping;
 
 public static class UtilsExcel
 {
@@ -77,7 +80,7 @@ public static class UtilsExcel
             return rng.Text.ToString();
 
         List<string> values = new List<string>();
-        foreach (Excel.Range c in rng)
+        foreach (Excel.Range c in rng.Cells.Cast<Excel.Range>())
             if (c != null && !string.IsNullOrEmpty(c.Text) && !c.EntireRow.Hidden && !c.EntireColumn.Hidden)
                 values.Add(c.Text.ToString());
 
@@ -415,14 +418,17 @@ public static class UtilsExcel
 
         // Convert DataTable to 2D array
         int startRow = headers ? 1 : 0;
+        object lockObject = new object();
         Parallel.For(startRow, dt.Rows.Count + startRow, r =>
         {
             for (int c = 0; c < dt.Columns.Count; c++)
             {
                 if (dt.Rows[r - startRow][c] is DateTime)
-                    dataArr[r, c] = dt.Rows[r - startRow][c].ToString();
+                    lock (lockObject)
+                        dataArr[r, c] = dt.Rows[r - startRow][c].ToString();
                 else
-                    dataArr[r, c] = dt.Rows[r - startRow][c];
+                    lock (lockObject)
+                        dataArr[r, c] = dt.Rows[r - startRow][c];
             }
         });
 
@@ -639,7 +645,18 @@ public static class UtilsExcel
             return;
 
         Excel.Worksheet activeSheet = selection.Worksheet;
-        Excel.Range region = selection.Cells.Count > 1 ? selection : selection.CurrentRegion;
+        Excel.Range region;
+        if (selection.Cells.Count == 1)
+        {
+            if (selection.IsPivotCell())
+                region = selection.PivotCell.PivotTable.TableRange2;
+            else
+                region = selection.CurrentRegion;
+        }
+        else if (selection.Cells.Count > 1)
+            region = selection;
+        else
+            return;
 
         using (new ExcelExecutionBlock(selection.Application))
         {
@@ -732,6 +749,8 @@ public static class UtilsExcel
         int rowCount = rng.Rows.Count;
         int colCount = rng.Columns.Count;
 
+        object[,] cellValues = (object[,])rng.Value2;
+
         // Add columns to DataTable
         for (int i = 1; i <= colCount; i++)
         {
@@ -739,13 +758,13 @@ public static class UtilsExcel
             Type columnType = typeof(string); // Default to string
             for (int j = dataHasHeaders ? 2 : 1; j <= rowCount; j++)
             {
-                if (rng.Cells[j, i].Value2 != null)
+                if (cellValues[j, i] != null)
                 {
-                    columnType = rng.Cells[j, i].Value2.GetType();
+                    columnType = cellValues[j, i].GetType();
                     break;
                 }
             }
-            dt.Columns.Add(dataHasHeaders ? (string.IsNullOrWhiteSpace(rng.Cells[1, i].Value2) ? $"Column{i}" : rng.Cells[1, i].Value2) : $"Column{i}", columnType);
+            dt.Columns.Add(dataHasHeaders ? (string.IsNullOrWhiteSpace(cellValues[1, i].ToString()) ? $"Column{i}" : cellValues[1, i].ToString()) : $"Column{i}", columnType);
         }
 
         // Add rows to DataTable
@@ -754,14 +773,8 @@ public static class UtilsExcel
             DataRow newRow = dt.NewRow();
             for (int j = 1; j <= colCount; j++)
             {
-                if (rng.Cells[i, j].Value2 != null)
-                {
-                    newRow[j - 1] = rng.Cells[i, j].Value2;
-                }
-                else
-                {
-                    newRow[j - 1] = DBNull.Value;
-                }
+                //newRow[j - 1] = rng.Cells[i, j].Value2;
+                newRow[j - 1] = cellValues[i, j] ?? DBNull.Value;
             }
             dt.Rows.Add(newRow);
         }
@@ -769,18 +782,115 @@ public static class UtilsExcel
         return dt;
     }
 
+    public static DataTable GetDataTable2<T>(this T rng, bool dataHasHeaders = true) where T : Excel.Range
+    {
+        DataTable dt = new DataTable();
+        int rowCount = rng.Rows.Count;
+        int colCount = rng.Columns.Count;
+
+        object[,] cellValues = (object[,])rng.Value2;
+
+        // Add columns to DataTable
+        for (int i = 1; i <= colCount; i++)
+        {
+            // Determine the type of the first non-empty cell in the column
+            Type columnType = typeof(string); // Default to string
+            for (int j = dataHasHeaders ? 2 : 1; j <= rowCount; j++)
+            {
+                if (cellValues[j, i] != null)
+                {
+                    columnType = cellValues[j, i].GetType();
+                    break;
+                }
+            }
+            dt.Columns.Add(dataHasHeaders ? (string.IsNullOrWhiteSpace(cellValues[1, i].ToString()) ? $"Column{i}" : cellValues[1, i].ToString()) : $"Column{i}", columnType);
+        }
+
+        object lockObject = new object();
+        Parallel.For(dataHasHeaders ? 2 : 1, cellValues.GetLength(0) + 1, i =>
+        {
+            DataRow newRow;
+            lock (lockObject)
+                newRow = dt.NewRow();
+
+            for (int j = 1; j <= colCount; j++)
+                newRow[j - 1] = cellValues[i, j] ?? DBNull.Value;
+
+            lock (lockObject)
+                dt.Rows.Add(newRow);
+        });
+
+        return dt;
+    }
+
+    public static DataTable GetStringDataTable<T>(this T rng, bool dataHasHeaders = true) where T : Excel.Range
+    {
+        DataTable dt = new DataTable();
+        int rowCount = rng.Rows.Count;
+        int colCount = rng.Columns.Count;
+        List<Vector2> errorsList = new List<Vector2>();
+        object[,] cellValues = (object[,])rng.Value2;
+
+        // Add columns to DataTable
+        for (int i = 1; i <= colCount; i++)
+        {
+            dt.Columns.Add(dataHasHeaders ? (string.IsNullOrWhiteSpace(cellValues[1, i].ToString()) ? $"Column{i}" : cellValues[1, i].ToString()) : $"Column{i}", typeof(string));
+        }
+
+        int offset = dataHasHeaders ? 1 : 0;
+
+        // Add rows to DataTable
+        for (int i = 1; i <= rowCount - offset; i++)
+        {
+            dt.Rows.Add(dt.NewRow());
+        }
+
+        Parallel.For(1, colCount + 1, j =>
+        {
+            for (int i = 1 + offset; i <= rowCount; i++)
+            {
+                try
+                {
+                    dt.Rows[i - offset - 1].SetField(j - 1, cellValues[i, j]?.ToString() ?? string.Empty);
+                }
+                catch (Exception)
+                {
+                    errorsList.Add(new Vector2(i, j));
+                    //dt.Rows[i - offset - 1].SetField(j - 1, string.Empty);
+                }
+            }
+        });
+
+        foreach (var v in errorsList)
+        {
+            dt.Rows[(int)v.X - offset - 1].SetField((int)v.Y - 1, cellValues[(int)v.X, (int)v.Y]?.ToString() ?? string.Empty);
+        }
+
+        return dt;
+    }
+
     public static bool UpdateMacro(string fileName, Excel.Workbook wb)
     {
+        bool deleteMacro = false;
+        string[] macroName2Update;
         try
         {
             var fileLines = File.ReadLines(fileName);
-            string[] macroName2Update = fileLines.Where(p => p.Trim().StartsWith("#")).FirstOrDefault().Trim('#', ' ').Split('.');
+            if ((fileLines.FirstOrDefault(p => p.Trim().Length > 0) ?? string.Empty).StartsWith("~"))
+            {
+                deleteMacro = true;
+                macroName2Update = (fileLines.FirstOrDefault(p => p.Trim().StartsWith("~")) ?? string.Empty).Trim('#', ' ').Split('.');
+            }
+            else
+            {
+                macroName2Update = (fileLines.FirstOrDefault(p => p.Trim().StartsWith("#")) ?? string.Empty).Trim('#', ' ').Split('.');
+            }
+
 
             if (macroName2Update.Length != 2)
                 return false;
 
-
-            if (!wb.VBProject.VBComponents.Cast<ExcelVB.VBComponent>().Select(p => p.Name).Contains(macroName2Update[0]))
+            if (!deleteMacro && !wb.VBProject.VBComponents.Cast<ExcelVB.VBComponent>().Select(p => p.Name).Contains(macroName2Update[0]))
             {
                 var vbc = wb.VBProject.VBComponents.Add(ExcelVB.vbext_ComponentType.vbext_ct_StdModule);
                 vbc.Name = macroName2Update[0];
@@ -796,10 +906,14 @@ public static class UtilsExcel
                 {
                     int startLine = component.CodeModule.ProcStartLine[macroName, procKind];
                     component.CodeModule.DeleteLines(startLine, component.CodeModule.ProcCountLines[macroName, procKind]);
-                    component.CodeModule.InsertLines(startLine, "\n" + string.Join("\n", fileLines.SkipWhile(p => p.Trim() == string.Empty).Skip(1)));
+                    if (!deleteMacro)
+                        component.CodeModule.InsertLines(startLine, "\n" + string.Join("\n", fileLines.SkipWhile(p => p.Trim() == string.Empty).Skip(1)));
                     return true;
                 }
             }
+
+            if (deleteMacro)
+                return false;
 
             string lastLine = component.CodeModule.Lines[component.CodeModule.CountOfLines, 1];
             component.CodeModule.ReplaceLine(component.CodeModule.CountOfLines, $"{lastLine.Trim()}\n\n{string.Join("\n", fileLines.SkipWhile(p => p.Trim() == string.Empty).Skip(1))}\n");
@@ -810,27 +924,38 @@ public static class UtilsExcel
         {
             return false;
         }
-
     }
 
     public static bool UpdateModule(string fileName, Excel.Workbook wb, bool replace = false)
     {
+        bool deleteModule = false;
         try
         {
             string name = Path.GetFileNameWithoutExtension(fileName);
+            if (name.StartsWith("~"))
+            {
+                deleteModule = true;
+                name = name.TrimStart('~');
+            }
 
             if (!wb.VBProject.VBComponents.Cast<ExcelVB.VBComponent>().Select(p => p.Name).Contains(name))
             {
-                wb.VBProject.VBComponents.Import(fileName);
+                if (!deleteModule)
+                    wb.VBProject.VBComponents.Import(fileName);
                 return true;
             }
 
             ExcelVB.VBComponent oldComponent = wb.VBProject.VBComponents.Item(name);
 
-            if (replace)
+            if (!deleteModule && replace)
             {
                 wb.VBProject.VBComponents.Remove(oldComponent);
                 wb.VBProject.VBComponents.Import(fileName);
+                return true;
+            }
+            else if (deleteModule)
+            {
+                wb.VBProject.VBComponents.Remove(oldComponent);
                 return true;
             }
 
@@ -968,6 +1093,34 @@ public static class UtilsExcel
         }
     }
 
+    public static SortedDictionary<string, long> GetCounts(Excel.Range rng, string searchWord = "")
+    {
+        var counts = new SortedDictionary<string, long>();
+        object[,] cellValues = (object[,])rng.Value2;
+        int column = rng.Column;
+
+        object lockObject = new object();
+        Parallel.For(1, cellValues.GetLength(1) + 1, i =>
+        {
+            string columnName;
+            long count = 0;
+
+            columnName = cellValues[1, i].ToString() ?? $"Column{i - column + 1}";
+            for (int j = 2; j < cellValues.GetLength(0) + 1; j++)
+            {
+                string value = cellValues[j, i]?.ToString();
+                if (!string.IsNullOrEmpty(value) && (string.IsNullOrEmpty(searchWord) || value.Contains(searchWord, StringComparison.OrdinalIgnoreCase)))
+                    ++count;
+            }
+
+            // Synchronize access to the counts dictionary
+            lock (lockObject)
+                counts[columnName] = count;
+        });
+
+        return counts;
+    }
+
     public static Excel.Range GetUsableRange<T>(this T rng) where T : Excel.Range
     {
         if (!rng.Valid())
@@ -1039,6 +1192,62 @@ public static class UtilsExcel
         }
     }
 
+    public static void FillEmptyCellWithAboveValue(Excel.Range rng)
+    {
+        if (!rng.Valid())
+            return;
+
+        int firstRowNumber = rng.Row;
+
+        using (new ExcelExecutionBlock(rng.Application))
+        {
+            foreach (Excel.Range col in rng.Columns)
+            {
+                // Loop through each cell in the column
+                foreach (Excel.Range cell in col.Cells)
+                {
+                    // Check if the cell is not the first one in the column and if it's empty or contains only spaces
+                    if (cell.Row != firstRowNumber && string.IsNullOrWhiteSpace(cell.Value2?.ToString()))
+                    {
+                        Excel.Range cellAbove = cell.Offset[-1, 0];
+                        if (cellAbove.HasFormula)
+                        {
+                            // If the cell above contains a formula, use the FillDown method to copy it
+                            cellAbove.Copy(cell);
+                        }
+                        else
+                        {
+                            cell.NumberFormatLocal = cellAbove.NumberFormatLocal;
+                            cell.Value2 = cellAbove.Value2;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public static void SelectCurrentRegionWithoutHeaders(Excel.Range rng)
+    {
+        if (rng.Valid())
+        {
+            rng = rng.CurrentRegion;
+
+            if (rng.Rows.Count > 1)
+            {
+                rng = rng.Offset[1, 0].Resize[rng.Rows.Count - 1, rng.Columns.Count];
+                rng.Select();
+            }
+            else
+            {
+                MessageBox.Show("The current region does not have more than one row.");
+            }
+        }
+        else
+        {
+            MessageBox.Show("Please select a range first.");
+        }
+    }
+
     public static string ExportMacros(this Excel.Workbook wb, string path = "")
     {
         try
@@ -1084,6 +1293,100 @@ public static class UtilsExcel
         {
             return string.Empty;
         }
+    }
+
+    public static void CreateMacroUpdateFileFromActiveVbaCode(Excel.Application app, string outputPath)
+    {
+        ExcelVB.VBE vbe = app.VBE;
+        ExcelVB.CodePane activeCodePane = vbe.ActiveCodePane;
+        if (activeCodePane != null)
+        {
+            activeCodePane.GetSelection(out int selectionStartLine, out _, out int selectionEndLine, out _);
+            ExcelVB.CodeModule cm = activeCodePane.CodeModule;
+            ExcelVB.VBComponent component = cm.Parent;
+
+            var macros = Macro.GetMacrosFromLines(component, selectionStartLine, selectionEndLine);
+
+            if (macros == null || macros.Count < 1)
+                MessageBox.Show("No active subroutine or function selected.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+            foreach (var macro in macros)
+            {
+                string fileName = $"{macro.FullName}.macro";
+                string fullPath = Path.Combine(outputPath, fileName);
+                File.Create(fullPath).Close();
+                File.WriteAllText(fullPath, $"#{macro.FullName}{Environment.NewLine}{macro.Code}");
+            }
+        }
+        else
+        {
+            MessageBox.Show("VBA Editor is not open or no code pane is active.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+    public static void ColorRange(Excel.Range rng, RangeType type, Color color, string searchWord = "", bool invertFontColor = false)
+    {
+        if (!rng.Valid())
+            return;
+        using (new ExcelExecutionBlock(rng.Application))
+        {
+            switch (type)
+            {
+                case RangeType.Rows:
+                    foreach (var row in rng.Rows.Cast<Excel.Range>())
+                    {
+                        if (row.Cells.Cast<Excel.Range>().Any(p => p.Value2 != null && (p.Value2.ToString().Contains(searchWord) || p.Text.ToString().Contains(searchWord))))
+                        {
+                            if (color != Color.Transparent)
+                                row.Interior.Color = color;
+                            else
+                                row.Interior.ColorIndex = 0;
+
+                            if (invertFontColor)
+                                row.Font.Color = ColorTranslator.FromOle((int)(row.Cells[1, 1] as Excel.Range).Font.Color).Invert();
+                        }
+                    }
+                    break;
+                case RangeType.Colums:
+                    foreach (var col in rng.Columns.Cast<Excel.Range>())
+                    {
+                        if (col.Cells.Cast<Excel.Range>().Any(p => p.Value2 != null && (p.Value2.ToString().Contains(searchWord) || p.Text.ToString().Contains(searchWord))))
+                        {
+                            if (color != Color.Transparent)
+                                col.Interior.Color = color;
+                            else
+                                col.Interior.ColorIndex = 0;
+
+                            if (invertFontColor)
+                                col.Font.Color = ColorTranslator.FromOle((int)(col.Cells[1, 1] as Excel.Range).Font.Color).Invert();
+                        }
+                    }
+                    break;
+                case RangeType.Cells:
+                    foreach (var cell in rng.Cells.Cast<Excel.Range>())
+                    {
+                        if (cell.Value2 != null && (cell.Value2.ToString().Contains(searchWord) || cell.Text.ToString().Contains(searchWord)))
+                        {
+                            if (color != Color.Transparent)
+                                cell.Interior.Color = color;
+                            else
+                                cell.Interior.ColorIndex = 0;
+
+                            if (invertFontColor)
+                                cell.Font.Color = ColorTranslator.FromOle((int)(cell.Cells[1, 1] as Excel.Range).Font.Color).Invert();
+                        }
+                    }
+                    break;
+                default:
+                    return;
+            }
+        }
+    }
+
+    public enum RangeType
+    {
+        Cells,
+        Colums,
+        Rows
     }
 }
 

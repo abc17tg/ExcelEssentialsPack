@@ -12,10 +12,10 @@ namespace ExcelAddInByMarcinOlszewski.Forms
     public partial class ColorCellsWithTextForm : Form
     {
         public Color Color = Color.White;
-        public Type RangeType = Type.Rows;
+        public UtilsExcel.RangeType RangeType = UtilsExcel.RangeType.Rows;
         private Excel.Application m_app;
 
-        public ColorCellsWithTextForm(Excel.Application app, Type type)
+        public ColorCellsWithTextForm(Excel.Application app, UtilsExcel.RangeType type)
         {
             InitializeComponent();
             m_app = app;
@@ -118,7 +118,7 @@ namespace ExcelAddInByMarcinOlszewski.Forms
         private void okBtn_Click(object sender, EventArgs e)
         {
             Excel.Range rng = m_app.ActiveWindow.RangeSelection.GetUsableRange();
-            ColorRange(rng, RangeType);
+            UtilsExcel.ColorRange(rng, RangeType, Color, searchWordTextBox.Text, invertFontColorCheckBox.Checked);
             this.Close();
         }
 
@@ -145,58 +145,6 @@ namespace ExcelAddInByMarcinOlszewski.Forms
                 okBtn.PerformClick();
         }
 
-        private void ColorRange(Excel.Range rng, Type type)
-        {
-            if (!rng.Valid())
-                return;
-            using (new ExcelExecutionBlock(m_app))
-            {
-                switch (type)
-                {
-                    case Type.Rows:
-                        foreach (var row in rng.Rows.Cast<Excel.Range>())
-                        {
-                            if (row.Cells.Cast<Excel.Range>().Any(p => p.Value2 != null && (p.Value2.ToString().Contains(searchWordTextBox.Text) || p.Text.ToString().Contains(searchWordTextBox.Text))))
-                            {
-                                row.Interior.Color = Color;
-                                if (invertFontColorCheckBox.Checked)
-                                    row.Font.Color = ColorTranslator.FromOle((int)(row.Cells[1, 1] as Excel.Range).Font.Color).Invert();
-                            }
-                        }
-                        break;
-                    case Type.Colums:
-                        foreach (var col in rng.Columns.Cast<Excel.Range>())
-                        {
-                            if (col.Cells.Cast<Excel.Range>().Any(p => p.Value2 != null && (p.Value2.ToString().Contains(searchWordTextBox.Text) || p.Text.ToString().Contains(searchWordTextBox.Text))))
-                            {
-                                col.Interior.Color = Color;
-                                if (invertFontColorCheckBox.Checked)
-                                    col.Font.Color = ColorTranslator.FromOle((int)(col.Cells[1, 1] as Excel.Range).Font.Color).Invert();
-                            }
-                        }
-                        break;
-                    case Type.Cells:
-                        foreach (var cell in rng.Cells.Cast<Excel.Range>())
-                        {
-                            if (cell.Value2 != null && (cell.Value2.ToString().Contains(searchWordTextBox.Text) || cell.Text.ToString().Contains(searchWordTextBox.Text)))
-                            {
-                                cell.Interior.Color = Color;
-                                if (invertFontColorCheckBox.Checked)
-                                    cell.Font.Color = ColorTranslator.FromOle((int)(cell.Cells[1, 1] as Excel.Range).Font.Color).Invert();
-                            }
-                        }
-                        break;
-                    default:
-                        return;
-                }
-            }
-        }
-
-        public enum Type
-        {
-            Cells,
-            Colums,
-            Rows
-        }
+        
     }
 }

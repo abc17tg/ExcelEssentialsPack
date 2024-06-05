@@ -93,9 +93,29 @@ namespace ExcelAddInByMarcinOlszewski.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        public static System.Drawing.Bitmap search_outline_filled {
+            get {
+                object obj = ResourceManager.GetObject("search-outline-filled", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         public static System.Drawing.Bitmap sql {
             get {
                 object obj = ResourceManager.GetObject("sql", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap table_lookup_512 {
+            get {
+                object obj = ResourceManager.GetObject("table-lookup-512", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

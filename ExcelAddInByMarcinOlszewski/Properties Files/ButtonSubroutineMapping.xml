@@ -17,8 +17,16 @@
     <Subroutine>RemoveCells.DeleteNAFromSelection</Subroutine>
   </Mapping>
   <Mapping>
-    <ButtonID>prependTextButton</ButtonID>
+    <ButtonID>prependTextSplitButton</ButtonID>
     <Subroutine>Utils.PrependText</Subroutine>
+  </Mapping>
+  <Mapping>
+    <ButtonID>appendTextButton</ButtonID>
+    <Subroutine>Utils.AppendText</Subroutine>
+  </Mapping>
+  <Mapping>
+    <ButtonID>updatePivotTableSourceButton</ButtonID>
+    <Subroutine>PivotTablesFormat.UpdatePivotTableSource</Subroutine>
   </Mapping>
   <Mapping>
     <ButtonID>trimButton</ButtonID>

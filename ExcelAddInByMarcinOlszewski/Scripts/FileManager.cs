@@ -16,6 +16,7 @@ namespace ExcelAddInByMarcinOlszewski
         public static string SqlServerQueriesPath => Path.Combine(SqlQueriesPath, "SqlServer");
         public static string OracleQueriesPath => Path.Combine(SqlQueriesPath, "Oracle");
         public static string ExcelQueriesPath => Path.Combine(SqlQueriesPath, "Excel");
+        public static string DownloadsPath => Microsoft.Win32.Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders", "{374DE290-123F-4565-9164-39C4925E467B}", String.Empty).ToString();
 
 #if DEBUG
         public static string MacrosWbName = "MyPERSONAL.xlsb";
@@ -224,7 +225,7 @@ namespace ExcelAddInByMarcinOlszewski
             if (!string.IsNullOrEmpty(initialDirectory))
                 saveDlg.InitialDirectory = initialDirectory;
             else
-                saveDlg.InitialDirectory = Microsoft.Win32.Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders", "{374DE290-123F-4565-9164-39C4925E467B}", String.Empty).ToString();
+                saveDlg.InitialDirectory = 
 
             saveDlg.FileName = initialName;
             saveDlg.OverwritePrompt = true;

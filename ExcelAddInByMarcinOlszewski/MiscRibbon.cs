@@ -126,10 +126,15 @@ namespace ExcelAddInByMarcinOlszewski
             //UtilsExcel.RunMacro("RemoveCells.DeleteNAFromSelection");
         }
 
-        private void prependTextButton_Click(object sender, RibbonControlEventArgs e)
+        private void prependTextSplitButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonSplitButton).Id, m_macroWorkbook));
+            //UtilsExcel.RunMacro("Utils.PrependText");
+        }
+
+        private void appendTextButton_Click(object sender, RibbonControlEventArgs e)
         {
             UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
-            //UtilsExcel.RunMacro("Utils.PrependText");
         }
 
         private void trimButton_Click(object sender, RibbonControlEventArgs e)
@@ -142,11 +147,6 @@ namespace ExcelAddInByMarcinOlszewski
         {
             Excel.Application app = Globals.ThisAddIn.Application;
             UtilsExcel.ApplyCustomNumberFormat(app.ActiveWindow.RangeSelection);
-            /*using (new ExcelExecutionBlock(app))
-            {
-                (app.Selection as Excel.Range).NumberFormatLocal = @"[Color49]# ##0.00;[Color9]-# ##0.00;[Color16]0;@";
-            }*/
-
         }
 
         private void hideRowsWithTextSplitButton_Click(object sender, RibbonControlEventArgs e)
@@ -154,8 +154,6 @@ namespace ExcelAddInByMarcinOlszewski
             Excel.Application app = Globals.ThisAddIn.Application;
             string text = Microsoft.VisualBasic.Interaction.InputBox("Type text that will hide rows with it in cell", "Text input", string.Empty);
             UtilsExcel.HideRangeWithText(app.ActiveWindow.RangeSelection.GetUsableRange(), text, UtilsExcel.DirectionType.Rows);
-            //UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonSplitButton).Id, m_macroWorkbook));
-            //UtilsExcel.RunMacro("HideRows.HideRowsWithValue");
         }
 
         private void hideColumnsWithTextButton_Click(object sender, RibbonControlEventArgs e)
@@ -173,13 +171,13 @@ namespace ExcelAddInByMarcinOlszewski
 
         private void searchDialogButton_Click(object sender, RibbonControlEventArgs e)
         {
-            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
+            //UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
             //UtilsExcel.RunMacro("HeadersListForm.OpenFinder");
-            /*SearchColumnsForm form = new SearchColumnsForm(Globals.ThisAddIn.Application);
+            SearchColumnsForm form = new SearchColumnsForm(Globals.ThisAddIn.Application);
             form.Show();
             form.FormClosed += (s, _) =>
             {
-            };*/
+            };
         }
 
         private void colorRowsUniqueSplitButton_Click(object sender, RibbonControlEventArgs e)
@@ -266,7 +264,7 @@ namespace ExcelAddInByMarcinOlszewski
 
                     Excel.Range cell;
                     string val = null, oldVal = null;
-                    
+
                     foreach (Excel.Range col in rngSel.Columns.Cast<Excel.Range>())
                     {
                         for (int i = 1; i <= col.Cells.Count; i++)
@@ -575,8 +573,7 @@ namespace ExcelAddInByMarcinOlszewski
 
         private void copyAsPictureButton_Click(object sender, RibbonControlEventArgs e)
         {
-            Globals.ThisAddIn.Application.ActiveWindow.RangeSelection.GetUsableRange().CopyPicture(Excel.XlPictureAppearance.xlScreen,
-                Excel.XlCopyPictureFormat.xlBitmap);
+            Globals.ThisAddIn.Application.ActiveWindow.RangeSelection.GetUsableRange().CopyPicture(Excel.XlPictureAppearance.xlScreen, Excel.XlCopyPictureFormat.xlBitmap);
         }
 
         private void removeDuplicatesButton_Click(object sender, RibbonControlEventArgs e)
@@ -587,10 +584,15 @@ namespace ExcelAddInByMarcinOlszewski
             if (!rng.Valid())
                 return;
 
-            object[] columIndexArray = Enumerable.Range(1, rng.Columns.Count).Cast<object>().ToArray();
             using (new ExcelExecutionBlock(app))
             {
-                rng.RemoveDuplicates((object)columIndexArray, Excel.XlYesNoGuess.xlNo);
+                foreach (var ar in rng.Areas.Cast<Excel.Range>())
+                {
+                    if (!ar.Valid())
+                        continue;
+                    object[] columIndexArray = Enumerable.Range(1, ar.Columns.Count).Cast<object>().ToArray();
+                    ar.RemoveDuplicates((object)columIndexArray, Excel.XlYesNoGuess.xlNo);
+                }
             }
         }
 
@@ -603,18 +605,18 @@ namespace ExcelAddInByMarcinOlszewski
 
         private void colorRowsWithTextSplitButton_Click(object sender, RibbonControlEventArgs e)
         {
-            ColorCellsWithTextForm form = new ColorCellsWithTextForm(Globals.ThisAddIn.Application, ColorCellsWithTextForm.Type.Rows);
+            ColorCellsWithTextForm form = new ColorCellsWithTextForm(Globals.ThisAddIn.Application, UtilsExcel.RangeType.Rows);
             form.Show();
         }
         private void colorCellsWithTextButton_Click(object sender, RibbonControlEventArgs e)
         {
-            ColorCellsWithTextForm form = new ColorCellsWithTextForm(Globals.ThisAddIn.Application, ColorCellsWithTextForm.Type.Cells);
+            ColorCellsWithTextForm form = new ColorCellsWithTextForm(Globals.ThisAddIn.Application, UtilsExcel.RangeType.Cells);
             form.Show();
         }
 
         private void colorColumnsWithTextButton_Click(object sender, RibbonControlEventArgs e)
         {
-            ColorCellsWithTextForm form = new ColorCellsWithTextForm(Globals.ThisAddIn.Application, ColorCellsWithTextForm.Type.Colums);
+            ColorCellsWithTextForm form = new ColorCellsWithTextForm(Globals.ThisAddIn.Application, UtilsExcel.RangeType.Colums);
             form.Show();
         }
 
@@ -724,7 +726,8 @@ namespace ExcelAddInByMarcinOlszewski
                         switch (extension.ToLower())
                         {
                             case ".bas":
-                                logs += $"\n{fileName}\t{(UtilsExcel.UpdateModule(fileName, workbookPicker.Workbook) ? "✔" : "❌")}";
+                                bool replace = MessageBox.Show("Keep macros that do not exist in updated version of VBA module?", $"Module {Path.GetFileNameWithoutExtension(fileName)}", MessageBoxButtons.YesNo, MessageBoxIcon.Question,MessageBoxDefaultButton.Button1) == DialogResult.No;
+                                logs += $"\n{fileName}\t{(UtilsExcel.UpdateModule(fileName, workbookPicker.Workbook, replace) ? "✔" : "❌")}";
                                 break;
                             case ".macro":
                                 logs += $"\n{fileName}\t{(UtilsExcel.UpdateMacro(fileName, workbookPicker.Workbook) ? "✔" : "❌")}";
@@ -759,6 +762,106 @@ namespace ExcelAddInByMarcinOlszewski
         {
             RunMacroWithSearchPhraseForm form = new RunMacroWithSearchPhraseForm(m_macroWorkbook, "RunCustom");
             form.Show();
+        }
+
+        private void fillEmptyWithAboveValueButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            Excel.Application app = Globals.ThisAddIn.Application;
+            Excel.Range rng = app.ActiveWindow.RangeSelection.GetUsableRange();
+
+            if (!rng.Valid())
+                return;
+
+            UtilsExcel.FillEmptyCellWithAboveValue(rng);
+        }
+
+        private void copyDelimitedValuesButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            Excel.Application app = Globals.ThisAddIn.Application;
+            Excel.Range rng = app.ActiveWindow.RangeSelection.GetUsableRange();
+
+            if (!rng.Valid())
+                return;
+
+            FormatDelimitedForm form = new FormatDelimitedForm(rng);
+            form.Show();
+        }
+
+        private void selectWithoutHeadersButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            Excel.Application app = Globals.ThisAddIn.Application;
+            Excel.Range rng = app.ActiveWindow.RangeSelection;
+            UtilsExcel.SelectCurrentRegionWithoutHeaders(rng);
+        }
+
+        private void createMacroUpdateButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            Excel.Application app = Globals.ThisAddIn.Application;
+            string directory = Directory.CreateDirectory(Path.Combine(FileManager.DownloadsPath, "Macros Updates")).FullName;
+            UtilsExcel.CreateMacroUpdateFileFromActiveVbaCode(app,directory);
+        }
+
+        private void importTxtFileLegacyButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            string filePath = string.Empty;
+            FileDropForm form = new FileDropForm(Utils.TextExt.Concat(Utils.ExcelExt).ToList());
+            form.Show();
+            form.FormClosed += (s, _) =>
+            {
+                if (form.DialogResult != DialogResult.OK)
+                    return;
+
+                filePath = form.FilePath;
+                if (Utils.TextExt.Contains(Path.GetExtension(filePath), StringComparer.OrdinalIgnoreCase))
+                {
+                    char delimiter = Utils.DetermineTableDelimiter(filePath);
+                    if (delimiter == default(char))
+                    {
+                        string choosenDelimiter = Microsoft.VisualBasic.Interaction.InputBox("Can not determine delimiter, write one in ' characters:", "Write delimiter in ''", "", 0, 0);
+
+                        if (choosenDelimiter.Length != 1)
+                        {
+                            MessageBox.Show("Delimiter too long or missing!", "Delimiter too long or missing!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
+                        else
+                            delimiter = choosenDelimiter[0];
+                    }
+                    Excel.Application app = Globals.ThisAddIn.Application;
+                    Excel.Worksheet aWs = app.ActiveSheet;
+                    Excel.Worksheet ws = (aWs.Parent as Excel.Workbook).Worksheets.Add(aWs);
+
+                    if (File.ReadLines(filePath).LongCount() > ws.Rows.Count)
+                    {
+                        int columnCount = 0; long rowCount = File.ReadLines(filePath).LongCount();
+                        using (StreamReader reader = new StreamReader(filePath))
+                        {
+                            string firstLine = reader.ReadLine();
+                            columnCount = !string.IsNullOrEmpty(firstLine) ? firstLine.Split(delimiter).Length : 0;
+                        }
+                        UtilsExcel.RunMacro("LoadTextFileIntoDataModel", new object[] { $"\"{filePath}\"", delimiter.ToString(), columnCount.ToString() });
+                        return;
+                    }
+                    else
+                        WTC.ImportTextFileToExcelLegacy(ws, filePath, delimiter);
+
+                    ws.Rename(Path.GetFileNameWithoutExtension(filePath));
+                }
+                else if (Utils.ExcelExt.Contains(Path.GetExtension(filePath), StringComparer.OrdinalIgnoreCase))
+                {
+                    Excel.Workbook wb = Microsoft.VisualBasic.Interaction.GetObject(filePath) as Excel.Workbook;
+                    Excel.Application app = Globals.ThisAddIn.Application;
+                    Excel.Worksheet aWs = app.ActiveSheet;
+                    wb.Worksheets.Item[1].Copy(aWs);
+                    if ((wb.Worksheets.Item[1].Name as string).StartsWith("Sheet"))
+                        (app.ActiveSheet as Excel.Worksheet).Rename(Path.GetFileNameWithoutExtension(wb.FullName));
+                    //Utils.RunMacro("RenameSheet", new object[] { Path.GetFileNameWithoutExtension(wb.FullName) });
+                    wb.Close();
+                    return;
+                }
+                else
+                    return;
+            };
         }
     }
 }

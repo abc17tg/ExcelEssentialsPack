@@ -12,6 +12,7 @@ using ColorMine.ColorSpaces;
 using System.Drawing;
 using System.Text;
 using Microsoft.Data.Sqlite;
+using System.Threading.Tasks;
 
 public static class Utils
 {
@@ -46,7 +47,14 @@ public static class Utils
         return default(char); // no delimiter found
     }
 
-    
+    public static IEnumerable<IEnumerable<T>> Split<T>(this IEnumerable<T> list, int parts)
+    {
+        int i = 0;
+        var splits = from item in list
+                     group item by i++ % parts into part
+                     select part.AsEnumerable();
+        return splits;
+    }
 
     public static bool IsSQLQueryValid(string sql, out List<string> errors)
     {
@@ -94,31 +102,26 @@ public static class Utils
         return newString;
     }
 
-    public static Dictionary<string, int> GetCounts(DataTable dt, string searchWord = "")
+    public static SortedDictionary<string, long> GetCounts(DataTable dt, string searchWord = "")
     {
-        var counts = new Dictionary<string, int>();
+        var counts = new SortedDictionary<string, long>();
+        long rowsCount = dt.Rows.Count;
 
-        foreach (DataColumn column in dt.Columns)
+        object lockObject = new object();
+        Parallel.ForEach<DataColumn>(dt.Columns.Cast<DataColumn>(), column =>
         {
-            int count = 0;
-            foreach (DataRow row in dt.Rows)
-            {
-                var cellValue = row[column].ToString();
-                if (string.IsNullOrEmpty(searchWord))
-                {
-                    if (!string.IsNullOrEmpty(cellValue))
-                        count++;
-                }
-                else
-                {
-                    if (cellValue.Contains(searchWord))
-                        count++;
-                }
-            }
-            counts[column.ColumnName] = count;
-        }
+            long count = dt.AsEnumerable().Select(p => p[column]?.ToString()).LongCount(p => (!string.IsNullOrEmpty(p) && (string.IsNullOrEmpty(searchWord) || p.Contains(searchWord, StringComparison.OrdinalIgnoreCase))));
+
+            lock (lockObject)
+                counts[column.ColumnName] = count;
+        });
 
         return counts;
+    }
+
+    public static bool Contains(this string source, string toCheck, StringComparison comp)
+    {
+        return source?.IndexOf(toCheck, comp) >= 0;
     }
 
     public static void SaveDataTableToTxt(DataTable dt, string filePath = "", string initialName = "", string initialDirectory = "")
@@ -162,7 +165,17 @@ public static class Utils
             list[n] = value;
         }
     }
-
+    public static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
+    {
+        HashSet<TKey> seenKeys = new HashSet<TKey>();
+        foreach (TSource element in source)
+        {
+            if (seenKeys.Add(keySelector(element)))
+            {
+                yield return element;
+            }
+        }
+    }
 
     public static void Shuffle<T>(this IList<T> list)
     {
@@ -269,7 +282,7 @@ public static class Utils
             }
         }
     }
-    
+
 
     public static void ExecuteSqlQueryAndDisplayResults(DataGridView dataGridView, string sqlQuery)
     {

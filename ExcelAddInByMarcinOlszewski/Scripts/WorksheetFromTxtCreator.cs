@@ -11,7 +11,7 @@ namespace ImportTableToExcel
 {
     public static class WorksheetFromTxtCreator
     {
-        public static void CreateExcelWorkbookFromTextFileQueryTable(Excel.Worksheet worksheet, string filePath, char delimiter)
+        public static void ImportTextFileToExcelLegacy(Excel.Worksheet worksheet, string filePath, char delimiter)
         {
             // Create a connection string to the text file using Power Query
             string connectionString = $"TEXT;{filePath}";
@@ -95,10 +95,10 @@ namespace ImportTableToExcel
             {
                 if (
                         !(
-                            dataTable.Columns[i].ColumnName.EndsWith("ID", StringComparison.OrdinalIgnoreCase) || 
-                            dataTable.Columns[i].ColumnName.EndsWith("CODE", StringComparison.OrdinalIgnoreCase) || 
+                            dataTable.Columns[i].ColumnName.EndsWith("ID", StringComparison.OrdinalIgnoreCase) ||
+                            dataTable.Columns[i].ColumnName.EndsWith("CODE", StringComparison.OrdinalIgnoreCase) ||
                             dataTable.Columns[i].ColumnName.EndsWith("KEY", StringComparison.OrdinalIgnoreCase)
-                        ) && 
+                        ) &&
                         columnTypes.TryGetValue(i, out Type dataType)
                    )
                     dataTable.Columns[i].DataType = dataType;
@@ -112,39 +112,38 @@ namespace ImportTableToExcel
 
             return dataTable;
         }
-    }
 
-
-    /*public static Excel.Range CreateExcelWorkbookFromTextFile(Excel.Worksheet worksheet, string filePath, string delimiter = "\t")
-    {
-        if (!File.Exists(filePath))
+        /*public static Excel.Range CreateExcelWorkbookFromTextFile(Excel.Worksheet worksheet, string filePath, string delimiter = "\t")
         {
-            throw new FileNotFoundException($"File not found at path: {filePath}");
-        }
-
-        using (StreamReader reader = new StreamReader(filePath))
-        {
-            List<List<string>> rows = new List<List<string>>();
-
-            string line;
-
-            while ((line = reader.ReadLine()) != null)
+            if (!File.Exists(filePath))
             {
-                string[] values = line.Split(new string[] { delimiter }, StringSplitOptions.None);
-
-                rows.Add(values.ToList());
+                throw new FileNotFoundException($"File not found at path: {filePath}");
             }
 
-            int rowCount = rows.Count;
-            int columnCount = rows.Max(row => row.Count);
+            using (StreamReader reader = new StreamReader(filePath))
+            {
+                List<List<string>> rows = new List<List<string>>();
 
-            Excel.Range range = worksheet.Range[worksheet.Cells[1, 1], worksheet.Cells[rowCount, columnCount]];
-            range.Value2 = rows.Select(row => row.ToArray()).ToArray();
-            range.NumberFormat = "@";
+                string line;
 
-            return range;
-        }
-    }*/
+                while ((line = reader.ReadLine()) != null)
+                {
+                    string[] values = line.Split(new string[] { delimiter }, StringSplitOptions.None);
+
+                    rows.Add(values.ToList());
+                }
+
+                int rowCount = rows.Count;
+                int columnCount = rows.Max(row => row.Count);
+
+                Excel.Range range = worksheet.Range[worksheet.Cells[1, 1], worksheet.Cells[rowCount, columnCount]];
+                range.Value2 = rows.Select(row => row.ToArray()).ToArray();
+                range.NumberFormat = "@";
+
+                return range;
+            }
+        }*/
+    }
 }
 
 
