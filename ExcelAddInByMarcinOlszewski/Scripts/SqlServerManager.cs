@@ -3,6 +3,7 @@ using System.Data;
 using System.Data.OleDb;
 using System.Data.SqlClient;
 using System.Windows.Forms;
+using ExcelAddInByMarcinOlszewski.Forms;
 using ExcelAddInByMarcinOlszewski.Scripts;
 using Oracle.ManagedDataAccess.Client;
 using Excel = Microsoft.Office.Interop.Excel;
@@ -71,7 +72,7 @@ namespace ExcelAddInByMarcinOlszewski
             return result;
         }
 
-        public static void GetDataFromServerToNewSheet(string query, SqlConn sqlConn, bool headers = true, string wsName = "")
+        public static bool GetDataFromServerToNewSheet(Control control, string query, SqlConn sqlConn, bool headers = true, string wsName = "")
         {
             Excel.Workbook wb = Globals.ThisAddIn.Application.ActiveWorkbook;
             Excel.Worksheet ws = wb.Sheets.Add();
@@ -82,38 +83,79 @@ namespace ExcelAddInByMarcinOlszewski
             if (sqlResult.HasErrors || sqlResult.DataTable.Rows.Count < 1)
             {
                 MessageBox.Show($"No data extracted\n{(sqlResult.Errors == null ? string.Empty : sqlResult.Errors)}", "Query finished", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                return;
+                return false;
             }
 
             if (!ws.Exists())
-                return;
+                return false;
 
-            if (sqlResult.DataTable.Rows.Count >= ws.Rows.Count)
-                Utils.SaveDataTableToTxt(sqlResult.DataTable, string.Empty, ws.Name, (!string.IsNullOrEmpty(wb.Path) ? wb.Path : string.Empty));
+            if (sqlResult.DataTable.Rows.Count >= ws.Rows.Count - 1)
+            {
+                if (control == null || control.IsDisposed)
+                    return false;
+
+                control.Invoke(new Action(() =>
+                {
+                    MessageBoxForm messageBoxForm = new MessageBoxForm($"Query finished and too big to be pasted. Display as DataTable or discard? To discard close the message\n\n\n{query}", "Query finished and too big", true);
+                    messageBoxForm.ShowDialog();
+                    if (messageBoxForm.DialogResult == DialogResult.OK)
+                    {
+                        if (control == null || control.IsDisposed)
+                            return;
+
+                        DataTableForm dataTableForm = new DataTableForm(sqlResult.DataTable, query, ws.Application);
+                        dataTableForm.Show();
+                        dataTableForm.Activate();
+                    }
+                }));
+                return false;
+            }
             else
+            {
                 UtilsExcel.PasteDataTableToRange(sqlResult.DataTable, ws.Cells[1, 1], headers);
+                return true;
+            }
         }
 
-        public static void GetDataFromServerToSelection(string query, SqlConn sqlConn, Excel.Range rng, bool headers = true)
+        public static bool GetDataFromServerToSelection(Control control, string query, SqlConn sqlConn, Excel.Range rng, bool headers = true)
         {
             SqlResult sqlResult = GetDataFromServer(query, sqlConn, 180);
             if (sqlResult.HasErrors || sqlResult.DataTable.Rows.Count < 1)
             {
                 MessageBox.Show($"No data extracted\n{(sqlResult.Errors == null ? string.Empty : sqlResult.Errors)}", "Query finished", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                return;
+                return false;
             }
 
             if (!rng.Valid())
-                return;
+                return false;
 
             if (sqlResult.DataTable.Rows.Count >= rng.Worksheet.Rows.Count - rng.Row + 1)
-                Utils.SaveDataTableToTxt(sqlResult.DataTable, string.Empty, rng.Worksheet.Name, (!string.IsNullOrEmpty(rng.Worksheet.Parent.Path) ? rng.Worksheet.Parent.Path : string.Empty));
+            {
+                if (control == null || control.IsDisposed)
+                    return false;
+
+                control.Invoke(new Action(() =>
+                {
+                    MessageBoxForm messageBoxForm = new MessageBoxForm($"Query finished and too big to be pasted. Display as DataTable or discard? To discard close the message\n\n\n{query}", "Query finished and too big", true);
+                    messageBoxForm.ShowDialog();
+                    if (messageBoxForm.DialogResult == DialogResult.OK)
+                    {
+                        if (control == null || control.IsDisposed)
+                            return;
+
+                        DataTableForm form = new DataTableForm(sqlResult.DataTable, query, rng.Application);
+                        form.Show();
+                        form.Activate();
+                    }
+                }));
+                return false;
+            }
             else
+            {
                 UtilsExcel.PasteDataTableToRange(sqlResult.DataTable, rng, headers);
+                return true;
+            }
         }
-
-        SaveFileDialog saveDlg = new SaveFileDialog();
-
 
         public static SqlResult GetDataFromServer(string query, SqlConn sqlConn, int timeout = -1)
         {
@@ -144,7 +186,7 @@ namespace ExcelAddInByMarcinOlszewski
                 DataTable dt = new DataTable();
                 adapter.Fill(dt, rs);
 
-                return new SqlResult(dt,null);
+                return new SqlResult(dt, null);
             }
             catch (Exception ex)
             {

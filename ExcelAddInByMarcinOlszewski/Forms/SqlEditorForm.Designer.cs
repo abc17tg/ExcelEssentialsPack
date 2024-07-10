@@ -589,7 +589,6 @@ namespace ExcelAddInByMarcinOlszewski
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "SQL Editor";
             this.Load += new System.EventHandler(this.SqlEditorForm_Load);
-            this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.SqlEditorForm_MouseClick);
             this.mainTableLayoutPanel.ResumeLayout(false);
             this.upperTableLayoutPanel.ResumeLayout(false);
             this.parametersTableLayoutPanel.ResumeLayout(false);

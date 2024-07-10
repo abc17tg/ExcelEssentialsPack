@@ -4,6 +4,8 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Excel = Microsoft.Office.Interop.Excel;
 using WTC = ImportTableToExcel.WorksheetFromTxtCreator;
@@ -17,6 +19,17 @@ namespace ExcelAddInByMarcinOlszewski.Forms
         public bool AutoImport;
         public Dictionary<string, string> Bookmarks;
 
+        public const Int32 WM_SYSCOMMAND = 0x112;
+        public const Int32 MF_BYPOSITION = 0x400;
+        public const Int32 ToggleTopMostMenuItem = 1000;
+        public const Int32 CenterFormMenuItem = 1001;
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
+        [DllImport("user32.dll")]
+        private static extern bool InsertMenu(IntPtr hMenu, Int32 wPosition, Int32 wFlags, Int32 wIDNewItem, string lpNewItem);
+
+
         public BrowserViewForm(bool autoImport, string url = @"https://google.com")
         {
             InitializeComponent();
@@ -28,6 +41,36 @@ namespace ExcelAddInByMarcinOlszewski.Forms
             Bookmarks = GetBookmarks();
             bookmarksComboBox.Items.AddRange(Bookmarks.Keys.ToArray());
             Reload();
+        }
+        private void BrowserViewForm_Load(object sender, EventArgs e)
+        {
+            IntPtr MenuHandle = GetSystemMenu(this.Handle, false);
+            InsertMenu(MenuHandle, 5, MF_BYPOSITION, ToggleTopMostMenuItem, "Pin/Unpin this window");
+            InsertMenu(MenuHandle, 6, MF_BYPOSITION, CenterFormMenuItem, "Center window");
+        }
+
+        protected override void WndProc(ref Message msg)
+        {
+            if (msg.Msg == WM_SYSCOMMAND)
+            {
+                switch (msg.WParam.ToInt32())
+                {
+                    case ToggleTopMostMenuItem:
+                        ToggleTopMost();
+                        return;
+                    case CenterFormMenuItem:
+                        Utils.MoveFormToCenter(this);
+                        return;
+                    default:
+                        break;
+                }
+            }
+            base.WndProc(ref msg);
+        }
+
+        private void ToggleTopMost()
+        {
+            this.TopMost = !this.TopMost;
         }
 
         private void CoreWebView2_DownloadStarting(object sender, Microsoft.Web.WebView2.Core.CoreWebView2DownloadStartingEventArgs e)
@@ -138,12 +181,20 @@ namespace ExcelAddInByMarcinOlszewski.Forms
             try
             {
                 webView2.CoreWebView2.DownloadStarting -= CoreWebView2_DownloadStarting;
-            } catch { }
+            }
+            catch { }
 
             await webView2.EnsureCoreWebView2Async(null);
             webView2.CoreWebView2.DownloadStarting += CoreWebView2_DownloadStarting;
-            webView2.CoreWebView2.Navigate(Url);
-            webView2.CoreWebView2.NewWindowRequested += CoreWebView2_NewWindowRequested;
+            if (IsValidUrl(Url))
+            {
+                webView2.CoreWebView2.Navigate(Url);
+                webView2.CoreWebView2.NewWindowRequested += CoreWebView2_NewWindowRequested;
+            }
+            else
+            {
+                MessageBox.Show($"URL: \"{Url}\" is not valid or complete", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void CoreWebView2_NewWindowRequested(object sender, Microsoft.Web.WebView2.Core.CoreWebView2NewWindowRequestedEventArgs e)
@@ -162,10 +213,22 @@ namespace ExcelAddInByMarcinOlszewski.Forms
 
         private void searchButton_Click(object sender, EventArgs e)
         {
-            if (urlTextBox.Text.StartsWith("www", StringComparison.OrdinalIgnoreCase))
-                urlTextBox.Text = @"https:\\" + urlTextBox.Text;
-            Url = urlTextBox.Text;
+            string url = string.IsNullOrWhiteSpace(urlTextBox.Text) ? "www.gooogle.com" : urlTextBox.Text;
+
+            // Check if URL starts with "www" and add "https://" prefix if needed
+            if (url.StartsWith("www", StringComparison.OrdinalIgnoreCase))
+            {
+                url = @"https://" + url;
+            }
+
+            Url = url;
             Reload();
+
+        }
+
+        private bool IsValidUrl(string url)
+        {
+            return Uri.IsWellFormedUriString(url, UriKind.Absolute);
         }
 
         private void urlTextBox_KeyDown(object sender, KeyEventArgs e)

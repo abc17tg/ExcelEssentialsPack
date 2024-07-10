@@ -132,6 +132,7 @@
             this.ShowIcon = false;
             this.Text = "Get file";
             this.TopMost = true;
+            this.Load += new System.EventHandler(this.FileDropForm_Load);
             this.dropFileField.ResumeLayout(false);
             this.dropFileField.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.droppedFileIcon)).EndInit();

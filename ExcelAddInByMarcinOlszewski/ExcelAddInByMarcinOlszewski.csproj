@@ -388,6 +388,12 @@
     <Compile Include="Forms\FormatDelimitedForm.Designer.cs">
       <DependentUpon>FormatDelimitedForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\InputBoxForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\InputBoxForm.Designer.cs">
+      <DependentUpon>InputBoxForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\InputRangeForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -488,6 +494,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FormatDelimitedForm.resx">
       <DependentUpon>FormatDelimitedForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\InputBoxForm.resx">
+      <DependentUpon>InputBoxForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\InputRangeForm.resx">
       <DependentUpon>InputRangeForm.cs</DependentUpon>

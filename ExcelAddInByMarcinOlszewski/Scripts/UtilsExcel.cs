@@ -15,6 +15,7 @@ using System.Text.RegularExpressions;
 using System.Numerics;
 using System.Drawing;
 using static SQLite.TableMapping;
+using System.Globalization;
 
 public static class UtilsExcel
 {
@@ -462,18 +463,54 @@ public static class UtilsExcel
         }
     }
 
+    public static void SplitDataTableAndPasteToExcel(DataTable dataTable, Excel.Range rng, bool includeHeaders)
+    {
+        int maxRowsPerSheet = rng.Worksheet.Rows.Count - (includeHeaders ? 2 : 1);
+        int totalRows = dataTable.Rows.Count;
+        int sheetCount = (int)Math.Ceiling((double)totalRows / maxRowsPerSheet);
+        string wsName = rng.Worksheet.Name;
+
+        for (int i = 0; i < sheetCount; i++)
+        {
+            int startRow = i * maxRowsPerSheet;
+            int endRow = Math.Min(startRow + maxRowsPerSheet, totalRows);
+
+            Excel.Worksheet worksheet;
+            if (i == 0)
+                worksheet = rng.Worksheet;
+            else
+                worksheet = rng.Worksheet.Parent.Worksheets.Add();
+
+            worksheet.Rename(wsName, $" part{i + 1}");
+
+            // Create a chunk DataTable
+            DataTable chunkDataTable = dataTable.Clone(); // Clone the structure of the original DataTable
+
+            for (int rowIndex = startRow; rowIndex < endRow; rowIndex++)
+            {
+                chunkDataTable.ImportRow(dataTable.Rows[rowIndex]);
+            }
+
+            Excel.Range pasteRng = worksheet.Cells[1, 1];
+
+            PasteDataTableToRange(chunkDataTable, pasteRng, includeHeaders);
+        }
+    }
+
     public static void DeleteNonVisibleRows(Excel.Range rng)
     {
-        for (int i = rng.Rows.Count; i >= 1; i--)
-            if (rng.Rows[i].Hidden)
-                rng.Rows[i].Delete(Excel.XlDeleteShiftDirection.xlShiftUp);
+        using (new ExcelExecutionBlock(rng.Application))
+            for (int i = rng.Rows.Count; i >= 1; i--)
+                if (rng.Rows[i].Hidden)
+                    rng.Rows[i].Delete(Excel.XlDeleteShiftDirection.xlShiftUp);
     }
 
     public static void DeleteNonVisibleColumns(Excel.Range rng)
     {
-        for (int i = rng.Columns.Count; i >= 1; i--)
-            if (rng.Columns[i].Hidden)
-                rng.Columns[i].Delete(Excel.XlDeleteShiftDirection.xlShiftToLeft);
+        using (new ExcelExecutionBlock(rng.Application))
+            for (int i = rng.Columns.Count; i >= 1; i--)
+                if (rng.Columns[i].Hidden)
+                    rng.Columns[i].Delete(Excel.XlDeleteShiftDirection.xlShiftToLeft);
     }
 
     public static void DivideTableToParts(Excel.Range tableRng, int parts)
@@ -593,13 +630,13 @@ public static class UtilsExcel
         string sWRS;
         string format;
         List<Excel.Range> dateColumns;
-
+        CultureInfo culture = new CultureInfo(CultureInfo.CurrentCulture.Name, true);
         string pattern = "(?=.*d)(?=.*m)(?=.*y)";
-        sWRS = string.Format("{0:#,##0.00}", 1000);
+        sWRS = string.Format(culture, "{0:#,##0.00}", 1000);
         thousandsSeparator = sWRS.Substring(1, 1).Replace((char)160, ' ');
         decimalSeparator = sWRS.Substring(5, 1);
 
-        sWRS = string.Format("{0:#,##0.00}", -1);
+        sWRS = string.Format(culture, "{0:#,##0.00}", -1);
         using (new ExcelExecutionBlock(rng.Application))
         {
             dateColumns = rng.Columns.Cast<Excel.Range>().Where(p => (p.Cells.SpecialCellsOrDefault(Excel.XlCellType.xlCellTypeConstants) ?? p).Cast<Excel.Range>()

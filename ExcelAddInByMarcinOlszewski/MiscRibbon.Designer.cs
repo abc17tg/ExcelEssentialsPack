@@ -1243,6 +1243,7 @@
             this.updatePivotTableSourceButton.ScreenTip = "Update pivot table source";
             this.updatePivotTableSourceButton.ShowImage = true;
             this.updatePivotTableSourceButton.SuperTip = "Will update pivot table source to current region of current pivot table";
+            this.updatePivotTableSourceButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.updatePivotTableSourceButton_Click);
             // 
             // dataImportTab
             // 

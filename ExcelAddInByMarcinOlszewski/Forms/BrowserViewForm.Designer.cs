@@ -157,6 +157,7 @@
             this.Name = "BrowserViewForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Edge";
+            this.Load += new System.EventHandler(this.BrowserViewForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.webView2)).EndInit();
             this.addressTableLayoutPanel.ResumeLayout(false);
             this.addressTableLayoutPanel.PerformLayout();

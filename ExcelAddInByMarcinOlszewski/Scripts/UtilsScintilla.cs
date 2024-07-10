@@ -47,6 +47,59 @@ namespace ExcelAddInByMarcinOlszewski.Scripts
             editor.GotoPosition(editor.Lines[currentLine].EndPosition - (editor.Lines[currentLine].Text.EndsWith(Environment.NewLine) ? Environment.NewLine.Length : 0));
         }
 
+        public static void ReformatTextToSql(Scintilla editor, string text = null)
+        {
+            if (text == null)
+                text = editor.SelectedText;
+            if (string.IsNullOrWhiteSpace(text))
+                return;
+
+            List<char> DelimiterChars = new List<char> { ' ', @"'"[0], '(', ')', ',', '.', '\t', '\n', '\r', ';', '|' };
+            text = $"({string.Join(", ", text.Split(DelimiterChars.ToArray(), StringSplitOptions.RemoveEmptyEntries).Select(p => $"\'{p.Trim()}\'").ToArray())})";
+            editor.ReplaceSelection(text);
+        }
+
+        public static void SelectBlock(Scintilla editor, string blockStartIdentifier = "----", string blockEndIdentifier = "----") // Selects block that is serrounded by at least 4 '-'
+        {
+            int currentLine = editor.LineFromPosition(editor.CurrentPosition);
+
+            // Find the start line
+            int startLine = currentLine;
+            if (string.IsNullOrWhiteSpace(blockStartIdentifier))
+                startLine = 0;
+            else
+                while (startLine > 0)
+                {
+                    string lineText = editor.Lines[startLine].Text.Trim();
+                    if (lineText.StartsWith(blockStartIdentifier))
+                    {
+                        break;
+                    }
+                    startLine--;
+                }
+
+            // Find the end line
+            int endLine = currentLine;
+            if (string.IsNullOrWhiteSpace(blockEndIdentifier))
+                endLine = editor.Lines.Count - 1;
+            else
+                while (endLine < editor.Lines.Count - 1)
+                {
+                    string lineText = editor.Lines[endLine].Text.Trim();
+                    if (lineText.StartsWith(blockEndIdentifier))
+                    {
+                        break;
+                    }
+                    endLine++;
+                }
+
+            // Select the lines
+            int startPosition = editor.Lines[startLine].Position;
+            int endPosition = editor.Lines[endLine].EndPosition;
+
+            editor.SetSelection(startPosition, endPosition);
+        }
+
         public static void WrapIntoSqlBlock(Scintilla editor)
         {
             int indentation = editor.Lines[editor.CurrentLine].Indentation;

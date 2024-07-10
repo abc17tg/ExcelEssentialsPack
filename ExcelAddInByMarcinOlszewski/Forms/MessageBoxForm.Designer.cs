@@ -40,11 +40,11 @@
             this.tableLayoutPanel1.SetColumnSpan(this.messageRichTextBox, 2);
             this.messageRichTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.messageRichTextBox.Font = new System.Drawing.Font("Calibri", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.messageRichTextBox.Location = new System.Drawing.Point(20, 20);
-            this.messageRichTextBox.Margin = new System.Windows.Forms.Padding(20, 20, 20, 10);
+            this.messageRichTextBox.Location = new System.Drawing.Point(20, 15);
+            this.messageRichTextBox.Margin = new System.Windows.Forms.Padding(20, 15, 20, 5);
             this.messageRichTextBox.Name = "messageRichTextBox";
             this.messageRichTextBox.ReadOnly = true;
-            this.messageRichTextBox.Size = new System.Drawing.Size(558, 394);
+            this.messageRichTextBox.Size = new System.Drawing.Size(558, 407);
             this.messageRichTextBox.TabIndex = 0;
             this.messageRichTextBox.Text = "test";
             this.messageRichTextBox.WordWrap = false;
@@ -52,8 +52,8 @@
             // okButton
             // 
             this.okButton.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.okButton.Location = new System.Drawing.Point(508, 427);
-            this.okButton.Margin = new System.Windows.Forms.Padding(3, 3, 15, 10);
+            this.okButton.Location = new System.Drawing.Point(516, 430);
+            this.okButton.Margin = new System.Windows.Forms.Padding(3, 3, 7, 7);
             this.okButton.Name = "okButton";
             this.okButton.Size = new System.Drawing.Size(75, 23);
             this.okButton.TabIndex = 1;
@@ -87,6 +87,7 @@
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "MessageBoxForm";
+            this.Load += new System.EventHandler(this.MessageBoxForm_Load);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.ResumeLayout(false);
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -37,6 +38,7 @@ namespace ExcelAddInByMarcinOlszewski
         public const Int32 WM_SYSCOMMAND = 0x112;
         public const Int32 MF_BYPOSITION = 0x400;
         public const Int32 ToggleTopMostMenuItem = 1000;
+        public const Int32 CenterFormMenuItem = 1001;
 
         [DllImport("user32.dll")]
         private static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
@@ -84,20 +86,24 @@ namespace ExcelAddInByMarcinOlszewski
 
             ContextMenu cm = new ContextMenu();
 
-            MenuItem copyCMI = new MenuItem("Copy", (o, e) => { (o as Scintilla).Copy(); });
-            MenuItem pasteCMI = new MenuItem("Paste", (o, e) => { (o as Scintilla).Paste(); });
+            MenuItem copyCMI = new MenuItem("Copy", (o, e) => { sqlEditorScintilla.Copy(); });
+            MenuItem pasteCMI = new MenuItem("Paste", (o, e) => { sqlEditorScintilla.Paste(); });
             MenuItem fetchCMI = new MenuItem("Fetch", (o, e) => { fetchBtn.PerformClick(); });
             MenuItem commentCMI = new MenuItem("Comment", (o, e) => { commentBtn.PerformClick(); });
             MenuItem pasteRangeCMI = new MenuItem("Paste range", (o, e) => { pasteRngBtn.PerformClick(); });
-            MenuItem runSelectionCMI = new MenuItem("Run selected", (o, e) => { runSelectionBtn.PerformClick(); });
             MenuItem pasteClipboardRangeCMI = new MenuItem("Paste rng from clipboard", (o, e) => { PasteFromClipboard(); });
+            MenuItem formatToSqlCMI = new MenuItem("Format to SQL", (o, e) => { UtilsScintilla.ReformatTextToSql(sqlEditorScintilla); });
+            MenuItem runSelectionCMI = new MenuItem("Run selected", (o, e) => { runSelectionBtn.PerformClick(); });
+            MenuItem runBlockCMI = new MenuItem("Run block (block identifier '----')", (o, e) => { UtilsScintilla.SelectBlock(sqlEditorScintilla); runSelectionBtn.PerformClick(); });
             cm.MenuItems.Add(pasteCMI);
             cm.MenuItems.Add(copyCMI);
             cm.MenuItems.Add(fetchCMI);
             cm.MenuItems.Add(commentCMI);
             cm.MenuItems.Add(pasteRangeCMI);
             cm.MenuItems.Add(pasteClipboardRangeCMI);
+            cm.MenuItems.Add(formatToSqlCMI);
             cm.MenuItems.Add(runSelectionCMI);
+            cm.MenuItems.Add(runBlockCMI);
             sqlEditorScintilla.ContextMenu = cm;
         }
 
@@ -110,6 +116,9 @@ namespace ExcelAddInByMarcinOlszewski
                     case ToggleTopMostMenuItem:
                         ToggleTopMost();
                         return;
+                    case CenterFormMenuItem:
+                        Utils.MoveFormToCenter(this);
+                        return;
                     default:
                         break;
                 }
@@ -121,6 +130,7 @@ namespace ExcelAddInByMarcinOlszewski
         {
             IntPtr MenuHandle = GetSystemMenu(this.Handle, false);
             InsertMenu(MenuHandle, 5, MF_BYPOSITION, ToggleTopMostMenuItem, "Pin/Unpin this window");
+            InsertMenu(MenuHandle, 6, MF_BYPOSITION, CenterFormMenuItem, "Center window");
         }
 
         private void ToggleTopMost()
@@ -147,9 +157,7 @@ namespace ExcelAddInByMarcinOlszewski
             if (string.IsNullOrWhiteSpace(text))
                 return;
 
-            List<char> DelimiterChars = new List<char> { ' ', @"'"[0], '(', ')', ',', '.', '\t', '\n', '\r', ';', '|' };
-            text = $"({string.Join(", ", text.Split(DelimiterChars.ToArray(), StringSplitOptions.RemoveEmptyEntries).Select(p => $"\'{p.Trim()}\'").ToArray())})";
-            sqlEditorScintilla.ReplaceSelection(text);
+            UtilsScintilla.ReformatTextToSql(sqlEditorScintilla, text);
         }
 
         private void pasteRngBtn_Click(object sender, EventArgs e)
@@ -186,14 +194,71 @@ namespace ExcelAddInByMarcinOlszewski
         private void runSelectionBtn_Click(object sender, EventArgs e)
         {
             Query = sqlEditorScintilla.SelectedText;
+
+            if (string.IsNullOrWhiteSpace(Query))
+            {
+                UtilsScintilla.SelectBlock(sqlEditorScintilla);
+                return;
+            }
+
             Run(Query);
         }
 
-        private void Run(string query)
+
+
+        public bool IsSuperQuery(string query)
         {
-            if (new List<string> { query, SqlConn?.ConnectionString(), serverComboBox.SelectedItem.ToString(), serverTypeComboBox.SelectedItem.ToString() }.Any(p => string.IsNullOrWhiteSpace(p)))
+            // Check if the query is null or empty
+            if (string.IsNullOrWhiteSpace(query))
             {
-                MessageBox.Show("Missing server selections or query", "Run error");
+                return false;
+            }
+
+            Regex SuperQueryPattern = new Regex(@"SuperQuery\s*\(\s*(\d+)\s*,\s*""\(([^)]*)\)""\s*\)", RegexOptions.Compiled);
+            // Find all matches of the SuperQuery pattern
+            var matches = SuperQueryPattern.Matches(query);
+
+            // Ensure there is exactly one match
+            if (matches.Count != 1)
+            {
+                return false;
+            }
+
+            var match = matches[0];
+
+            // Extract the integer value
+            if (!int.TryParse(match.Groups[1].Value, out int number))
+            {
+                return false;
+            }
+
+            // Extract the values inside the parentheses
+            string valuesString = match.Groups[2].Value;
+
+            // Split the values by comma, trim surrounding whitespace and single quotes
+            var values = new List<string>();
+            foreach (var value in valuesString.Split(','))
+            {
+                values.Add(value.Trim().Trim('\''));
+            }
+
+            // Check if the first number exceeds the number of values
+            if (number > values.Count)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+
+
+        private void RunSuperQuery(string query)
+        {
+
+            if (new List<string> { SqlConn?.ConnectionString(), serverComboBox.SelectedItem.ToString(), serverTypeComboBox.SelectedItem.ToString() }.Any(p => string.IsNullOrWhiteSpace(p)))
+            {
+                MessageBox.Show("Missing server selections", "Run error");
                 return;
             }
 
@@ -211,9 +276,9 @@ namespace ExcelAddInByMarcinOlszewski
             if (pasteToDataTableCheckBox.Checked)
                 runQueryWithResult = new Task<SqlResult>(() => SqlServerManager.GetDataFromServer(query, SqlConn));
             else if (!pasteResultsToSelectionCheckBox.Checked)
-                runQuery = new Task(() => SqlServerManager.GetDataFromServerToNewSheet(query, SqlConn, PasteHeaders, NewSheetName == m_sheetNameTextBoxPlaceholder ? DefaultSheetName : NewSheetName));
+                runQuery = new Task(() => SqlServerManager.GetDataFromServerToNewSheet(this, query, SqlConn, PasteHeaders, NewSheetName == m_sheetNameTextBoxPlaceholder ? DefaultSheetName : NewSheetName));
             else
-                runQuery = new Task(() => SqlServerManager.GetDataFromServerToSelection(query, SqlConn, App.ActiveWindow.RangeSelection, PasteHeaders));
+                runQuery = new Task(() => SqlServerManager.GetDataFromServerToSelection(this, query, SqlConn, App.ActiveWindow.RangeSelection, PasteHeaders));
 
             if (++RunningQueries == 1)
                 Text = $"{FormTitle} [{RunningQueries}] running queries";
@@ -273,6 +338,102 @@ namespace ExcelAddInByMarcinOlszewski
                     //#if DEBUG
                     MessageBox.Show($"{query}\n\nFinished", $"{NewSheetName} query finished", MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     //#endif
+                });
+
+                runQuery.Start();
+            }
+        }
+
+        private void Run(string query)
+        {
+            if (new List<string> { query, SqlConn?.ConnectionString(), serverComboBox.SelectedItem.ToString(), serverTypeComboBox.SelectedItem.ToString() }.Any(p => string.IsNullOrWhiteSpace(p)))
+            {
+                MessageBox.Show("Missing server selections or query", "Run error");
+                return;
+            }
+
+            List<string> errors = new List<string>();
+            if (!Utils.IsSQLQueryValid(query, out errors))
+            {
+                var result = MessageBox.Show(string.Join(Environment.NewLine, errors), "Syntax error", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+                if (result != DialogResult.OK)
+                    return;
+            }
+
+            Task<bool> runQuery = null;
+            Task<SqlResult> runQueryWithResult = null;
+
+            if (pasteToDataTableCheckBox.Checked)
+                runQueryWithResult = new Task<SqlResult>(() => SqlServerManager.GetDataFromServer(query, SqlConn));
+            else if (!pasteResultsToSelectionCheckBox.Checked)
+                runQuery = new Task<bool>(() => SqlServerManager.GetDataFromServerToNewSheet(this, query, SqlConn, PasteHeaders, NewSheetName == m_sheetNameTextBoxPlaceholder ? DefaultSheetName : NewSheetName));
+            else
+                runQuery = new Task<bool>(() => SqlServerManager.GetDataFromServerToSelection(this, query, SqlConn, App.ActiveWindow.RangeSelection, PasteHeaders));
+
+            if (++RunningQueries == 1)
+                Text = $"{FormTitle} [{RunningQueries}] running queries";
+            else
+                Text = Regex.Replace(Text, @"\s\[\d+\]\srunning\squeries", $" [{RunningQueries}] running queries");
+
+
+            if (pasteToDataTableCheckBox.Checked)
+            {
+                runQueryWithResult.GetAwaiter().OnCompleted(() =>
+                {
+                    if (this == null)
+                        return;
+
+                    --RunningQueries;
+                    string text;
+                    if (RunningQueries <= 0)
+                        text = FormTitle;
+                    else
+                        text = Regex.Replace(Text, @"\s\[\d+\]\srunning\squeries", $" [{RunningQueries}] running queries");
+
+                    this.Invoke(new Action(() =>
+                    {
+                        if (this != null)
+                            this.Text = text;
+                        SqlResult sqlResult = runQueryWithResult.Result;
+                        if (sqlResult.HasErrors)
+                            return;
+                        DataTableForm form = new DataTableForm(sqlResult.DataTable, query, App);
+                        form.Show();
+                        form.Activate();
+                    }));
+                });
+
+                runQueryWithResult.Start();
+            }
+            else
+            {
+                runQuery.GetAwaiter().OnCompleted(() =>
+                {
+                    if (this == null || this.IsDisposed)
+                        return;
+
+                    --RunningQueries;
+                    string text;
+                    if (RunningQueries <= 0)
+                        text = FormTitle;
+                    else
+                        text = Regex.Replace(Text, @"\s\[\d+\]\srunning\squeries", $" [{RunningQueries}] running queries");
+
+                    this.Invoke(new Action(() =>
+                    {
+                        if (this == null || this.IsDisposed)
+                            return;
+                        this.Text = text;
+                    }));
+
+                    if (runQuery.Result)
+                        this.Invoke(new Action(() =>
+                        {
+                            if (this == null || this.IsDisposed)
+                                return;
+                            MessageBoxForm messageBox = new MessageBoxForm($"{query}\n\nFinished", $"{NewSheetName ?? string.Empty} query finished", false);
+                            messageBox.Show();
+                        }));
                 });
 
                 runQuery.Start();
@@ -436,6 +597,12 @@ namespace ExcelAddInByMarcinOlszewski
                 e.SuppressKeyPress = true;
             }
 
+            if (e.Control && e.KeyCode == Keys.R)
+            {
+                UtilsScintilla.ReformatTextToSql(sqlEditorScintilla);
+                e.Handled = true; //e.SuppressKeyPress = true;
+            }
+
             if (e.Alt)
             {
                 if (e.KeyCode == Keys.Up)
@@ -506,7 +673,7 @@ namespace ExcelAddInByMarcinOlszewski
                         break;
                     case SqlServerManager.ServerType.Oracle:
                         /*query = "SELECT TABLE_NAME FROM ALL_TABLES WHERE ( ( TABLE_NAME LIKE '%S4%' OR TABLE_NAME LIKE '%EMEA%' OR TABLE_NAME LIKE '%MDM%' OR TABLE_NAME LIKE '%ECDER%' OR TABLE_NAME LIKE '%ECLIPSE%' OR TABLE_NAME LIKE '%POLARIS%' OR TABLE_NAME LIKE '%SIQP%' OR TABLE_NAME LIKE '%EDW%' OR TABLE_NAME LIKE '%MCW%' OR TABLE_NAME LIKE '%OMEGA%' OR TABLE_NAME LIKE '%SAP%' ) AND ( TABLE_NAME NOT LIKE '%AMS%' AND TABLE_NAME NOT LIKE '%APJ%' AND TABLE_NAME NOT LIKE '%TEMP%' AND TABLE_NAME NOT LIKE '%TEST%' AND TABLE_NAME NOT LIKE '%OLD%' AND TABLE_NAME NOT LIKE '%JAPAN%' AND TABLE_NAME NOT LIKE '%US_%' AND TABLE_NAME NOT LIKE '%AP_%' )) ORDER BY TABLE_NAME";*/
-                        query = "SELECT TABLE_NAME FROM ALL_TABLES WHERE NUM_ROWS > 0 ORDER BY TABLE_NAME";
+                        query = "SELECT OWNER || '.' || OBJECT_NAME FROM (SELECT DISTINCT OWNER, OBJECT_NAME FROM ALL_OBJECTS WHERE OBJECT_TYPE IN ('VIEW', 'TABLE') AND STATUS = 'VALID' ORDER BY OBJECT_NAME)";
                         break;
                     case SqlServerManager.ServerType.Excel:
                         objectsListBox.Items.Clear();
@@ -554,7 +721,7 @@ namespace ExcelAddInByMarcinOlszewski
                 lastText.EndsWith("select", true, System.Globalization.CultureInfo.InvariantCulture) ||
                 UtilsScintilla.SqlKeywords.Split(' ').Any(p => lastText.EndsWith(p, true, System.Globalization.CultureInfo.InvariantCulture)) || lastText.EndsWith("("))
             {
-                if ((new char[] {' ','\t'}).ToList().Contains((char)sqlEditorScintilla.GetCharAt(sqlEditorScintilla.SelectionStart - 1)))
+                if ((new char[] { ' ', '\t' }).ToList().Contains((char)sqlEditorScintilla.GetCharAt(sqlEditorScintilla.SelectionStart - 1)))
                     sqlEditorScintilla.ReplaceSelection(text?.TrimStart(',', ' ') ?? "");
                 else
                     sqlEditorScintilla.ReplaceSelection(text?.TrimStart(',') ?? "");
@@ -698,11 +865,6 @@ namespace ExcelAddInByMarcinOlszewski
         {
             if (objectsListBox.SelectedItems.Count > 0)
                 transferToQueryBtn.PerformClick();
-        }
-
-        private void SqlEditorForm_MouseClick(object sender, MouseEventArgs e)
-        {
-
         }
     }
 }

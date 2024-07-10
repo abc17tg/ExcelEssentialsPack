@@ -13,6 +13,8 @@ using System.Drawing;
 using System.Text;
 using Microsoft.Data.Sqlite;
 using System.Threading.Tasks;
+using static ScintillaNET.Style;
+using ExcelAddInByMarcinOlszewski.Forms;
 
 public static class Utils
 {
@@ -122,31 +124,6 @@ public static class Utils
     public static bool Contains(this string source, string toCheck, StringComparison comp)
     {
         return source?.IndexOf(toCheck, comp) >= 0;
-    }
-
-    public static void SaveDataTableToTxt(DataTable dt, string filePath = "", string initialName = "", string initialDirectory = "")
-    {
-        if (string.IsNullOrWhiteSpace(filePath))
-            filePath = FileManager.GetPathByDialog(initialName, initialDirectory);
-
-        if (string.IsNullOrWhiteSpace(filePath))
-            return;
-
-        StringBuilder sb = new StringBuilder();
-
-        // Add column headers
-        string[] columnNames = dt.Columns.Cast<DataColumn>().Select(column => column.ColumnName).ToArray();
-        sb.AppendLine(string.Join(",", columnNames));
-
-        // Add rows
-        foreach (DataRow row in dt.Rows)
-        {
-            string[] fields = row.ItemArray.Select(field => field.ToString()).ToArray();
-            sb.AppendLine(string.Join(",", fields));
-        }
-
-        // Write to file
-        File.WriteAllText(filePath, sb.ToString());
     }
 
     public static void SuperShuffle<T>(this IList<T> list)
@@ -283,6 +260,20 @@ public static class Utils
         }
     }
 
+    public static void MoveFormToCenter(Form form)
+    {
+        Point cursorPosition = Cursor.Position;
+
+        Screen currentScreen = Screen.FromPoint(cursorPosition);
+
+        Rectangle workingArea = currentScreen.WorkingArea;
+
+        int newX = workingArea.X + (workingArea.Width - form.Width) / 2;
+        int newY = workingArea.Y + (workingArea.Height - form.Height) / 2;
+
+        form.Location = new Point(newX, newY);
+    }
+
 
     public static void ExecuteSqlQueryAndDisplayResults(DataGridView dataGridView, string sqlQuery)
     {
@@ -354,6 +345,77 @@ public static class Utils
         else
         {
             return "BLOB";
+        }
+    }
+
+    public static void SaveAsTabDelimited(this DataTable dt, string delimiter = "\t", string folderPath = null)
+    {
+        object lockObject = new object();
+        bool delimiterExist = false;
+        Parallel.ForEach<DataColumn>(dt.Columns.Cast<DataColumn>(), column =>
+        {
+            bool exist = dt.AsEnumerable().Any(p => (p[column]?.ToString() ?? string.Empty).Contains(delimiter, StringComparison.OrdinalIgnoreCase));
+
+            if (exist)
+                lock (lockObject)
+                    delimiterExist = true;
+        });
+
+        while (delimiterExist || string.IsNullOrEmpty(delimiter))
+        {
+            InputBoxForm inputBoxForm = new InputBoxForm("Choose delimiter", $"Delimiter \"{delimiter}\" contained in values, choose another: ");
+            inputBoxForm.ShowDialog();
+            
+            if (inputBoxForm.DialogResult == DialogResult.Cancel)
+                return;
+
+            delimiter = inputBoxForm.Result;
+            Parallel.ForEach<DataColumn>(dt.Columns.Cast<DataColumn>(), column =>
+            {
+                bool exist = dt.AsEnumerable().Any(p => (p[column]?.ToString() ?? string.Empty).Contains(delimiter, StringComparison.OrdinalIgnoreCase));
+
+                if (exist)
+                    lock (lockObject)
+                        delimiterExist = true;
+            });
+        }
+
+        SaveFileDialog saveDlg = new SaveFileDialog();
+
+        if (!string.IsNullOrEmpty(folderPath))
+            saveDlg.InitialDirectory = folderPath;
+        else
+            saveDlg.InitialDirectory = Microsoft.Win32.Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders", "{374DE290-123F-4565-9164-39C4925E467B}", String.Empty).ToString();
+
+        saveDlg.FileName = (string.IsNullOrWhiteSpace(dt.TableName) ? "DT_Export" : dt.TableName) + DateTime.Now.ToString("_yyyy_MM_dd");
+        saveDlg.OverwritePrompt = true;
+        saveDlg.DefaultExt = ".txt";
+        saveDlg.AddExtension = true;
+        saveDlg.Filter = "Text Files | *.txt";
+
+        if (saveDlg.ShowDialog() == DialogResult.OK)
+        {
+            try
+            {
+                StringBuilder sb = new StringBuilder();
+
+                // Add column headers
+                string[] columnNames = dt.Columns.Cast<DataColumn>().Select(column => column.ColumnName).ToArray();
+                sb.AppendLine(string.Join(delimiter, columnNames));
+
+                // Add rows
+                foreach (DataRow row in dt.Rows)
+                {
+                    string[] fields = row.ItemArray.Select(field => field.ToString()).ToArray();
+                    sb.AppendLine(string.Join(delimiter, fields));
+                }
+
+                File.WriteAllText(saveDlg.FileName, sb.ToString());
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message.ToString());
+            }
         }
     }
 
