@@ -73,7 +73,7 @@
             this.parametersTableLayoutPanel.ColumnCount = 5;
             this.parametersTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.parametersTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.parametersTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.parametersTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.parametersTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 120F));
             this.parametersTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60F));
             this.parametersTableLayoutPanel.Controls.Add(this.headersCheckBox, 0, 0);
@@ -89,7 +89,6 @@
             this.parametersTableLayoutPanel.RowCount = 2;
             this.parametersTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.parametersTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.parametersTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.parametersTableLayoutPanel.Size = new System.Drawing.Size(1031, 415);
             this.parametersTableLayoutPanel.TabIndex = 32;
             // 

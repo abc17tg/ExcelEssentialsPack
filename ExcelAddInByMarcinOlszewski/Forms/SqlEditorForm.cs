@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -10,7 +9,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using ExcelAddInByMarcinOlszewski.Forms;
 using ExcelAddInByMarcinOlszewski.Scripts;
-using ScintillaNET;
 using Excel = Microsoft.Office.Interop.Excel;
 
 namespace ExcelAddInByMarcinOlszewski
@@ -28,9 +26,11 @@ namespace ExcelAddInByMarcinOlszewski
         public bool PasteHeaders => headersCheckBox.Checked;
         public bool PasteToSelection => pasteResultsToSelectionCheckBox.Checked;
 
-        private List<string> m_objectsListBoxAllItemsList = new List<string>();
-        private List<string> m_objectsTablesListBoxAllItemsList = new List<string>();
-        private List<string> m_objectsListBoxSelectedItemsList = new List<string>();
+        private SqlServerManager m_sqlManager;
+        private List<string> m_tablesListBoxAllItemsList = new List<string>();
+        private List<string> m_tablesListBoxSelectedItemsList = new List<string>();
+        private List<string> m_fieldsListBoxAllItemsList = new List<string>();
+        private List<string> m_fieldsListBoxSelectedItemsList = new List<string>();
         private Dictionary<string, SqlConn> m_connDic;
         private Dictionary<string, string> m_queriesDic;
         private static readonly string m_sheetNameTextBoxPlaceholder = "Worksheet name";
@@ -49,6 +49,7 @@ namespace ExcelAddInByMarcinOlszewski
         public SqlEditorForm(Excel.Application app)
         {
             InitializeComponent();
+            m_sqlManager = new SqlServerManager();
             App = app;
             TopMost = true;
             /*app.WindowActivate += (_, w) => this.TopMost = true;
@@ -70,25 +71,39 @@ namespace ExcelAddInByMarcinOlszewski
                     sheetNameTextBox.Text = "";
             };
 
-            searchTextBox.Enter += (s, e) =>
+            searchTablesTextBox.Enter += (s, e) =>
             {
-                if (searchTextBox.Text == "Search")
-                    searchTextBox.Text = "";
+                if (searchTablesTextBox.Text == "Search")
+                    searchTablesTextBox.Text = "";
                 else
-                    searchTextBox.SelectAll();
+                    searchTablesTextBox.SelectAll();
             };
 
-            searchTextBox.Leave += (s, e) =>
+            searchTablesTextBox.Leave += (s, e) =>
             {
-                if (searchTextBox.Text == "")
-                    searchTextBox.Text = "Search";
+                if (searchTablesTextBox.Text == "")
+                    searchTablesTextBox.Text = "Search";
+            };
+
+            searchFieldsTextBox.Enter += (s, e) =>
+            {
+                if (searchFieldsTextBox.Text == "Search")
+                    searchFieldsTextBox.Text = "";
+                else
+                    searchFieldsTextBox.SelectAll();
+            };
+
+            searchFieldsTextBox.Leave += (s, e) =>
+            {
+                if (searchFieldsTextBox.Text == "")
+                    searchFieldsTextBox.Text = "Search";
             };
 
             ContextMenu cm = new ContextMenu();
 
             MenuItem copyCMI = new MenuItem("Copy", (o, e) => { sqlEditorScintilla.Copy(); });
             MenuItem pasteCMI = new MenuItem("Paste", (o, e) => { sqlEditorScintilla.Paste(); });
-            MenuItem fetchCMI = new MenuItem("Fetch", (o, e) => { fetchBtn.PerformClick(); });
+            MenuItem fetchCMI = new MenuItem("Fetch", (o, e) => { fetchTablesBtn.PerformClick(); });
             MenuItem commentCMI = new MenuItem("Comment", (o, e) => { commentBtn.PerformClick(); });
             MenuItem pasteRangeCMI = new MenuItem("Paste range", (o, e) => { pasteRngBtn.PerformClick(); });
             MenuItem pasteClipboardRangeCMI = new MenuItem("Paste rng from clipboard", (o, e) => { PasteFromClipboard(); });
@@ -274,11 +289,11 @@ namespace ExcelAddInByMarcinOlszewski
             Task<SqlResult> runQueryWithResult = null;
 
             if (pasteToDataTableCheckBox.Checked)
-                runQueryWithResult = new Task<SqlResult>(() => SqlServerManager.GetDataFromServer(query, SqlConn));
+                runQueryWithResult = new Task<SqlResult>(() => SqlServerManager.GetDataFromServer(m_sqlManager, query, SqlConn));
             else if (!pasteResultsToSelectionCheckBox.Checked)
-                runQuery = new Task(() => SqlServerManager.GetDataFromServerToNewSheet(this, query, SqlConn, PasteHeaders, NewSheetName == m_sheetNameTextBoxPlaceholder ? DefaultSheetName : NewSheetName));
+                runQuery = new Task(() => SqlServerManager.GetDataFromServerToNewSheet(this, m_sqlManager, query, SqlConn, PasteHeaders, NewSheetName == m_sheetNameTextBoxPlaceholder ? DefaultSheetName : NewSheetName));
             else
-                runQuery = new Task(() => SqlServerManager.GetDataFromServerToSelection(this, query, SqlConn, App.ActiveWindow.RangeSelection, PasteHeaders));
+                runQuery = new Task(() => SqlServerManager.GetDataFromServerToSelection(this, m_sqlManager, query, SqlConn, App.ActiveWindow.RangeSelection, PasteHeaders));
 
             if (++RunningQueries == 1)
                 Text = $"{FormTitle} [{RunningQueries}] running queries";
@@ -364,11 +379,11 @@ namespace ExcelAddInByMarcinOlszewski
             Task<SqlResult> runQueryWithResult = null;
 
             if (pasteToDataTableCheckBox.Checked)
-                runQueryWithResult = new Task<SqlResult>(() => SqlServerManager.GetDataFromServer(query, SqlConn));
+                runQueryWithResult = new Task<SqlResult>(() => SqlServerManager.GetDataFromServer(m_sqlManager, query, SqlConn));
             else if (!pasteResultsToSelectionCheckBox.Checked)
-                runQuery = new Task<bool>(() => SqlServerManager.GetDataFromServerToNewSheet(this, query, SqlConn, PasteHeaders, NewSheetName == m_sheetNameTextBoxPlaceholder ? DefaultSheetName : NewSheetName));
+                runQuery = new Task<bool>(() => SqlServerManager.GetDataFromServerToNewSheet(this, m_sqlManager, query, SqlConn, PasteHeaders, NewSheetName == m_sheetNameTextBoxPlaceholder ? DefaultSheetName : NewSheetName));
             else
-                runQuery = new Task<bool>(() => SqlServerManager.GetDataFromServerToSelection(this, query, SqlConn, App.ActiveWindow.RangeSelection, PasteHeaders));
+                runQuery = new Task<bool>(() => SqlServerManager.GetDataFromServerToSelection(this, m_sqlManager, query, SqlConn, App.ActiveWindow.RangeSelection, PasteHeaders));
 
             if (++RunningQueries == 1)
                 Text = $"{FormTitle} [{RunningQueries}] running queries";
@@ -507,8 +522,6 @@ namespace ExcelAddInByMarcinOlszewski
             if (!Enum.IsDefined(typeof(SqlServerManager.ServerType), serverType))
                 return;
 
-            m_objectsTablesListBoxAllItemsList.Clear();
-
             switch (serverType)
             {
                 case SqlServerManager.ServerType.SqlServer:
@@ -580,7 +593,6 @@ namespace ExcelAddInByMarcinOlszewski
         private void serverComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             var result = m_connDic.TryGetValue((sender as ComboBox).SelectedItem.ToString(), out SqlConn);
-            m_objectsTablesListBoxAllItemsList.Clear();
         }
 
         private void sqlEditorScintilla_KeyPress(object sender, KeyPressEventArgs e)
@@ -618,27 +630,64 @@ namespace ExcelAddInByMarcinOlszewski
             }
         }
 
+        private void FetchFields(string tableName, SqlConn sqlConn)
+        {
+            m_fieldsListBoxAllItemsList.Clear();
+            m_fieldsListBoxSelectedItemsList.Clear();
+            fieldsListBox.Items.Clear();
+            fieldsListBox.Items.Add("Fetching...");
+            fieldsListBox.Update();
+
+            var sqlResult = SqlServerManager.GetDataFromServer(m_sqlManager, $"SELECT * FROM ({tableName.Trim()}) FIELDS WHERE 1=0", sqlConn, 40);
+            fieldsListBox.Items.Clear(); // clear "Fetching..." from the list
+            if (!sqlResult.HasErrors)
+            {
+                fieldsListBox.Items.AddRange(sqlResult.DataTable.Columns.Cast<DataColumn>().Select(column => column.ColumnName).Distinct().ToArray());
+                m_fieldsListBoxAllItemsList.AddRange(fieldsListBox.Items.Cast<string>().ToList());
+            }
+
+            objectsAndVariablesTabControl.SelectedTab = fieldsTabPage;
+        }
+
+        private void FetchTables(SqlConn sqlConn)
+        {
+            m_tablesListBoxAllItemsList.Clear();
+            m_tablesListBoxSelectedItemsList.Clear();
+            tablesListBox.Items.Clear();
+            tablesListBox.Items.Add("Fetching...");
+            tablesListBox.Update();
+
+            string query;
+            switch (sqlConn.Type)
+            {
+                case SqlServerManager.ServerType.SqlServer:
+                    query = "CREATE TABLE #AllTables (Database_Schema_Object NVARCHAR(MAX)); DECLARE @sql NVARCHAR(MAX) = N''; DECLARE @dbName NVARCHAR(128); DECLARE dbCursor CURSOR FOR SELECT [name] FROM sys.databases WHERE state = 0 AND [name] NOT IN ('master', 'tempdb', 'model', 'msdb'); OPEN dbCursor; FETCH NEXT FROM dbCursor INTO @dbName; WHILE @@FETCH_STATUS = 0 BEGIN SET @sql = N'USE [' + @dbName + ']; INSERT INTO #AllTables SELECT ''' + @dbName + '.'' + SCHEMA_NAME(schema_id) + ''.'' + [name] FROM sys.tables t WHERE EXISTS (SELECT 1 FROM ' + QUOTENAME(@dbName) + '.sys.partitions p WHERE p.object_id = t.object_id AND p.rows > 0) UNION ALL SELECT ''' + @dbName + '.'' + SCHEMA_NAME(schema_id) + ''.'' + [name] FROM sys.views v;'; BEGIN TRY EXEC sp_executesql @sql; END TRY BEGIN CATCH PRINT 'Error accessing database ' + @dbName + ': ' + ERROR_MESSAGE(); END CATCH; FETCH NEXT FROM dbCursor INTO @dbName; END CLOSE dbCursor; DEALLOCATE dbCursor; SELECT * FROM #AllTables ORDER BY Database_Schema_Object; DROP TABLE #AllTables;";
+                    break;
+                case SqlServerManager.ServerType.Oracle:
+                    query = "SELECT OWNER || '.' || OBJECT_NAME FROM (SELECT DISTINCT OWNER, OBJECT_NAME FROM ALL_OBJECTS WHERE OBJECT_TYPE IN ('VIEW', 'TABLE') AND STATUS = 'VALID' ORDER BY OBJECT_NAME)";
+                    break;
+                case SqlServerManager.ServerType.Excel:
+                    tablesListBox.Items.Clear();
+                    return;
+                default:
+                    tablesListBox.Items.Clear();
+                    return;
+            }
+
+            var sqlResult = SqlServerManager.GetDataFromServer(m_sqlManager, query, sqlConn, 40);
+            tablesListBox.Items.Clear(); // clear "Fetching..." from the list
+            if (!sqlResult.HasErrors)
+            {
+                tablesListBox.Items.AddRange(sqlResult.DataTable.AsEnumerable().Select(row => row.Field<string>(0)).Distinct().ToArray() ?? new string[1]);
+                m_tablesListBoxAllItemsList.AddRange(tablesListBox.Items.Cast<string>().ToList());
+            }
+
+            objectsAndVariablesTabControl.SelectedTab = tablesTabPage;
+        }
+
         private void fetchBtn_Click(object sender, EventArgs e)
         {
-            bool tables = false;
-            string query;
-
-            m_objectsListBoxAllItemsList.Clear();
-            m_objectsListBoxSelectedItemsList.Clear();
-
-            if (string.IsNullOrWhiteSpace(sqlEditorScintilla.SelectedText))
-            {
-                tables = true;
-                listObjectsTypeLabel.Text = "Tables";
-            }
-            else
-            {
-                listObjectsTypeLabel.Text = "Columns";
-            }
-
-            objectsListBox.Items.Clear();
-            objectsListBox.Items.Add("Fetching...");
-            objectsListBox.Update();
+            ListBox listBox = objectsAndVariablesTabControl.SelectedTab.FindAllChildrenByType<ListBox>().FirstOrDefault();
 
             SqlConn sqlConn;
             try
@@ -652,61 +701,112 @@ namespace ExcelAddInByMarcinOlszewski
             catch
             {
                 MessageBox.Show("Connection failed!");
-                objectsListBox.Items.Clear();
+                listBox.Items.Clear();
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(sqlEditorScintilla.SelectedText))
+            {
+                FetchTables(sqlConn);
+            }
+            else
+            {
+                FetchFields(sqlEditorScintilla.SelectedText, sqlConn);
+            }
+        }
+
+        /*private void fetchBtn_Click(object sender, EventArgs e)
+        {
+            string query;
+            ListBox listBox;
+
+            bool tables = false;
+            if (string.IsNullOrWhiteSpace(sqlEditorScintilla.SelectedText))
+            {
+                tables = true;
+                listBox = tablesListBox;
+                m_tablesListBoxAllItemsList.Clear();
+                m_tablesListBoxSelectedItemsList.Clear();
+            }
+            else
+            {
+                listBox = fieldsListBox;
+                m_fieldsListBoxAllItemsList.Clear();
+                m_fieldsListBoxSelectedItemsList.Clear();
+            }
+
+            listBox.Items.Clear();
+            listBox.Items.Add("Fetching...");
+            listBox.Update();
+
+            SqlConn sqlConn;
+            try
+            {
+                bool result = m_connDic.TryGetValue(m_connDic.Keys.FirstOrDefault(p => p.Contains(serverComboBox.SelectedItem.ToString())), out sqlConn);
+                if (result)
+                    result = sqlConn.Test();
+                if (!result)
+                    MessageBox.Show("Connection failed!");
+            }
+            catch
+            {
+                MessageBox.Show("Connection failed!");
+                listBox.Items.Clear();
                 return;
             }
             if (tables)
             {
-                if (tables && m_objectsTablesListBoxAllItemsList != null && m_objectsTablesListBoxAllItemsList.Count > 0)
-                {
-                    objectsListBox.Items.Clear();
-                    objectsListBox.Items.AddRange(m_objectsTablesListBoxAllItemsList.ToArray());
-                    m_objectsListBoxAllItemsList = m_objectsTablesListBoxAllItemsList;
-                    m_objectsListBoxSelectedItemsList.Clear();
-                    return;
-                }
                 switch (sqlConn.Type)
                 {
                     case SqlServerManager.ServerType.SqlServer:
-                        /*query = "CREATE TABLE #AllTables (Database_Schema_Table NVARCHAR(MAX));DECLARE @sql NVARCHAR(MAX) = N'';DECLARE @dbName NVARCHAR(128);DECLARE dbCursor CURSOR FOR SELECT [name] FROM sys.databases WHERE state = 0 AND [name] NOT IN ('master', 'tempdb', 'model', 'msdb');OPEN dbCursor;FETCH NEXT FROM dbCursor INTO @dbName;WHILE @@FETCH_STATUS = 0 BEGIN SET @sql = N'USE [' + @dbName + ']; INSERT INTO #AllTables SELECT ''' + @dbName + '.'' + SCHEMA_NAME(schema_id) + ''.'' + [name] FROM sys.tables t WHERE EXISTS (SELECT 1 FROM ' + QUOTENAME(@dbName) + '.sys.partitions p WHERE p.object_id = t.object_id AND p.rows > 0);'; BEGIN TRY EXEC sp_executesql @sql; END TRY BEGIN CATCH PRINT 'Error accessing database ' + @dbName + ': ' + ERROR_MESSAGE(); END CATCH; FETCH NEXT FROM dbCursor INTO @dbName;END CLOSE dbCursor;DEALLOCATE dbCursor;SELECT * FROM #AllTables ORDER BY Database_Schema_Table;DROP TABLE #AllTables;";*/
                         query = "CREATE TABLE #AllTables (Database_Schema_Object NVARCHAR(MAX)); DECLARE @sql NVARCHAR(MAX) = N''; DECLARE @dbName NVARCHAR(128); DECLARE dbCursor CURSOR FOR SELECT [name] FROM sys.databases WHERE state = 0 AND [name] NOT IN ('master', 'tempdb', 'model', 'msdb'); OPEN dbCursor; FETCH NEXT FROM dbCursor INTO @dbName; WHILE @@FETCH_STATUS = 0 BEGIN SET @sql = N'USE [' + @dbName + ']; INSERT INTO #AllTables SELECT ''' + @dbName + '.'' + SCHEMA_NAME(schema_id) + ''.'' + [name] FROM sys.tables t WHERE EXISTS (SELECT 1 FROM ' + QUOTENAME(@dbName) + '.sys.partitions p WHERE p.object_id = t.object_id AND p.rows > 0) UNION ALL SELECT ''' + @dbName + '.'' + SCHEMA_NAME(schema_id) + ''.'' + [name] FROM sys.views v;'; BEGIN TRY EXEC sp_executesql @sql; END TRY BEGIN CATCH PRINT 'Error accessing database ' + @dbName + ': ' + ERROR_MESSAGE(); END CATCH; FETCH NEXT FROM dbCursor INTO @dbName; END CLOSE dbCursor; DEALLOCATE dbCursor; SELECT * FROM #AllTables ORDER BY Database_Schema_Object; DROP TABLE #AllTables;";
                         break;
                     case SqlServerManager.ServerType.Oracle:
-                        /*query = "SELECT TABLE_NAME FROM ALL_TABLES WHERE ( ( TABLE_NAME LIKE '%S4%' OR TABLE_NAME LIKE '%EMEA%' OR TABLE_NAME LIKE '%MDM%' OR TABLE_NAME LIKE '%ECDER%' OR TABLE_NAME LIKE '%ECLIPSE%' OR TABLE_NAME LIKE '%POLARIS%' OR TABLE_NAME LIKE '%SIQP%' OR TABLE_NAME LIKE '%EDW%' OR TABLE_NAME LIKE '%MCW%' OR TABLE_NAME LIKE '%OMEGA%' OR TABLE_NAME LIKE '%SAP%' ) AND ( TABLE_NAME NOT LIKE '%AMS%' AND TABLE_NAME NOT LIKE '%APJ%' AND TABLE_NAME NOT LIKE '%TEMP%' AND TABLE_NAME NOT LIKE '%TEST%' AND TABLE_NAME NOT LIKE '%OLD%' AND TABLE_NAME NOT LIKE '%JAPAN%' AND TABLE_NAME NOT LIKE '%US_%' AND TABLE_NAME NOT LIKE '%AP_%' )) ORDER BY TABLE_NAME";*/
                         query = "SELECT OWNER || '.' || OBJECT_NAME FROM (SELECT DISTINCT OWNER, OBJECT_NAME FROM ALL_OBJECTS WHERE OBJECT_TYPE IN ('VIEW', 'TABLE') AND STATUS = 'VALID' ORDER BY OBJECT_NAME)";
                         break;
                     case SqlServerManager.ServerType.Excel:
-                        objectsListBox.Items.Clear();
+                        listBox.Items.Clear();
                         return;
                     default:
-                        objectsListBox.Items.Clear();
+                        listBox.Items.Clear();
                         return;
                 }
             }
             else
-                query = $"SELECT * FROM {sqlEditorScintilla.SelectedText.Trim()} WHERE 1=0";
-
+                query = $"SELECT * FROM ({sqlEditorScintilla.SelectedText.Trim()}) FIELDS WHERE 1=0";
 
             var sqlResult = SqlServerManager.GetDataFromServer(query, sqlConn, 40);
-            objectsListBox.Items.Clear();
+            listBox.Items.Clear(); // clear "Fetching..." from the list
             if (!sqlResult.HasErrors)
             {
                 if (tables)
-                    objectsListBox.Items.AddRange(sqlResult.DataTable.AsEnumerable().Select(row => row.Field<string>(0)).Distinct().ToArray() ?? new string[1]);
+                    listBox.Items.AddRange(sqlResult.DataTable.AsEnumerable().Select(row => row.Field<string>(0)).Distinct().ToArray() ?? new string[1]);
                 else
-                    objectsListBox.Items.AddRange(sqlResult.DataTable.Columns.Cast<DataColumn>().Select(column => column.ColumnName).Distinct().ToArray());
+                    listBox.Items.AddRange(sqlResult.DataTable.Columns.Cast<DataColumn>().Select(column => column.ColumnName).Distinct().ToArray());
             }
 
-            if (objectsListBox.Items.Count > 0)
+            if (listBox.Items.Count > 0)
             {
-                m_objectsListBoxAllItemsList.AddRange(objectsListBox.Items.Cast<string>().ToList());
-                m_objectsTablesListBoxAllItemsList = m_objectsListBoxAllItemsList;
+                if (tables)
+                    m_tablesListBoxAllItemsList.AddRange(listBox.Items.Cast<string>().ToList());
+                else
+                    m_fieldsListBoxAllItemsList.AddRange(listBox.Items.Cast<string>().ToList());
             }
-        }
+
+            if (tables)
+                objectsAndVariablesTabControl.SelectedTab = tablesTabPage;
+            else
+                objectsAndVariablesTabControl.SelectedTab = fieldsTabPage;
+        }*/
+
         private void transferToQueryBtn_Click(object sender, EventArgs e)
         {
+            ListBox listBox = objectsAndVariablesTabControl.SelectedTab.FindAllChildrenByType<ListBox>().FirstOrDefault();
+            if (listBox == null)
+                return;
+
             string text = string.Empty;
-            foreach (var obj in objectsListBox.SelectedItems)
+            foreach (var obj in listBox.SelectedItems)
             {
                 if (!obj.ToString().Contains(" "))
                     text += $", {obj.ToString()}";
@@ -716,7 +816,8 @@ namespace ExcelAddInByMarcinOlszewski
 
             int lastWordRange = Math.Max(sqlEditorScintilla.WordStartPosition(sqlEditorScintilla.SelectionStart, true) - 10, 0);
             string lastText = sqlEditorScintilla.GetTextRange(lastWordRange, Math.Min(sqlEditorScintilla.SelectionStart, 10)).TrimEnd('\t', '\n', '\r', ' ');
-            if (listObjectsTypeLabel.Text == "Tables" ||
+
+            if (objectsAndVariablesTabControl.SelectedTab == tablesTabPage ||
                 string.IsNullOrWhiteSpace(lastText) ||
                 lastText.EndsWith("select", true, System.Globalization.CultureInfo.InvariantCulture) ||
                 UtilsScintilla.SqlKeywords.Split(' ').Any(p => lastText.EndsWith(p, true, System.Globalization.CultureInfo.InvariantCulture)) || lastText.EndsWith("("))
@@ -801,18 +902,29 @@ namespace ExcelAddInByMarcinOlszewski
         private void objectsListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             // If Ctrl is not pressed, clear the selected items list first
-            if ((Control.ModifierKeys & Keys.Control) == 0)
+/*            if ((Control.ModifierKeys & Keys.Control) == 0)
             {
-                m_objectsListBoxSelectedItemsList.Clear();
-            }
+                if (objectsAndVariablesTabControl.SelectedTab == tablesTabPage)
+                    m_tablesListBoxSelectedItemsList.Clear();
+                else
+                    m_fieldsListBoxSelectedItemsList.Clear();
+            }*/
 
-            // Add the newly selected items
-            foreach (string item in objectsListBox.SelectedItems)
+            if (objectsAndVariablesTabControl.SelectedTab == tablesTabPage)
             {
-                if (!m_objectsListBoxSelectedItemsList.Contains(item))
-                {
-                    m_objectsListBoxSelectedItemsList.Add(item);
-                }
+                foreach (string item in (sender as ListBox).SelectedItems)
+                    if (!m_tablesListBoxSelectedItemsList.Contains(item))
+                    {
+                        m_tablesListBoxSelectedItemsList.Add(item);
+                    }
+            }
+            else
+            {
+                foreach (string item in (sender as ListBox).SelectedItems)
+                    if (!m_fieldsListBoxSelectedItemsList.Contains(item))
+                    {
+                        m_fieldsListBoxSelectedItemsList.Add(item);
+                    }
             }
         }
 
@@ -822,26 +934,41 @@ namespace ExcelAddInByMarcinOlszewski
             {
                 e.SuppressKeyPress = true;
 
-                if (m_objectsListBoxAllItemsList == null || m_objectsListBoxAllItemsList.Count < 1)
+                bool tables;
+                ListBox listBox;
+                if (objectsAndVariablesTabControl.SelectedTab == tablesTabPage)
+                {
+                    listBox = tablesListBox;
+                    tables = true;
+                }
+                else
+                {
+                    listBox = fieldsListBox;
+                    tables = false;
+                }
+
+                if ((tables && (m_tablesListBoxAllItemsList == null || m_tablesListBoxAllItemsList.Count < 1)) || (!tables && (m_fieldsListBoxAllItemsList == null || m_fieldsListBoxAllItemsList.Count < 1)))
                     return;
 
                 // Clear the ListBox
-                objectsListBox.Items.Clear();
+                listBox.Items.Clear();
 
                 // Filter the items and add them to the ListBox
-                var filteredItems = m_objectsListBoxAllItemsList.Where(item => item.IndexOf(searchTextBox.Text, StringComparison.OrdinalIgnoreCase) >= 0 || m_objectsListBoxSelectedItemsList.Contains(item)).ToList();
+                List<string> filteredItems;
+                if (tables)
+                    filteredItems = m_tablesListBoxAllItemsList.Where(item => item.IndexOf(searchTablesTextBox.Text, StringComparison.OrdinalIgnoreCase) >= 0 || m_tablesListBoxSelectedItemsList.Contains(item)).ToList();
+                else
+                    filteredItems = m_fieldsListBoxAllItemsList.Where(item => item.IndexOf(searchFieldsTextBox.Text, StringComparison.OrdinalIgnoreCase) >= 0 || m_fieldsListBoxSelectedItemsList.Contains(item)).ToList();
 
-                objectsListBox.Items.AddRange(filteredItems.ToArray());
-                objectsListBox.Update();
+                listBox.Items.AddRange(filteredItems.ToArray());
+                listBox.Update();
 
                 // Reselect the previously selected items
-                for (int i = 0; i < objectsListBox.Items.Count; i++)
+                for (int i = 0; i < (tables ? tablesListBox.Items.Count : fieldsListBox.Items.Count); i++)
                 {
-                    var item = objectsListBox.Items[i].ToString();
-                    if (m_objectsListBoxSelectedItemsList.Contains(item))
-                    {
-                        objectsListBox.SetSelected(i, true);
-                    }
+                    var item = listBox.Items[i].ToString();
+                    if((tables ? m_tablesListBoxSelectedItemsList : m_fieldsListBoxSelectedItemsList).Contains(item))
+                        listBox.SetSelected(i, true);
                 }
             }
         }
@@ -863,8 +990,54 @@ namespace ExcelAddInByMarcinOlszewski
 
         private void objectsListBox_DoubleClick(object sender, EventArgs e)
         {
-            if (objectsListBox.SelectedItems.Count > 0)
-                transferToQueryBtn.PerformClick();
+            ListBox listBox = (sender as ListBox);
+            if ((objectsAndVariablesTabControl.SelectedTab == tablesTabPage) && listBox.SelectedItems.Count == 1)
+            {
+                SqlConn sqlConn;
+                try
+                {
+                    bool result = m_connDic.TryGetValue(m_connDic.Keys.FirstOrDefault(p => p.Contains(serverComboBox.SelectedItem.ToString())), out sqlConn);
+                    if (result)
+                        result = sqlConn.Test();
+                    if (!result)
+                        MessageBox.Show("Connection failed!");
+                }
+                catch
+                {
+                    MessageBox.Show("Connection failed!");
+                    listBox.Items.Clear();
+                    return;
+                }
+                objectsAndVariablesTabControl.SelectedTab = fieldsTabPage;
+                FetchFields(listBox.SelectedItem.ToString(), sqlConn);
+            }
+            else if ((objectsAndVariablesTabControl.SelectedTab == fieldsTabPage) && listBox.SelectedItems.Count > 0)
+                transferTablesToQueryBtn.PerformClick();
+        }
+
+        private void SqlEditorForm_Activated(object sender, EventArgs e)
+        {
+            this.Opacity = 0.95;
+        }
+
+        private void SqlEditorForm_Deactivate(object sender, EventArgs e)
+        {
+            this.Opacity = 0.6;
+        }
+
+        private void SqlEditorForm_DragEnter(object sender, DragEventArgs e)
+        {
+            this.Opacity = 0.95;
+        }
+
+        private void SqlEditorForm_DragLeave(object sender, EventArgs e)
+        {
+            this.Opacity = 0.6;
+        }
+
+        private void variablesDataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
         }
     }
 }

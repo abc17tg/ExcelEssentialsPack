@@ -16,6 +16,7 @@ using System.Numerics;
 using System.Drawing;
 using static SQLite.TableMapping;
 using System.Globalization;
+using static ScintillaNET.Style;
 
 public static class UtilsExcel
 {
@@ -122,6 +123,76 @@ public static class UtilsExcel
         }
 
         return $"\n(\n\t(\n{string.Join("\n\t)\n\tOR\n\t(\n", filterParts)}\n\t)\n)\n";
+    }
+
+    public static void ColorRowsUnique(Excel.Range rng)
+    {
+        bool isPivot;
+        try
+        {
+            if (!rng.Valid())
+                return;
+
+            isPivot = (rng.Cells[1, 1] as Excel.Range).IsPivotCell();
+
+            Excel.Range firstColRng = rng.Columns[1];
+            Dictionary<string, Color> valueColorD = new Dictionary<string, Color>();
+            List<string> values;
+            values = firstColRng.Cells.Cast<Excel.Range>().Select(p => ((object)p.Value)?.ToString() ?? "").Distinct().ToList();
+            List<Color> colorsList = Utils.GenerateColorPalette(values.Count);
+            colorsList.Shuffle();
+            for (int i = 0; i < values.Count; i++)
+                valueColorD.Add(values[i], colorsList[i]);
+
+            try
+            { valueColorD[""] = Color.WhiteSmoke; }
+            catch (Exception) { }
+
+            using (new ExcelExecutionBlock(rng.Application))
+            {
+                if (isPivot && rng.Rows.Count > 150)
+                {
+                    Excel.Worksheet ws = (rng.Worksheet.Parent as Excel.Workbook).Worksheets.Add(After: rng.Worksheet);
+                    rng.Copy();
+                    (ws.Cells[1, 1] as Excel.Range).PasteSpecial(Excel.XlPasteType.xlPasteValues);
+                    ColorRowsUnique(ws.UsedRange);
+                    ws.UsedRange.Copy();
+                    rng.PasteSpecial(Excel.XlPasteType.xlPasteFormats);
+                    rng.Application.DisplayAlerts = false;
+                    ws.Delete();
+                    rng.Application.DisplayAlerts = true;
+                    rng.Worksheet.Activate();
+                    return;
+                }
+
+                rng.Borders.LineStyle = Excel.XlLineStyle.xlLineStyleNone;
+
+                foreach (Excel.Range r in rng.Rows.Cast<Excel.Range>())
+                    r.Interior.Color = valueColorD[((object)r.Columns[1].Value)?.ToString() ?? ""];
+
+                Excel.Range row;
+                string val = null, oldVal = null;
+                for (int i = 1; i <= rng.Rows.Count; i++)
+                {
+                    row = rng.Rows[i] as Excel.Range;
+                    oldVal = val;
+                    val = ((object)row.Columns[1].Value)?.ToString() ?? "";
+                    row.Interior.Color = valueColorD[val];
+
+                    if (i == 1)
+                        continue;
+
+                    if (!val.Equals(oldVal, StringComparison.Ordinal))
+                    {
+                        Excel.Border border = row.Borders[Excel.XlBordersIndex.xlEdgeTop];
+                        border.Color = ColorTranslator.FromOle((int)((double)row.Interior.Color)).DarkenColor(0.5f).ToArgb();
+                        border.Weight = Excel.XlBorderWeight.xlThin;
+                        border.LineStyle = Excel.XlLineStyle.xlContinuous;
+                    }
+                }
+            }
+        }
+        catch (Exception) { }
     }
 
     public static void Rename<T>(this T ws, string name, string append = "") where T : Excel.Worksheet

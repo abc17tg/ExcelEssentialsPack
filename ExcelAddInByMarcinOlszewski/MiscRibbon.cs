@@ -187,50 +187,7 @@ namespace ExcelAddInByMarcinOlszewski
             {
                 Excel.Application app = Globals.ThisAddIn.Application;
                 Excel.Range rngSel = app.ActiveWindow.RangeSelection.GetUsableRange();
-                if (rngSel == null)
-                    return;
-
-                Excel.Range rng = rngSel.Columns[1];
-                Dictionary<string, Color> valueColorD = new Dictionary<string, Color>();
-                List<string> values;
-                values = rng.Cells.Cast<Excel.Range>().Select(p => ((object)p.Value)?.ToString() ?? "").Distinct().ToList();
-                List<Color> colorsList = Utils.GenerateColorPalette(values.Count);
-                colorsList.Shuffle();
-                for (int i = 0; i < values.Count; i++)
-                    valueColorD.Add(values[i], colorsList[i]);
-
-                try
-                { valueColorD[""] = Color.WhiteSmoke; }
-                catch (Exception) { }
-
-                using (new ExcelExecutionBlock(app))
-                {
-                    rngSel.Borders.LineStyle = Excel.XlLineStyle.xlLineStyleNone;
-
-                    foreach (Excel.Range r in rngSel.Rows.Cast<Excel.Range>())
-                        r.Interior.Color = valueColorD[((object)r.Columns[1].Value)?.ToString() ?? ""];
-
-                    Excel.Range row;
-                    string val = null, oldVal = null;
-                    for (int i = 1; i <= rngSel.Rows.Count; i++)
-                    {
-                        row = rngSel.Rows[i] as Excel.Range;
-                        oldVal = val;
-                        val = ((object)row.Columns[1].Value)?.ToString() ?? "";
-                        row.Interior.Color = valueColorD[val];
-
-                        if (i == 1)
-                            continue;
-
-                        if (!val.Equals(oldVal, StringComparison.Ordinal))
-                        {
-                            Excel.Border border = row.Borders[Excel.XlBordersIndex.xlEdgeTop];
-                            border.Color = ColorTranslator.FromOle((int)((double)row.Interior.Color)).DarkenColor(0.5f).ToArgb();
-                            border.Weight = Excel.XlBorderWeight.xlThin;
-                            border.LineStyle = Excel.XlLineStyle.xlContinuous;
-                        }
-                    }
-                }
+                UtilsExcel.ColorRowsUnique(rngSel);
             }
             catch (Exception) { }
         }

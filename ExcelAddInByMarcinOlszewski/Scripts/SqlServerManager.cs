@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.OleDb;
 using System.Data.SqlClient;
 using System.Windows.Forms;
+using ColorMine.ColorSpaces;
 using ExcelAddInByMarcinOlszewski.Forms;
 using ExcelAddInByMarcinOlszewski.Scripts;
 using Oracle.ManagedDataAccess.Client;
@@ -12,7 +14,43 @@ namespace ExcelAddInByMarcinOlszewski
 {
     public class SqlServerManager
     {
+        public List<SqlCommand> RunningQueriesCmdSqlServer = new List<SqlCommand>();
+        public List<OracleCommand> RunningQueriesCmdOracle = new List<OracleCommand>();
+
+        // Define events for command completion
+        public event Action<SqlCommand> SqlServerCommandFinished;
+        public event Action<OracleCommand> OracleCommandFinished;
+
         public static readonly string LookupString = "#TkL@.qKs1Hm8hJ-[nxB";
+
+        public SqlServerManager()
+        {
+            // Subscribe to events
+            SqlServerCommandFinished += OnSqlServerCommandFinished;
+            OracleCommandFinished += OnOracleCommandFinished;
+        }
+
+        // Method to handle SQL Server command completion
+        private void OnSqlServerCommandFinished(SqlCommand command)
+        {
+            try
+            {
+                RunningQueriesCmdSqlServer.RemoveAll(cmd => cmd == null);
+                RunningQueriesCmdSqlServer.Remove(command);
+            }
+            catch (Exception) { }
+        }
+
+        // Method to handle Oracle command completion
+        private void OnOracleCommandFinished(OracleCommand command)
+        {
+            try
+            {
+                RunningQueriesCmdOracle.RemoveAll(cmd => cmd == null);
+                RunningQueriesCmdOracle.Remove(command);
+            }
+            catch (Exception) { }
+        }
 
         public static bool AddSqlConnection()
         {
@@ -72,14 +110,14 @@ namespace ExcelAddInByMarcinOlszewski
             return result;
         }
 
-        public static bool GetDataFromServerToNewSheet(Control control, string query, SqlConn sqlConn, bool headers = true, string wsName = "")
+        public static bool GetDataFromServerToNewSheet(Control control, SqlServerManager manager, string query, SqlConn sqlConn, bool headers = true, string wsName = "")
         {
             Excel.Workbook wb = Globals.ThisAddIn.Application.ActiveWorkbook;
             Excel.Worksheet ws = wb.Sheets.Add();
             if (!string.IsNullOrEmpty(wsName))
                 ws.Rename(wsName);
 
-            SqlResult sqlResult = GetDataFromServer(query, sqlConn);
+            SqlResult sqlResult = GetDataFromServer(manager, query, sqlConn);
             if (sqlResult.HasErrors || sqlResult.DataTable.Rows.Count < 1)
             {
                 MessageBox.Show($"No data extracted\n{(sqlResult.Errors == null ? string.Empty : sqlResult.Errors)}", "Query finished", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
@@ -117,9 +155,9 @@ namespace ExcelAddInByMarcinOlszewski
             }
         }
 
-        public static bool GetDataFromServerToSelection(Control control, string query, SqlConn sqlConn, Excel.Range rng, bool headers = true)
+        public static bool GetDataFromServerToSelection(Control control, SqlServerManager manager, string query, SqlConn sqlConn, Excel.Range rng, bool headers = true)
         {
-            SqlResult sqlResult = GetDataFromServer(query, sqlConn, 180);
+            SqlResult sqlResult = GetDataFromServer(manager, query, sqlConn, 180);
             if (sqlResult.HasErrors || sqlResult.DataTable.Rows.Count < 1)
             {
                 MessageBox.Show($"No data extracted\n{(sqlResult.Errors == null ? string.Empty : sqlResult.Errors)}", "Query finished", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
@@ -157,17 +195,17 @@ namespace ExcelAddInByMarcinOlszewski
             }
         }
 
-        public static SqlResult GetDataFromServer(string query, SqlConn sqlConn, int timeout = -1)
+        public static SqlResult GetDataFromServer(SqlServerManager manager, string query, SqlConn sqlConn, int timeout = -1)
         {
             DataTable dt = new DataTable();
             SqlResult sqlResult = null;
             switch (sqlConn.Type)
             {
                 case ServerType.SqlServer:
-                    sqlResult = GetDataFromSqlServer(query, sqlConn, timeout);
+                    sqlResult = GetDataFromSqlServer(manager, query, sqlConn, timeout);
                     break;
                 case ServerType.Oracle:
-                    sqlResult = GetDataFromOracleSqlServer(query, sqlConn, timeout);
+                    sqlResult = GetDataFromOracleSqlServer(manager, query, sqlConn, timeout);
                     break;
                 case ServerType.Excel:
                     sqlResult = GetDataFromExcelSqlTables(query);
@@ -195,7 +233,7 @@ namespace ExcelAddInByMarcinOlszewski
 
         }
 
-        public static SqlResult GetDataFromOracleSqlServer(string query, SqlConn sqlConn, int timeout = -1)
+        public static SqlResult GetDataFromOracleSqlServer(SqlServerManager manager, string query, SqlConn sqlConn, int timeout = -1)
         {
             try
             {
@@ -204,19 +242,25 @@ namespace ExcelAddInByMarcinOlszewski
                     con.Open();
                     OracleCommand cmd = new OracleCommand(query, con);
                     cmd.CommandTimeout = timeout > 0 ? timeout : cmd.CommandTimeout;
-                    OracleDataReader rdr = cmd.ExecuteReader();
-                    DataTable dt = new DataTable();
-                    dt.Load(rdr);
-                    return new SqlResult(dt, null);
+                    manager.RunningQueriesCmdOracle.Add(cmd);
+                    using (OracleDataReader rdr = cmd.ExecuteReader())
+                    {
+                        DataTable dt = new DataTable();
+                        rdr.SuppressGetDecimalInvalidCastException = true;
+                        dt.Load(rdr);
+                        manager.OracleCommandFinished?.Invoke(cmd);
+                        return new SqlResult(dt, null);
+                    }
                 }
             }
             catch (OracleException ex)
             {
+                manager.OracleCommandFinished?.Invoke(null);
                 return new SqlResult(null, ex.Message);
             }
         }
 
-        public static SqlResult GetDataFromSqlServer(string query, SqlConn sqlConn, int timeout = -1)
+        public static SqlResult GetDataFromSqlServer(SqlServerManager manager, string query, SqlConn sqlConn, int timeout = -1)
         {
             try
             {
@@ -225,11 +269,15 @@ namespace ExcelAddInByMarcinOlszewski
                     con.Open();
                     SqlCommand cmd = new SqlCommand(query, con);
                     cmd.CommandTimeout = timeout > 0 ? timeout : cmd.CommandTimeout;
-                    SqlDataReader rdr = cmd.ExecuteReader();
-
-                    DataTable dt = new DataTable();
-                    dt.Load(rdr);
-                    return new SqlResult(dt, null);
+                    manager.RunningQueriesCmdSqlServer.Add(cmd);
+                    //cmd.StatementCompleted += (s, a) => SqlServerCommandFinished?.Invoke(s as SqlCommand);
+                    using (SqlDataReader rdr = cmd.ExecuteReader())
+                    {
+                        DataTable dt = new DataTable();
+                        dt.Load(rdr);
+                        manager.SqlServerCommandFinished?.Invoke(cmd);
+                        return new SqlResult(dt, null);
+                    }
                 }
             }
             catch (SqlException ex)

@@ -9,6 +9,7 @@ namespace ExcelAddInByMarcinOlszewski.Scripts
         public DataTable DataTable;
         public string Errors;
         public bool HasErrors => !string.IsNullOrEmpty(Errors) || DataTable == null;
+        
         public SqlResult(DataTable dataTable, string errors) 
         { 
             DataTable = dataTable;
