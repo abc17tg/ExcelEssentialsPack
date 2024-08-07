@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.OleDb;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Windows.Forms;
 using ColorMine.ColorSpaces;
 using ExcelAddInByMarcinOlszewski.Forms;
@@ -155,6 +156,19 @@ namespace ExcelAddInByMarcinOlszewski
             }
         }
 
+        public static (SqlResult, bool OperationSuccessfullyCompleted) GetDataFromServerToExcelRange(SqlServerManager manager, string query, SqlConn sqlConn, Excel.Range rng, bool headers = true)
+        {
+            SqlResult sqlResult = GetDataFromServer(manager, query, sqlConn, 180);
+            if (sqlResult.HasErrors || sqlResult.DataTable.Rows.Count < 1)
+                return (sqlResult, true);
+
+            if (!rng.Valid() || (sqlResult.DataTable.Rows.Count >= rng.Worksheet.Rows.Count - rng.Row + 1))
+                return (sqlResult, false);
+
+            UtilsExcel.PasteDataTableToRange(sqlResult.DataTable, rng, headers);
+            return (sqlResult, true);
+        }
+
         public static bool GetDataFromServerToSelection(Control control, SqlServerManager manager, string query, SqlConn sqlConn, Excel.Range rng, bool headers = true)
         {
             SqlResult sqlResult = GetDataFromServer(manager, query, sqlConn, 180);
@@ -193,6 +207,90 @@ namespace ExcelAddInByMarcinOlszewski
                 UtilsExcel.PasteDataTableToRange(sqlResult.DataTable, rng, headers);
                 return true;
             }
+        }
+
+        public static string CheckOracleSqlSyntax(string query, SqlConn sqlConn)
+        {
+            try
+            {
+                using (OracleConnection con = new OracleConnection(sqlConn.ConnectionString()))
+                {
+                    con.Open();
+
+                    // Check the syntax of the query
+                    string syntaxCheckQuery = $"BEGIN DBMS_SQL.PARSE(DBMS_SQL.OPEN_CURSOR(), '{query.Replace("'", "''")}', DBMS_SQL.NATIVE); END;";
+
+                    using (OracleCommand syntaxCheckCmd = new OracleCommand(syntaxCheckQuery, con))
+                    {
+                        syntaxCheckCmd.ExecuteNonQuery();
+                    }
+
+                    return string.Empty;
+                }
+            }
+            catch (OracleException ex)
+            {
+                return "Syntax error: " + ex.Message;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public static string CheckSqlServerQuerySyntax(string query, SqlConn sqlConn)
+        {
+            try
+            {
+                using (SqlConnection con = new SqlConnection(sqlConn.ConnectionString()))
+                {
+                    con.Open();
+
+                    // Check the syntax of the query
+                    string syntaxCheckQuery = $"SET PARSEONLY ON; {query}; SET PARSEONLY OFF;";
+
+                    using (SqlCommand syntaxCheckCmd = new SqlCommand(syntaxCheckQuery, con))
+                    {
+                        syntaxCheckCmd.CommandTimeout = 1;
+                        syntaxCheckCmd.ExecuteNonQuery();
+                    }
+
+                    return string.Empty;
+                }
+            }
+            catch (SqlException ex)
+            {
+                // query to check tries to pull data when correct so timeout is treated as error free
+                if (ex.Message == "Execution Timeout Expired.  The timeout period elapsed prior to completion of the operation or the server is not responding.\r\nOperation cancelled by user.")
+                    return string.Empty;
+
+                if (ex.Errors.Count > 0)
+                {
+                    return $"Syntax error:\n{string.Join("\n", ex.Errors.Cast<SqlError>().Select(p => $"Line {p.LineNumber}\tError: {p.Message}"))}";
+                }
+                return $"Syntax error: {ex.Message}";
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public static string CheckSqlQuerySyntaxOnline(string query, SqlConn sqlConn)
+        {
+            string err = null;
+            switch (sqlConn.Type)
+            {
+                case ServerType.SqlServer:
+                    err = CheckSqlServerQuerySyntax(query, sqlConn);
+                    break;
+                case ServerType.Oracle:
+                    err = CheckOracleSqlSyntax(query, sqlConn);
+                    break;
+                case ServerType.Excel:
+                    break;
+            }
+            return err;
         }
 
         public static SqlResult GetDataFromServer(SqlServerManager manager, string query, SqlConn sqlConn, int timeout = -1)

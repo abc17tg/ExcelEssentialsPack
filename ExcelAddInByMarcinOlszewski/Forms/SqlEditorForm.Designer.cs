@@ -34,12 +34,12 @@ namespace ExcelAddInByMarcinOlszewski
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle10 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SqlEditorForm));
             this.sqlEditorScintilla = new ScintillaNET.Scintilla();
             this.transferTablesToQueryBtn = new System.Windows.Forms.Button();
@@ -66,6 +66,10 @@ namespace ExcelAddInByMarcinOlszewski
             this.fetchFieldsBtn = new System.Windows.Forms.Button();
             this.variablesTabPage = new System.Windows.Forms.TabPage();
             this.variablesDataGridView = new System.Windows.Forms.DataGridView();
+            this.VariableTypeColumn = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.VariableNameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.VariableValuesColumn = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.VariableInstancesColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.runningQueriesTabPage = new System.Windows.Forms.TabPage();
             this.runningQueriesDataGridView = new System.Windows.Forms.DataGridView();
             this.CancelQueryColumn = new System.Windows.Forms.DataGridViewButtonColumn();
@@ -76,6 +80,8 @@ namespace ExcelAddInByMarcinOlszewski
             this.worksheetTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.pasteToDataTableCheckBox = new System.Windows.Forms.CheckBox();
             this.buttonsTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+            this.formatToSqlBtn = new System.Windows.Forms.Button();
+            this.separateBtn = new System.Windows.Forms.Button();
             this.validateSelectionBtn = new System.Windows.Forms.Button();
             this.pasteRngBtn = new System.Windows.Forms.Button();
             this.commentBtn = new System.Windows.Forms.Button();
@@ -90,10 +96,6 @@ namespace ExcelAddInByMarcinOlszewski
             this.savedQueriesComboBox = new System.Windows.Forms.ComboBox();
             this.saveQueryBtn = new System.Windows.Forms.Button();
             this.runBtn = new System.Windows.Forms.Button();
-            this.VariableTypeColumn = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.VariableNameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.VariableValuesColumn = new System.Windows.Forms.DataGridViewButtonColumn();
-            this.VariableInstancesColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.mainTableLayoutPanel.SuspendLayout();
             this.upperTableLayoutPanel.SuspendLayout();
             this.objectsAndVariablesTabControl.SuspendLayout();
@@ -299,6 +301,8 @@ namespace ExcelAddInByMarcinOlszewski
             this.objectsAndVariablesTabControl.SelectedIndex = 0;
             this.objectsAndVariablesTabControl.Size = new System.Drawing.Size(247, 670);
             this.objectsAndVariablesTabControl.TabIndex = 31;
+            this.objectsAndVariablesTabControl.SelectedIndexChanged += new System.EventHandler(this.objectsAndVariablesTabControl_TabIndexChanged);
+            this.objectsAndVariablesTabControl.TabIndexChanged += new System.EventHandler(this.objectsAndVariablesTabControl_TabIndexChanged);
             // 
             // tablesTabPage
             // 
@@ -370,6 +374,7 @@ namespace ExcelAddInByMarcinOlszewski
             this.fieldsTableLayoutPanel.Controls.Add(this.fieldsButtonsTableLayoutPanel, 0, 2);
             this.fieldsTableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.fieldsTableLayoutPanel.Location = new System.Drawing.Point(0, 3);
+            this.fieldsTableLayoutPanel.Margin = new System.Windows.Forms.Padding(0);
             this.fieldsTableLayoutPanel.Name = "fieldsTableLayoutPanel";
             this.fieldsTableLayoutPanel.RowCount = 3;
             this.fieldsTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -401,7 +406,7 @@ namespace ExcelAddInByMarcinOlszewski
             this.fieldsListBox.Location = new System.Drawing.Point(3, 30);
             this.fieldsListBox.Name = "fieldsListBox";
             this.fieldsListBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.fieldsListBox.Size = new System.Drawing.Size(233, 570);
+            this.fieldsListBox.Size = new System.Drawing.Size(233, 576);
             this.fieldsListBox.TabIndex = 20;
             this.fieldsListBox.SelectedIndexChanged += new System.EventHandler(this.objectsListBox_SelectedIndexChanged);
             this.fieldsListBox.DoubleClick += new System.EventHandler(this.objectsListBox_DoubleClick);
@@ -415,11 +420,12 @@ namespace ExcelAddInByMarcinOlszewski
             this.fieldsButtonsTableLayoutPanel.Controls.Add(this.transferFieldsToQueryBtn, 0, 0);
             this.fieldsButtonsTableLayoutPanel.Controls.Add(this.fetchFieldsBtn, 1, 0);
             this.fieldsButtonsTableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.fieldsButtonsTableLayoutPanel.Location = new System.Drawing.Point(3, 606);
+            this.fieldsButtonsTableLayoutPanel.Location = new System.Drawing.Point(0, 609);
+            this.fieldsButtonsTableLayoutPanel.Margin = new System.Windows.Forms.Padding(0);
             this.fieldsButtonsTableLayoutPanel.Name = "fieldsButtonsTableLayoutPanel";
             this.fieldsButtonsTableLayoutPanel.RowCount = 1;
             this.fieldsButtonsTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.fieldsButtonsTableLayoutPanel.Size = new System.Drawing.Size(233, 32);
+            this.fieldsButtonsTableLayoutPanel.Size = new System.Drawing.Size(239, 32);
             this.fieldsButtonsTableLayoutPanel.TabIndex = 31;
             // 
             // transferFieldsToQueryBtn
@@ -429,7 +435,7 @@ namespace ExcelAddInByMarcinOlszewski
             this.transferFieldsToQueryBtn.Location = new System.Drawing.Point(3, 3);
             this.transferFieldsToQueryBtn.MinimumSize = new System.Drawing.Size(0, 25);
             this.transferFieldsToQueryBtn.Name = "transferFieldsToQueryBtn";
-            this.transferFieldsToQueryBtn.Size = new System.Drawing.Size(52, 26);
+            this.transferFieldsToQueryBtn.Size = new System.Drawing.Size(53, 26);
             this.transferFieldsToQueryBtn.TabIndex = 19;
             this.transferFieldsToQueryBtn.Text = "←";
             this.transferFieldsToQueryBtn.UseVisualStyleBackColor = true;
@@ -438,10 +444,10 @@ namespace ExcelAddInByMarcinOlszewski
             // fetchFieldsBtn
             // 
             this.fetchFieldsBtn.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.fetchFieldsBtn.Location = new System.Drawing.Point(61, 3);
+            this.fetchFieldsBtn.Location = new System.Drawing.Point(62, 3);
             this.fetchFieldsBtn.MinimumSize = new System.Drawing.Size(0, 25);
             this.fetchFieldsBtn.Name = "fetchFieldsBtn";
-            this.fetchFieldsBtn.Size = new System.Drawing.Size(169, 26);
+            this.fetchFieldsBtn.Size = new System.Drawing.Size(174, 26);
             this.fetchFieldsBtn.TabIndex = 18;
             this.fetchFieldsBtn.Text = "Fetch";
             this.fetchFieldsBtn.UseVisualStyleBackColor = true;
@@ -501,6 +507,47 @@ namespace ExcelAddInByMarcinOlszewski
             this.variablesDataGridView.TabStop = false;
             this.variablesDataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.variablesDataGridView_CellContentClick);
             // 
+            // VariableTypeColumn
+            // 
+            this.VariableTypeColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.VariableTypeColumn.HeaderText = "Type";
+            this.VariableTypeColumn.Items.AddRange(new object[] {
+            "List",
+            "Single"});
+            this.VariableTypeColumn.Name = "VariableTypeColumn";
+            this.VariableTypeColumn.ToolTipText = "Choose type of value";
+            this.VariableTypeColumn.Width = 39;
+            // 
+            // VariableNameColumn
+            // 
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            this.VariableNameColumn.DefaultCellStyle = dataGridViewCellStyle3;
+            this.VariableNameColumn.HeaderText = "Variable";
+            this.VariableNameColumn.MaxInputLength = 40;
+            this.VariableNameColumn.Name = "VariableNameColumn";
+            this.VariableNameColumn.ToolTipText = "Choose unique variable name";
+            // 
+            // VariableValuesColumn
+            // 
+            this.VariableValuesColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
+            this.VariableValuesColumn.HeaderText = "Values";
+            this.VariableValuesColumn.Name = "VariableValuesColumn";
+            this.VariableValuesColumn.Text = "Values";
+            this.VariableValuesColumn.ToolTipText = "Click to set values";
+            this.VariableValuesColumn.Width = 45;
+            // 
+            // VariableInstancesColumn
+            // 
+            this.VariableInstancesColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.VariableInstancesColumn.DefaultCellStyle = dataGridViewCellStyle4;
+            this.VariableInstancesColumn.HeaderText = "i";
+            this.VariableInstancesColumn.MaxInputLength = 3;
+            this.VariableInstancesColumn.MinimumWidth = 15;
+            this.VariableInstancesColumn.Name = "VariableInstancesColumn";
+            this.VariableInstancesColumn.ToolTipText = "Instances that will divide query";
+            this.VariableInstancesColumn.Width = 34;
+            // 
             // runningQueriesTabPage
             // 
             this.runningQueriesTabPage.Controls.Add(this.runningQueriesDataGridView);
@@ -559,6 +606,7 @@ namespace ExcelAddInByMarcinOlszewski
             this.runningQueriesDataGridView.Size = new System.Drawing.Size(233, 638);
             this.runningQueriesDataGridView.TabIndex = 0;
             this.runningQueriesDataGridView.TabStop = false;
+            this.runningQueriesDataGridView.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.runningQueriesDataGridView_CellClick);
             // 
             // CancelQueryColumn
             // 
@@ -647,29 +695,32 @@ namespace ExcelAddInByMarcinOlszewski
             // buttonsTableLayoutPanel
             // 
             this.buttonsTableLayoutPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.buttonsTableLayoutPanel.ColumnCount = 8;
+            this.buttonsTableLayoutPanel.ColumnCount = 9;
             this.buttonsTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 11F));
             this.buttonsTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 11F));
             this.buttonsTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 5F));
-            this.buttonsTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            this.buttonsTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.buttonsTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 7F));
+            this.buttonsTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 16F));
+            this.buttonsTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 17F));
             this.buttonsTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 11F));
             this.buttonsTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 11F));
             this.buttonsTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 11F));
+            this.buttonsTableLayoutPanel.Controls.Add(this.formatToSqlBtn, 3, 1);
+            this.buttonsTableLayoutPanel.Controls.Add(this.separateBtn, 3, 0);
             this.buttonsTableLayoutPanel.Controls.Add(this.validateSelectionBtn, 0, 0);
             this.buttonsTableLayoutPanel.Controls.Add(this.pasteRngBtn, 1, 0);
             this.buttonsTableLayoutPanel.Controls.Add(this.commentBtn, 2, 0);
-            this.buttonsTableLayoutPanel.Controls.Add(this.serverTypeComboBox, 3, 0);
-            this.buttonsTableLayoutPanel.Controls.Add(this.serverComboBox, 4, 0);
-            this.buttonsTableLayoutPanel.Controls.Add(this.testConnBtn, 5, 0);
-            this.buttonsTableLayoutPanel.Controls.Add(this.openInNotepadBtn, 6, 0);
-            this.buttonsTableLayoutPanel.Controls.Add(this.runSelectionBtn, 7, 0);
+            this.buttonsTableLayoutPanel.Controls.Add(this.serverTypeComboBox, 4, 0);
+            this.buttonsTableLayoutPanel.Controls.Add(this.serverComboBox, 5, 0);
+            this.buttonsTableLayoutPanel.Controls.Add(this.testConnBtn, 6, 0);
+            this.buttonsTableLayoutPanel.Controls.Add(this.openInNotepadBtn, 7, 0);
+            this.buttonsTableLayoutPanel.Controls.Add(this.runSelectionBtn, 8, 0);
             this.buttonsTableLayoutPanel.Controls.Add(this.validateBtn, 0, 1);
             this.buttonsTableLayoutPanel.Controls.Add(this.pasteRngFilterBtn, 1, 1);
             this.buttonsTableLayoutPanel.Controls.Add(this.wrapIntoBlockBtn, 2, 1);
-            this.buttonsTableLayoutPanel.Controls.Add(this.savedQueriesComboBox, 3, 1);
-            this.buttonsTableLayoutPanel.Controls.Add(this.saveQueryBtn, 6, 1);
-            this.buttonsTableLayoutPanel.Controls.Add(this.runBtn, 7, 1);
+            this.buttonsTableLayoutPanel.Controls.Add(this.savedQueriesComboBox, 4, 1);
+            this.buttonsTableLayoutPanel.Controls.Add(this.saveQueryBtn, 7, 1);
+            this.buttonsTableLayoutPanel.Controls.Add(this.runBtn, 8, 1);
             this.buttonsTableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.buttonsTableLayoutPanel.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.FixedSize;
             this.buttonsTableLayoutPanel.Location = new System.Drawing.Point(0, 673);
@@ -681,6 +732,32 @@ namespace ExcelAddInByMarcinOlszewski
             this.buttonsTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.buttonsTableLayoutPanel.Size = new System.Drawing.Size(985, 62);
             this.buttonsTableLayoutPanel.TabIndex = 24;
+            // 
+            // formatToSqlBtn
+            // 
+            this.formatToSqlBtn.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.formatToSqlBtn.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.formatToSqlBtn.Location = new System.Drawing.Point(268, 34);
+            this.formatToSqlBtn.MinimumSize = new System.Drawing.Size(0, 25);
+            this.formatToSqlBtn.Name = "formatToSqlBtn";
+            this.formatToSqlBtn.Size = new System.Drawing.Size(62, 25);
+            this.formatToSqlBtn.TabIndex = 25;
+            this.formatToSqlBtn.Text = "( \' \', \' \', ... )";
+            this.formatToSqlBtn.UseVisualStyleBackColor = true;
+            this.formatToSqlBtn.Click += new System.EventHandler(this.formatToSqlBtn_Click);
+            // 
+            // separateBtn
+            // 
+            this.separateBtn.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.separateBtn.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.separateBtn.Location = new System.Drawing.Point(268, 3);
+            this.separateBtn.MinimumSize = new System.Drawing.Size(0, 25);
+            this.separateBtn.Name = "separateBtn";
+            this.separateBtn.Size = new System.Drawing.Size(62, 25);
+            this.separateBtn.TabIndex = 24;
+            this.separateBtn.Text = "- - - - -";
+            this.separateBtn.UseVisualStyleBackColor = true;
+            this.separateBtn.Click += new System.EventHandler(this.separateBtn_Click);
             // 
             // validateSelectionBtn
             // 
@@ -731,10 +808,10 @@ namespace ExcelAddInByMarcinOlszewski
             this.serverTypeComboBox.FormattingEnabled = true;
             this.serverTypeComboBox.IntegralHeight = false;
             this.serverTypeComboBox.ItemHeight = 15;
-            this.serverTypeComboBox.Location = new System.Drawing.Point(268, 3);
+            this.serverTypeComboBox.Location = new System.Drawing.Point(336, 3);
             this.serverTypeComboBox.MaxDropDownItems = 15;
             this.serverTypeComboBox.Name = "serverTypeComboBox";
-            this.serverTypeComboBox.Size = new System.Drawing.Size(191, 23);
+            this.serverTypeComboBox.Size = new System.Drawing.Size(151, 23);
             this.serverTypeComboBox.TabIndex = 8;
             this.serverTypeComboBox.SelectedIndexChanged += new System.EventHandler(this.serverTypeComboBox_SelectedIndexChanged);
             // 
@@ -748,10 +825,10 @@ namespace ExcelAddInByMarcinOlszewski
             this.serverComboBox.FormattingEnabled = true;
             this.serverComboBox.IntegralHeight = false;
             this.serverComboBox.ItemHeight = 15;
-            this.serverComboBox.Location = new System.Drawing.Point(465, 3);
+            this.serverComboBox.Location = new System.Drawing.Point(493, 3);
             this.serverComboBox.MaxDropDownItems = 15;
             this.serverComboBox.Name = "serverComboBox";
-            this.serverComboBox.Size = new System.Drawing.Size(191, 23);
+            this.serverComboBox.Size = new System.Drawing.Size(161, 23);
             this.serverComboBox.TabIndex = 16;
             this.serverComboBox.SelectedIndexChanged += new System.EventHandler(this.serverComboBox_SelectedIndexChanged);
             // 
@@ -759,7 +836,7 @@ namespace ExcelAddInByMarcinOlszewski
             // 
             this.testConnBtn.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.testConnBtn.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.testConnBtn.Location = new System.Drawing.Point(662, 3);
+            this.testConnBtn.Location = new System.Drawing.Point(660, 3);
             this.testConnBtn.MinimumSize = new System.Drawing.Size(0, 25);
             this.testConnBtn.Name = "testConnBtn";
             this.testConnBtn.Size = new System.Drawing.Size(102, 25);
@@ -772,7 +849,7 @@ namespace ExcelAddInByMarcinOlszewski
             // 
             this.openInNotepadBtn.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.openInNotepadBtn.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.openInNotepadBtn.Location = new System.Drawing.Point(770, 3);
+            this.openInNotepadBtn.Location = new System.Drawing.Point(768, 3);
             this.openInNotepadBtn.MinimumSize = new System.Drawing.Size(0, 25);
             this.openInNotepadBtn.Name = "openInNotepadBtn";
             this.openInNotepadBtn.Size = new System.Drawing.Size(102, 25);
@@ -785,10 +862,10 @@ namespace ExcelAddInByMarcinOlszewski
             // 
             this.runSelectionBtn.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.runSelectionBtn.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.runSelectionBtn.Location = new System.Drawing.Point(878, 3);
+            this.runSelectionBtn.Location = new System.Drawing.Point(876, 3);
             this.runSelectionBtn.MinimumSize = new System.Drawing.Size(0, 25);
             this.runSelectionBtn.Name = "runSelectionBtn";
-            this.runSelectionBtn.Size = new System.Drawing.Size(104, 25);
+            this.runSelectionBtn.Size = new System.Drawing.Size(106, 25);
             this.runSelectionBtn.TabIndex = 2;
             this.runSelectionBtn.Text = "Run selection";
             this.runSelectionBtn.UseVisualStyleBackColor = true;
@@ -839,16 +916,16 @@ namespace ExcelAddInByMarcinOlszewski
             this.savedQueriesComboBox.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.FileSystem;
             this.buttonsTableLayoutPanel.SetColumnSpan(this.savedQueriesComboBox, 3);
             this.savedQueriesComboBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.savedQueriesComboBox.DropDownHeight = 210;
+            this.savedQueriesComboBox.DropDownHeight = 310;
             this.savedQueriesComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.savedQueriesComboBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.savedQueriesComboBox.FormattingEnabled = true;
             this.savedQueriesComboBox.IntegralHeight = false;
             this.savedQueriesComboBox.ItemHeight = 15;
-            this.savedQueriesComboBox.Location = new System.Drawing.Point(268, 34);
-            this.savedQueriesComboBox.MaxDropDownItems = 15;
+            this.savedQueriesComboBox.Location = new System.Drawing.Point(336, 34);
+            this.savedQueriesComboBox.MaxDropDownItems = 25;
             this.savedQueriesComboBox.Name = "savedQueriesComboBox";
-            this.savedQueriesComboBox.Size = new System.Drawing.Size(496, 23);
+            this.savedQueriesComboBox.Size = new System.Drawing.Size(426, 23);
             this.savedQueriesComboBox.TabIndex = 15;
             this.savedQueriesComboBox.SelectedIndexChanged += new System.EventHandler(this.savedQueriesComboBox_SelectedIndexChanged);
             // 
@@ -856,7 +933,7 @@ namespace ExcelAddInByMarcinOlszewski
             // 
             this.saveQueryBtn.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.saveQueryBtn.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.saveQueryBtn.Location = new System.Drawing.Point(770, 34);
+            this.saveQueryBtn.Location = new System.Drawing.Point(768, 34);
             this.saveQueryBtn.MinimumSize = new System.Drawing.Size(0, 25);
             this.saveQueryBtn.Name = "saveQueryBtn";
             this.saveQueryBtn.Size = new System.Drawing.Size(102, 25);
@@ -869,55 +946,14 @@ namespace ExcelAddInByMarcinOlszewski
             // 
             this.runBtn.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.runBtn.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.runBtn.Location = new System.Drawing.Point(878, 34);
+            this.runBtn.Location = new System.Drawing.Point(876, 34);
             this.runBtn.MinimumSize = new System.Drawing.Size(0, 25);
             this.runBtn.Name = "runBtn";
-            this.runBtn.Size = new System.Drawing.Size(104, 25);
+            this.runBtn.Size = new System.Drawing.Size(106, 25);
             this.runBtn.TabIndex = 10;
             this.runBtn.Text = "Run";
             this.runBtn.UseVisualStyleBackColor = true;
             this.runBtn.Click += new System.EventHandler(this.runBtn_Click);
-            // 
-            // VariableTypeColumn
-            // 
-            this.VariableTypeColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.VariableTypeColumn.HeaderText = "Type";
-            this.VariableTypeColumn.Items.AddRange(new object[] {
-            "List",
-            "Single"});
-            this.VariableTypeColumn.Name = "VariableTypeColumn";
-            this.VariableTypeColumn.ToolTipText = "Choose type of value";
-            this.VariableTypeColumn.Width = 39;
-            // 
-            // VariableNameColumn
-            // 
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            this.VariableNameColumn.DefaultCellStyle = dataGridViewCellStyle3;
-            this.VariableNameColumn.HeaderText = "Variable";
-            this.VariableNameColumn.MaxInputLength = 40;
-            this.VariableNameColumn.Name = "VariableNameColumn";
-            this.VariableNameColumn.ToolTipText = "Choose unique variable name";
-            // 
-            // VariableValuesColumn
-            // 
-            this.VariableValuesColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
-            this.VariableValuesColumn.HeaderText = "Values";
-            this.VariableValuesColumn.Name = "VariableValuesColumn";
-            this.VariableValuesColumn.Text = "Values";
-            this.VariableValuesColumn.ToolTipText = "Click to set values";
-            this.VariableValuesColumn.Width = 45;
-            // 
-            // VariableInstancesColumn
-            // 
-            this.VariableInstancesColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.VariableInstancesColumn.DefaultCellStyle = dataGridViewCellStyle4;
-            this.VariableInstancesColumn.HeaderText = "i";
-            this.VariableInstancesColumn.MaxInputLength = 3;
-            this.VariableInstancesColumn.MinimumWidth = 15;
-            this.VariableInstancesColumn.Name = "VariableInstancesColumn";
-            this.VariableInstancesColumn.ToolTipText = "Instances that will divide query";
-            this.VariableInstancesColumn.Width = 34;
             // 
             // SqlEditorForm
             // 
@@ -937,8 +973,6 @@ namespace ExcelAddInByMarcinOlszewski
             this.Activated += new System.EventHandler(this.SqlEditorForm_Activated);
             this.Deactivate += new System.EventHandler(this.SqlEditorForm_Deactivate);
             this.Load += new System.EventHandler(this.SqlEditorForm_Load);
-            this.DragEnter += new System.Windows.Forms.DragEventHandler(this.SqlEditorForm_DragEnter);
-            this.DragLeave += new System.EventHandler(this.SqlEditorForm_DragLeave);
             this.mainTableLayoutPanel.ResumeLayout(false);
             this.upperTableLayoutPanel.ResumeLayout(false);
             this.objectsAndVariablesTabControl.ResumeLayout(false);
@@ -1018,5 +1052,7 @@ namespace ExcelAddInByMarcinOlszewski
         private DataGridViewTextBoxColumn VariableNameColumn;
         private DataGridViewButtonColumn VariableValuesColumn;
         private DataGridViewTextBoxColumn VariableInstancesColumn;
+        private Button formatToSqlBtn;
+        private Button separateBtn;
     }
 }

@@ -164,9 +164,9 @@ namespace ExcelAddInByMarcinOlszewski.Forms
 
         private void validateBtn_Click(object sender, EventArgs e)
         {
-            List<string> errors = new List<string>();
+            /*List<string> errors = new List<string>();
             if (!Utils.IsSQLQueryValid(sqlEditorScintilla.Text, out errors))
-                MessageBox.Show(string.Join(Environment.NewLine, errors));
+                MessageBox.Show(string.Join(Environment.NewLine, errors));*/
         }
 
         private void PasteFromClipboard()
@@ -182,9 +182,9 @@ namespace ExcelAddInByMarcinOlszewski.Forms
 
         private void validateSelectionBtn_Click(object sender, EventArgs e)
         {
-            List<string> errors = new List<string>();
+            /*List<string> errors = new List<string>();
             if (!Utils.IsSQLQueryValid(sqlEditorScintilla.SelectedText, out errors))
-                MessageBox.Show(string.Join(Environment.NewLine, errors));
+                MessageBox.Show(string.Join(Environment.NewLine, errors))*/;
         }
 
         private void loadFromFilebutton_Click(object sender, EventArgs e)

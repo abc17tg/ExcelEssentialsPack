@@ -50,6 +50,11 @@ namespace ExcelAddInByMarcinOlszewski.Forms
             InsertMenu(MenuHandle, 6, MF_BYPOSITION, CenterFormMenuItem, "Center window");
         }
 
+        ~DataTableForm() 
+        {
+            DataTable.Dispose(); 
+        }
+
         protected override void WndProc(ref Message msg)
         {
             if (msg.Msg == WM_SYSCOMMAND)

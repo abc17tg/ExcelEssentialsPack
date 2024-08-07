@@ -2,18 +2,15 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using ExcelAddInByMarcinOlszewski;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Data;
-using Microsoft.SqlServer.TransactSql.ScriptDom;
 using System.Security.Cryptography;
 using ColorMine.ColorSpaces;
 using System.Drawing;
 using System.Text;
 using Microsoft.Data.Sqlite;
 using System.Threading.Tasks;
-using static ScintillaNET.Style;
 using ExcelAddInByMarcinOlszewski.Forms;
 
 public static class Utils
@@ -58,24 +55,34 @@ public static class Utils
         return splits;
     }
 
+    // due to critical error not working for now
     public static bool IsSQLQueryValid(string sql, out List<string> errors)
     {
         errors = new List<string>();
+        return true;
 
-        TSql140Parser parser = new TSql140Parser(false);
+/*        TSql140Parser parser = new TSql140Parser(false);
         TSqlFragment fragment;
-        IList<ParseError> parseErrors;
+        IList<ParseError> parseErrors = null;
 
         using (TextReader reader = new StringReader(sql))
         {
-            fragment = parser.Parse(reader, out parseErrors);
+            try
+            {
+                fragment = parser.Parse(reader, out parseErrors);
+            }
+            catch (StackOverflowException)
+            { 
+                return false; 
+            }
+
             if (parseErrors != null && parseErrors.Count > 0)
             {
                 errors = parseErrors.Select(e => e.Message).ToList();
                 return false;
             }
         }
-        return true;
+        return true;*/
     }
 
     public static T Clamp<T>(this T val, T min, T max) where T : IComparable<T>
@@ -365,7 +372,7 @@ public static class Utils
         {
             InputBoxForm inputBoxForm = new InputBoxForm("Choose delimiter", $"Delimiter \"{delimiter}\" contained in values, choose another: ");
             inputBoxForm.ShowDialog();
-            
+
             if (inputBoxForm.DialogResult == DialogResult.Cancel)
                 return;
 

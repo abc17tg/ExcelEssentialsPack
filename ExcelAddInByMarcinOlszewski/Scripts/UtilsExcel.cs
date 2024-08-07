@@ -14,9 +14,7 @@ using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Numerics;
 using System.Drawing;
-using static SQLite.TableMapping;
 using System.Globalization;
-using static ScintillaNET.Style;
 
 public static class UtilsExcel
 {
@@ -471,6 +469,71 @@ public static class UtilsExcel
         }
     }
 
+    public static string DetermineExcelNumberFormatFromDataTableColumn(DataColumn column)
+    {
+        switch (Type.GetTypeCode(column.DataType))
+        {
+            case TypeCode.Boolean:
+                return "BOOLEAN";
+            case TypeCode.Byte:
+            case TypeCode.SByte:
+            case TypeCode.Int16:
+            case TypeCode.UInt16:
+            case TypeCode.Int32:
+            case TypeCode.UInt32:
+            case TypeCode.Int64:
+            case TypeCode.UInt64:
+                return "0"; // Integer number format
+            case TypeCode.Single:
+            case TypeCode.Double:
+            case TypeCode.Decimal:
+                return "General"; // Decimal number format
+            case TypeCode.DateTime:
+                return DetermineDateTimeFormat(column); // Date and time format
+            case TypeCode.String:
+            case TypeCode.Char:
+                return "@"; // Text format for single character
+            case TypeCode.Object:
+            default:
+                return "@"; // Default to text format for other types
+        }
+    }
+
+    public static void ApplyNumberFormatToRange(Excel.Range rng, DataColumn column)
+    {
+        string format = DetermineExcelNumberFormatFromDataTableColumn(column);
+        rng.NumberFormat = format;
+    }
+
+    private static string DetermineDateTimeFormat(DataColumn column)
+    {
+        foreach (DataRow row in column.Table.Rows)
+        {
+            if (row[column] is DateTime dateTime)
+            {
+                if (dateTime.TimeOfDay.TotalSeconds > 0)
+                {
+                    return "yyyy-mm-dd hh:mm:ss"; // Long date format
+                }
+            }
+        }
+        return "yyyy-mm-dd"; // Short date format
+    }
+
+    public static DateTime AdjustDateForExcel(DateTime date)
+    {
+        // Excel's valid date range
+        DateTime excelMinDate = new DateTime(1900, 1, 1);
+        DateTime excelMaxDate = new DateTime(9999, 12, 31);
+
+        if (date < excelMinDate)
+            return excelMinDate;
+        else if (date > excelMaxDate)
+            return excelMaxDate;
+
+        return date;
+    }
+
     public static void PasteDataTableToRange(DataTable dt, Excel.Range rng, bool headers = true)
     {
         if (dt == null || !rng.Valid())
@@ -495,12 +558,13 @@ public static class UtilsExcel
         {
             for (int c = 0; c < dt.Columns.Count; c++)
             {
-                if (dt.Rows[r - startRow][c] is DateTime)
+                var value = dt.Rows[r - startRow][c];
+                if (value is DateTime)
                     lock (lockObject)
-                        dataArr[r, c] = dt.Rows[r - startRow][c].ToString();
+                        dataArr[r, c] = AdjustDateForExcel((DateTime)value).ToString();
                 else
                     lock (lockObject)
-                        dataArr[r, c] = dt.Rows[r - startRow][c];
+                        dataArr[r, c] = value;
             }
         });
 
@@ -522,11 +586,8 @@ public static class UtilsExcel
         {
             for (int c = dt.Columns.Count - 1; c >= 0; c--)
             {
-                if (dataArr[(headers ? 1 : 0), c] is string || dataArr[(headers ? 1 : 0), c] is DateTime)
-                {
-                    Excel.Range columnRange = ws.Range[ws.Cells[startCell.Row + (headers ? 1 : 0), startCell.Column + c], ws.Cells[startCell.Row + dt.Rows.Count + (headers ? 0 : -1), startCell.Column + c]];
-                    columnRange.NumberFormat = "@";
-                }
+                Excel.Range columnRange = ws.Range[ws.Cells[startCell.Row + (headers ? 1 : 0), startCell.Column + c], ws.Cells[startCell.Row + dt.Rows.Count + (headers ? 0 : -1), startCell.Column + c]];
+                ApplyNumberFormatToRange(columnRange, dt.Columns[c]);
             }
 
             // Write data to Excel in one go

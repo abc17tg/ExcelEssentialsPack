@@ -7,8 +7,11 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Interop;
 using ExcelAddInByMarcinOlszewski.Forms;
 using ExcelAddInByMarcinOlszewski.Scripts;
+using static ScintillaNET.Style;
+using static SQLite.SQLite3;
 using Excel = Microsoft.Office.Interop.Excel;
 
 namespace ExcelAddInByMarcinOlszewski
@@ -33,10 +36,15 @@ namespace ExcelAddInByMarcinOlszewski
         private List<string> m_fieldsListBoxSelectedItemsList = new List<string>();
         private Dictionary<string, SqlConn> m_connDic;
         private Dictionary<string, string> m_queriesDic;
+        private bool m_selectionChangedByCode = false;
         private static readonly string m_sheetNameTextBoxPlaceholder = "Worksheet name";
 
         public const Int32 WM_SYSCOMMAND = 0x112;
         public const Int32 MF_BYPOSITION = 0x400;
+        private const int WM_NCMOUSEMOVE = 0x00A0;
+        private const int WM_MOUSEMOVE = 0x0200;
+        private const int HTCAPTION = 2;
+        private bool isMouseOverForm = false;
         public const Int32 ToggleTopMostMenuItem = 1000;
         public const Int32 CenterFormMenuItem = 1001;
 
@@ -108,8 +116,9 @@ namespace ExcelAddInByMarcinOlszewski
             MenuItem pasteRangeCMI = new MenuItem("Paste range", (o, e) => { pasteRngBtn.PerformClick(); });
             MenuItem pasteClipboardRangeCMI = new MenuItem("Paste rng from clipboard", (o, e) => { PasteFromClipboard(); });
             MenuItem formatToSqlCMI = new MenuItem("Format to SQL", (o, e) => { UtilsScintilla.ReformatTextToSql(sqlEditorScintilla); });
+            MenuItem toggleWrapModeCMI = new MenuItem("Toggle text wrap mode", (o, e) => { if (sqlEditorScintilla.WrapMode == ScintillaNET.WrapMode.None) sqlEditorScintilla.WrapMode = ScintillaNET.WrapMode.Word; else sqlEditorScintilla.WrapMode = ScintillaNET.WrapMode.None; });
             MenuItem runSelectionCMI = new MenuItem("Run selected", (o, e) => { runSelectionBtn.PerformClick(); });
-            MenuItem runBlockCMI = new MenuItem("Run block (block identifier '----')", (o, e) => { UtilsScintilla.SelectBlock(sqlEditorScintilla); runSelectionBtn.PerformClick(); });
+            MenuItem runBlockCMI = new MenuItem("Run block (block identifier '-----')", (o, e) => { UtilsScintilla.SelectBlock(sqlEditorScintilla); runSelectionBtn.PerformClick(); });
             cm.MenuItems.Add(pasteCMI);
             cm.MenuItems.Add(copyCMI);
             cm.MenuItems.Add(fetchCMI);
@@ -117,6 +126,7 @@ namespace ExcelAddInByMarcinOlszewski
             cm.MenuItems.Add(pasteRangeCMI);
             cm.MenuItems.Add(pasteClipboardRangeCMI);
             cm.MenuItems.Add(formatToSqlCMI);
+            cm.MenuItems.Add(toggleWrapModeCMI);
             cm.MenuItems.Add(runSelectionCMI);
             cm.MenuItems.Add(runBlockCMI);
             sqlEditorScintilla.ContextMenu = cm;
@@ -130,13 +140,35 @@ namespace ExcelAddInByMarcinOlszewski
                 {
                     case ToggleTopMostMenuItem:
                         ToggleTopMost();
-                        return;
+                        break;
                     case CenterFormMenuItem:
                         Utils.MoveFormToCenter(this);
-                        return;
+                        break;
                     default:
                         break;
                 }
+            }
+
+            switch (msg.Msg)
+            {
+                case WM_MOUSEMOVE:
+                case WM_NCMOUSEMOVE:
+                    int hitTest = msg.Msg == WM_NCMOUSEMOVE ? msg.WParam.ToInt32() : 0;
+                    if (hitTest == HTCAPTION || msg.Msg == WM_MOUSEMOVE)
+                    {
+                        if (!isMouseOverForm)
+                        {
+                            this.Opacity = 0.95;
+                            isMouseOverForm = true;
+                        }
+                    }
+                    else if (isMouseOverForm)
+                    {
+                        if (!this.ContainsFocus)
+                            this.Opacity = 0.65;
+                        isMouseOverForm = false;
+                    }
+                    break;
             }
             base.WndProc(ref msg);
         }
@@ -159,11 +191,113 @@ namespace ExcelAddInByMarcinOlszewski
             this.Close();
         }
 
+        private void RefreshSserverTypeComboBox()
+        {
+            serverTypeComboBox.Items.AddRange(Directory.EnumerateDirectories(FileManager.SqlQueriesPath).Select(p => Path.GetFileName(p)).ToArray());
+        }
+
+        private void RefreshSavedQueriesComboBox()
+        {
+            SqlServerManager.ServerType serverType = (SqlServerManager.ServerType)Enum.Parse(typeof(SqlServerManager.ServerType), serverTypeComboBox.SelectedItem.ToString());
+            if (!Enum.IsDefined(typeof(SqlServerManager.ServerType), serverType))
+                return;
+
+            switch (serverType)
+            {
+                case SqlServerManager.ServerType.SqlServer:
+                    this.TopMost = false;
+                    m_connDic = FileManager.GetSqlServerConnectionValues();
+                    m_queriesDic = FileManager.GetSqlServerQueries();
+                    this.TopMost = true;
+                    break;
+                case SqlServerManager.ServerType.Oracle:
+                    this.TopMost = false;
+                    m_connDic = FileManager.GetOracleConnectionValues();
+                    m_queriesDic = FileManager.GetOracleQueries();
+                    this.TopMost = true;
+                    break;
+                case SqlServerManager.ServerType.Excel:
+                    this.TopMost = false;
+                    m_connDic = null;
+                    m_queriesDic = FileManager.GetExcelQueries();
+                    this.TopMost = true;
+                    break;
+                default:
+                    return;
+            }
+            ServerType = serverType;
+            savedQueriesComboBox.Items.Clear();
+            try
+            {
+                savedQueriesComboBox.Items.AddRange(m_queriesDic.Keys.Select(p => Path.GetFileName(p)).ToArray());
+            }
+            catch { }
+
+            serverComboBox.Items.Clear();
+            try
+            {
+                if (ServerType != SqlServerManager.ServerType.Excel)
+                    serverComboBox.Items.AddRange(m_connDic.Keys.ToArray());
+            }
+            catch { }
+        }
+
         private void validateBtn_Click(object sender, EventArgs e)
         {
-            List<string> errors = new List<string>();
-            if (!Utils.IsSQLQueryValid(sqlEditorScintilla.Text, out errors))
-                MessageBox.Show(string.Join(Environment.NewLine, errors));
+            string err = null;
+
+            if (new List<string> { sqlEditorScintilla.Text, SqlConn?.ConnectionString(), serverComboBox.SelectedItem?.ToString(), serverTypeComboBox.SelectedItem?.ToString() }.Any(p => string.IsNullOrWhiteSpace(p)))
+            {
+                MessageBox.Show("Missing server selections or query", "Run error");
+                return;
+            }
+
+            err = SqlServerManager.CheckSqlQuerySyntaxOnline(sqlEditorScintilla.Text, SqlConn);
+
+            switch (err)
+            {
+                case null:
+                    MessageBox.Show("Error! Maybe no internet connection.");
+                    break;
+                case "":
+                    MessageBox.Show("Syntax ok.");
+                    break;
+                default:
+                    MessageBox.Show(err);
+                    break;
+            }
+        }
+
+        private void validateSelectionBtn_Click(object sender, EventArgs e)
+        {
+            string err = null;
+
+            if (string.IsNullOrWhiteSpace(sqlEditorScintilla.SelectedText))
+            {
+                UtilsScintilla.SelectBlock(sqlEditorScintilla);
+                return;
+            }
+
+            if (new List<string> { sqlEditorScintilla.SelectedText, SqlConn?.ConnectionString(), serverComboBox.SelectedItem?.ToString(), serverTypeComboBox.SelectedItem?.ToString() }.Any(p => string.IsNullOrWhiteSpace(p)))
+            {
+                MessageBox.Show("Missing server selections or query", "Run error");
+                return;
+            }
+
+            err = SqlServerManager.CheckSqlQuerySyntaxOnline(sqlEditorScintilla.SelectedText, SqlConn);
+
+            switch (err)
+            {
+                case null:
+                    MessageBox.Show("Error! Maybe no internet connection.");
+                    break;
+                case "":
+                    MessageBox.Show("Syntax ok.");
+                    break;
+                default:
+                    MessageBox.Show(err);
+                    break;
+            }
         }
 
         private void PasteFromClipboard()
@@ -191,13 +325,6 @@ namespace ExcelAddInByMarcinOlszewski
             string rngText = UtilsExcel.GenerateSqlFilterFromExcelSelection(rng);
             if (!string.IsNullOrEmpty(rngText))
                 sqlEditorScintilla.ReplaceSelection(rngText);
-        }
-
-        private void validateSelectionBtn_Click(object sender, EventArgs e)
-        {
-            List<string> errors = new List<string>();
-            if (!Utils.IsSQLQueryValid(sqlEditorScintilla.SelectedText, out errors))
-                MessageBox.Show(string.Join(Environment.NewLine, errors));
         }
 
         private void runBtn_Click(object sender, EventArgs e)
@@ -278,12 +405,12 @@ namespace ExcelAddInByMarcinOlszewski
             }
 
             List<string> errors = new List<string>();
-            if (!Utils.IsSQLQueryValid(query, out errors))
-            {
-                var result = MessageBox.Show(string.Join(Environment.NewLine, errors), "Syntax error", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
-                if (result != DialogResult.OK)
-                    return;
-            }
+            /*            if (!Utils.IsSQLQueryValid(query, out errors))
+                        {
+                            var result = MessageBox.Show(string.Join(Environment.NewLine, errors), "Syntax error", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+                            if (result != DialogResult.OK)
+                                return;
+                        }*/
 
             Task runQuery = null;
             Task<SqlResult> runQueryWithResult = null;
@@ -361,38 +488,53 @@ namespace ExcelAddInByMarcinOlszewski
 
         private void Run(string query)
         {
-            if (new List<string> { query, SqlConn?.ConnectionString(), serverComboBox.SelectedItem.ToString(), serverTypeComboBox.SelectedItem.ToString() }.Any(p => string.IsNullOrWhiteSpace(p)))
+            if (new List<string> { query, SqlConn?.ConnectionString(), serverComboBox.SelectedItem?.ToString(), serverTypeComboBox.SelectedItem?.ToString() }.Any(p => string.IsNullOrWhiteSpace(p)))
             {
                 MessageBox.Show("Missing server selections or query", "Run error");
                 return;
             }
 
-            List<string> errors = new List<string>();
-            if (!Utils.IsSQLQueryValid(query, out errors))
+            /*string err = null;
+            err = SqlServerManager.CheckSqlQuerySyntaxOnline(query, SqlConn);
+
+            DialogResult result;
+            switch (err)
             {
-                var result = MessageBox.Show(string.Join(Environment.NewLine, errors), "Syntax error", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
-                if (result != DialogResult.OK)
-                    return;
-            }
+                case null:
+                    result = MessageBox.Show("Error! Maybe no internet connection.", "Error", MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button3);
+                    if (result == DialogResult.Abort)
+                        return;
+                    else if (result == DialogResult.Retry)
+                    {
+                        Run(query);
+                        return;
+                    }
+                    break;
+                case "":
+                    break;
+                default:
+                    result = MessageBox.Show(err, "Error", MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button3);
+                    if (result == DialogResult.Abort)
+                        return;
+                    else if(result == DialogResult.Retry)
+                    {
+                        Run(query);
+                        return;
+                    }
+                    break;
+            }*/
 
-            Task<bool> runQuery = null;
-            Task<SqlResult> runQueryWithResult = null;
-
-            if (pasteToDataTableCheckBox.Checked)
-                runQueryWithResult = new Task<SqlResult>(() => SqlServerManager.GetDataFromServer(m_sqlManager, query, SqlConn));
-            else if (!pasteResultsToSelectionCheckBox.Checked)
-                runQuery = new Task<bool>(() => SqlServerManager.GetDataFromServerToNewSheet(this, m_sqlManager, query, SqlConn, PasteHeaders, NewSheetName == m_sheetNameTextBoxPlaceholder ? DefaultSheetName : NewSheetName));
-            else
-                runQuery = new Task<bool>(() => SqlServerManager.GetDataFromServerToSelection(this, m_sqlManager, query, SqlConn, App.ActiveWindow.RangeSelection, PasteHeaders));
+            Task<(SqlResult, bool)> runQueryWithResult = null;
 
             if (++RunningQueries == 1)
                 Text = $"{FormTitle} [{RunningQueries}] running queries";
             else
                 Text = Regex.Replace(Text, @"\s\[\d+\]\srunning\squeries", $" [{RunningQueries}] running queries");
 
-
             if (pasteToDataTableCheckBox.Checked)
             {
+                runQueryWithResult = new Task<(SqlResult, bool)>(() => (SqlServerManager.GetDataFromServer(m_sqlManager, query, SqlConn), true));
+
                 runQueryWithResult.GetAwaiter().OnCompleted(() =>
                 {
                     if (this == null)
@@ -409,22 +551,51 @@ namespace ExcelAddInByMarcinOlszewski
                     {
                         if (this != null)
                             this.Text = text;
-                        SqlResult sqlResult = runQueryWithResult.Result;
+
+                        SqlResult sqlResult = runQueryWithResult.Result.Item1;
                         if (sqlResult.HasErrors)
+                        {
+                            string msg = $"Query finished with errors:\n\n{sqlResult.Errors}\n\nQuery:\n\n{query}";
+                            MessageBoxForm messageBox = new MessageBoxForm(msg, "Query finished", false);
+                            messageBox.Show();
                             return;
+                        }
                         DataTableForm form = new DataTableForm(sqlResult.DataTable, query, App);
                         form.Show();
                         form.Activate();
                     }));
                 });
-
-                runQueryWithResult.Start();
             }
             else
             {
-                runQuery.GetAwaiter().OnCompleted(() =>
+                Excel.Range rng;
+                Excel.Worksheet ws = null;
+                string wsName;
+                if (!pasteResultsToSelectionCheckBox.Checked)
                 {
-                    if (this == null || this.IsDisposed)
+                    Excel.Workbook wb = App.ActiveWorkbook;
+                    if (wb == null)
+                        wb = App.Workbooks.Add();
+                    ws = wb.Sheets.Add();
+                    wsName = NewSheetName == m_sheetNameTextBoxPlaceholder ? DefaultSheetName : NewSheetName;
+                    if (!string.IsNullOrEmpty(wsName))
+                    {
+                        ws.Rename(wsName);
+                        wsName = ws.Name;
+                    }
+                    rng = ws.Cells[1, 1];
+                }
+                else
+                {
+                    rng = App.ActiveWindow.RangeSelection;
+                    wsName = rng.Worksheet?.Name;
+                }
+
+                runQueryWithResult = new Task<(SqlResult, bool)>(() => SqlServerManager.GetDataFromServerToExcelRange(m_sqlManager, query, SqlConn, rng, PasteHeaders));
+
+                runQueryWithResult.GetAwaiter().OnCompleted(() =>
+                {
+                    if (this == null)
                         return;
 
                     --RunningQueries;
@@ -436,23 +607,52 @@ namespace ExcelAddInByMarcinOlszewski
 
                     this.Invoke(new Action(() =>
                     {
+
                         if (this == null || this.IsDisposed)
                             return;
+
                         this.Text = text;
-                    }));
 
-                    if (runQuery.Result)
-                        this.Invoke(new Action(() =>
+                        if (!runQueryWithResult.Result.Item2)
                         {
-                            if (this == null || this.IsDisposed)
-                                return;
-                            MessageBoxForm messageBox = new MessageBoxForm($"{query}\n\nFinished", $"{NewSheetName ?? string.Empty} query finished", false);
+                            var result = MessageBox.Show($"Query for Worksheet [{wsName ?? "null"}] finished but Worksheet/Range unavaliable/too small.\n\nPaste to DataTable?", "Query finished", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                            if (result == DialogResult.Yes)
+                            {
+                                SqlResult sqlResult = runQueryWithResult.Result.Item1;
+                                DataTableForm form = new DataTableForm(sqlResult.DataTable, query, App);
+                                form.Show();
+                                form.Activate();
+                            }
+                            else if (result == DialogResult.No && ws.Exists())
+                            {
+                                App.DisplayAlerts = false;
+                                ws.Delete();
+                                App.DisplayAlerts = true;
+                            }
+                        }
+                        else
+                        {
+                            string msg;
+                            SqlResult sqlResult = runQueryWithResult.Result.Item1;
+                            if (sqlResult.HasErrors)
+                                msg = $"Query finished with errors:\n\n{sqlResult.Errors}\n\nQuery:\n\n{query}";
+                            else
+                                msg = $"{query}\n\nFinished";
+                            MessageBoxForm messageBox = new MessageBoxForm(msg, $"{wsName ?? string.Empty} query finished", false);
                             messageBox.Show();
-                        }));
-                });
 
-                runQuery.Start();
+                            if (ws.Exists())
+                            {
+                                App.DisplayAlerts = false;
+                                ws.Delete();
+                                App.DisplayAlerts = true;
+                            }
+                        }
+                    }));
+                });
             }
+
+            runQueryWithResult.Start();
         }
 
         private void commentBtn_Click(object sender, EventArgs e)
@@ -511,55 +711,15 @@ namespace ExcelAddInByMarcinOlszewski
                 {
                     sw.Write(sqlEditorScintilla.Text);
                 }
-                savedQueriesComboBox.Items.Clear();
-                savedQueriesComboBox.Items.AddRange(m_queriesDic.Keys.Select(p => Path.GetFileName(p)).ToArray());
+                /*savedQueriesComboBox.Items.Clear();
+                savedQueriesComboBox.Items.AddRange(m_queriesDic.Keys.Select(p => Path.GetFileName(p)).ToArray());*/
+                RefreshSavedQueriesComboBox();
             }
         }
 
         private void serverTypeComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            SqlServerManager.ServerType serverType = (SqlServerManager.ServerType)Enum.Parse(typeof(SqlServerManager.ServerType), serverTypeComboBox.SelectedItem.ToString());
-            if (!Enum.IsDefined(typeof(SqlServerManager.ServerType), serverType))
-                return;
-
-            switch (serverType)
-            {
-                case SqlServerManager.ServerType.SqlServer:
-                    this.TopMost = false;
-                    m_connDic = FileManager.GetSqlServerConnectionValues();
-                    m_queriesDic = FileManager.GetSqlServerQueries();
-                    this.TopMost = true;
-                    break;
-                case SqlServerManager.ServerType.Oracle:
-                    this.TopMost = false;
-                    m_connDic = FileManager.GetOracleConnectionValues();
-                    m_queriesDic = FileManager.GetOracleQueries();
-                    this.TopMost = true;
-                    break;
-                case SqlServerManager.ServerType.Excel:
-                    this.TopMost = false;
-                    m_connDic = null;
-                    m_queriesDic = FileManager.GetExcelQueries();
-                    this.TopMost = true;
-                    break;
-                default:
-                    return;
-            }
-            ServerType = serverType;
-            savedQueriesComboBox.Items.Clear();
-            try
-            {
-                savedQueriesComboBox.Items.AddRange(m_queriesDic.Keys.Select(p => Path.GetFileName(p)).ToArray());
-            }
-            catch { }
-
-            serverComboBox.Items.Clear();
-            try
-            {
-                if (ServerType != SqlServerManager.ServerType.Excel)
-                    serverComboBox.Items.AddRange(m_connDic.Keys.ToArray());
-            }
-            catch { }
+            RefreshSavedQueriesComboBox();
         }
 
         private void savedQueriesComboBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -638,7 +798,8 @@ namespace ExcelAddInByMarcinOlszewski
             fieldsListBox.Items.Add("Fetching...");
             fieldsListBox.Update();
 
-            var sqlResult = SqlServerManager.GetDataFromServer(m_sqlManager, $"SELECT * FROM ({tableName.Trim()}) FIELDS WHERE 1=0", sqlConn, 40);
+            bool tableNameIsQuery = tableName.Contains("select", StringComparison.OrdinalIgnoreCase);
+            var sqlResult = SqlServerManager.GetDataFromServer(m_sqlManager, $"SELECT * FROM {(tableNameIsQuery ? "(" : "")}{tableName.Trim()}{(tableNameIsQuery ? ") FIELDS" : "")} WHERE 1=0", sqlConn, 40);
             fieldsListBox.Items.Clear(); // clear "Fetching..." from the list
             if (!sqlResult.HasErrors)
             {
@@ -715,110 +876,32 @@ namespace ExcelAddInByMarcinOlszewski
             }
         }
 
-        /*private void fetchBtn_Click(object sender, EventArgs e)
-        {
-            string query;
-            ListBox listBox;
-
-            bool tables = false;
-            if (string.IsNullOrWhiteSpace(sqlEditorScintilla.SelectedText))
-            {
-                tables = true;
-                listBox = tablesListBox;
-                m_tablesListBoxAllItemsList.Clear();
-                m_tablesListBoxSelectedItemsList.Clear();
-            }
-            else
-            {
-                listBox = fieldsListBox;
-                m_fieldsListBoxAllItemsList.Clear();
-                m_fieldsListBoxSelectedItemsList.Clear();
-            }
-
-            listBox.Items.Clear();
-            listBox.Items.Add("Fetching...");
-            listBox.Update();
-
-            SqlConn sqlConn;
-            try
-            {
-                bool result = m_connDic.TryGetValue(m_connDic.Keys.FirstOrDefault(p => p.Contains(serverComboBox.SelectedItem.ToString())), out sqlConn);
-                if (result)
-                    result = sqlConn.Test();
-                if (!result)
-                    MessageBox.Show("Connection failed!");
-            }
-            catch
-            {
-                MessageBox.Show("Connection failed!");
-                listBox.Items.Clear();
-                return;
-            }
-            if (tables)
-            {
-                switch (sqlConn.Type)
-                {
-                    case SqlServerManager.ServerType.SqlServer:
-                        query = "CREATE TABLE #AllTables (Database_Schema_Object NVARCHAR(MAX)); DECLARE @sql NVARCHAR(MAX) = N''; DECLARE @dbName NVARCHAR(128); DECLARE dbCursor CURSOR FOR SELECT [name] FROM sys.databases WHERE state = 0 AND [name] NOT IN ('master', 'tempdb', 'model', 'msdb'); OPEN dbCursor; FETCH NEXT FROM dbCursor INTO @dbName; WHILE @@FETCH_STATUS = 0 BEGIN SET @sql = N'USE [' + @dbName + ']; INSERT INTO #AllTables SELECT ''' + @dbName + '.'' + SCHEMA_NAME(schema_id) + ''.'' + [name] FROM sys.tables t WHERE EXISTS (SELECT 1 FROM ' + QUOTENAME(@dbName) + '.sys.partitions p WHERE p.object_id = t.object_id AND p.rows > 0) UNION ALL SELECT ''' + @dbName + '.'' + SCHEMA_NAME(schema_id) + ''.'' + [name] FROM sys.views v;'; BEGIN TRY EXEC sp_executesql @sql; END TRY BEGIN CATCH PRINT 'Error accessing database ' + @dbName + ': ' + ERROR_MESSAGE(); END CATCH; FETCH NEXT FROM dbCursor INTO @dbName; END CLOSE dbCursor; DEALLOCATE dbCursor; SELECT * FROM #AllTables ORDER BY Database_Schema_Object; DROP TABLE #AllTables;";
-                        break;
-                    case SqlServerManager.ServerType.Oracle:
-                        query = "SELECT OWNER || '.' || OBJECT_NAME FROM (SELECT DISTINCT OWNER, OBJECT_NAME FROM ALL_OBJECTS WHERE OBJECT_TYPE IN ('VIEW', 'TABLE') AND STATUS = 'VALID' ORDER BY OBJECT_NAME)";
-                        break;
-                    case SqlServerManager.ServerType.Excel:
-                        listBox.Items.Clear();
-                        return;
-                    default:
-                        listBox.Items.Clear();
-                        return;
-                }
-            }
-            else
-                query = $"SELECT * FROM ({sqlEditorScintilla.SelectedText.Trim()}) FIELDS WHERE 1=0";
-
-            var sqlResult = SqlServerManager.GetDataFromServer(query, sqlConn, 40);
-            listBox.Items.Clear(); // clear "Fetching..." from the list
-            if (!sqlResult.HasErrors)
-            {
-                if (tables)
-                    listBox.Items.AddRange(sqlResult.DataTable.AsEnumerable().Select(row => row.Field<string>(0)).Distinct().ToArray() ?? new string[1]);
-                else
-                    listBox.Items.AddRange(sqlResult.DataTable.Columns.Cast<DataColumn>().Select(column => column.ColumnName).Distinct().ToArray());
-            }
-
-            if (listBox.Items.Count > 0)
-            {
-                if (tables)
-                    m_tablesListBoxAllItemsList.AddRange(listBox.Items.Cast<string>().ToList());
-                else
-                    m_fieldsListBoxAllItemsList.AddRange(listBox.Items.Cast<string>().ToList());
-            }
-
-            if (tables)
-                objectsAndVariablesTabControl.SelectedTab = tablesTabPage;
-            else
-                objectsAndVariablesTabControl.SelectedTab = fieldsTabPage;
-        }*/
-
-        private void transferToQueryBtn_Click(object sender, EventArgs e)
+        private void TransferToQueryFromListbox()
         {
             ListBox listBox = objectsAndVariablesTabControl.SelectedTab.FindAllChildrenByType<ListBox>().FirstOrDefault();
             if (listBox == null)
                 return;
 
             string text = string.Empty;
-            foreach (var obj in listBox.SelectedItems)
+            if (objectsAndVariablesTabControl.SelectedTab == tablesTabPage)
             {
-                if (!obj.ToString().Contains(" "))
-                    text += $", {obj.ToString()}";
-                else
-                    text += $", [{obj.ToString()}]";
+                text = string.Join("\n", listBox.SelectedItems.Cast<string>());
+                sqlEditorScintilla.ReplaceSelection(text ?? "");
+                return;
             }
+            else
+                foreach (var obj in listBox.SelectedItems)
+                {
+                    if (!obj.ToString().Contains(" "))
+                        text += $", {obj.ToString()}";
+                    else
+                        text += $", [{obj.ToString()}]";
+                }
 
             int lastWordRange = Math.Max(sqlEditorScintilla.WordStartPosition(sqlEditorScintilla.SelectionStart, true) - 10, 0);
             string lastText = sqlEditorScintilla.GetTextRange(lastWordRange, Math.Min(sqlEditorScintilla.SelectionStart, 10)).TrimEnd('\t', '\n', '\r', ' ');
 
-            if (objectsAndVariablesTabControl.SelectedTab == tablesTabPage ||
-                string.IsNullOrWhiteSpace(lastText) ||
+            if (string.IsNullOrWhiteSpace(lastText) ||
                 lastText.EndsWith("select", true, System.Globalization.CultureInfo.InvariantCulture) ||
                 UtilsScintilla.SqlKeywords.Split(' ').Any(p => lastText.EndsWith(p, true, System.Globalization.CultureInfo.InvariantCulture)) || lastText.EndsWith("("))
             {
@@ -829,6 +912,11 @@ namespace ExcelAddInByMarcinOlszewski
             }
             else
                 sqlEditorScintilla.ReplaceSelection(text ?? "");
+        }
+
+        private void transferToQueryBtn_Click(object sender, EventArgs e)
+        {
+            TransferToQueryFromListbox();
         }
 
         private void wrapIntoBlockBtn_Click(object sender, EventArgs e)
@@ -902,29 +990,25 @@ namespace ExcelAddInByMarcinOlszewski
         private void objectsListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             // If Ctrl is not pressed, clear the selected items list first
-/*            if ((Control.ModifierKeys & Keys.Control) == 0)
+            if (!m_selectionChangedByCode && (Control.ModifierKeys & Keys.Control) == 0)
             {
                 if (objectsAndVariablesTabControl.SelectedTab == tablesTabPage)
                     m_tablesListBoxSelectedItemsList.Clear();
                 else
                     m_fieldsListBoxSelectedItemsList.Clear();
-            }*/
+            }
 
             if (objectsAndVariablesTabControl.SelectedTab == tablesTabPage)
             {
                 foreach (string item in (sender as ListBox).SelectedItems)
                     if (!m_tablesListBoxSelectedItemsList.Contains(item))
-                    {
                         m_tablesListBoxSelectedItemsList.Add(item);
-                    }
             }
             else
             {
                 foreach (string item in (sender as ListBox).SelectedItems)
                     if (!m_fieldsListBoxSelectedItemsList.Contains(item))
-                    {
                         m_fieldsListBoxSelectedItemsList.Add(item);
-                    }
             }
         }
 
@@ -950,6 +1034,9 @@ namespace ExcelAddInByMarcinOlszewski
                 if ((tables && (m_tablesListBoxAllItemsList == null || m_tablesListBoxAllItemsList.Count < 1)) || (!tables && (m_fieldsListBoxAllItemsList == null || m_fieldsListBoxAllItemsList.Count < 1)))
                     return;
 
+                // to ignore on changed event
+                m_selectionChangedByCode = true;
+
                 // Clear the ListBox
                 listBox.Items.Clear();
 
@@ -967,9 +1054,11 @@ namespace ExcelAddInByMarcinOlszewski
                 for (int i = 0; i < (tables ? tablesListBox.Items.Count : fieldsListBox.Items.Count); i++)
                 {
                     var item = listBox.Items[i].ToString();
-                    if((tables ? m_tablesListBoxSelectedItemsList : m_fieldsListBoxSelectedItemsList).Contains(item))
+                    if ((tables ? m_tablesListBoxSelectedItemsList : m_fieldsListBoxSelectedItemsList).Contains(item))
                         listBox.SetSelected(i, true);
                 }
+
+                m_selectionChangedByCode = false;
             }
         }
 
@@ -1012,7 +1101,7 @@ namespace ExcelAddInByMarcinOlszewski
                 FetchFields(listBox.SelectedItem.ToString(), sqlConn);
             }
             else if ((objectsAndVariablesTabControl.SelectedTab == fieldsTabPage) && listBox.SelectedItems.Count > 0)
-                transferTablesToQueryBtn.PerformClick();
+                TransferToQueryFromListbox();
         }
 
         private void SqlEditorForm_Activated(object sender, EventArgs e)
@@ -1022,20 +1111,43 @@ namespace ExcelAddInByMarcinOlszewski
 
         private void SqlEditorForm_Deactivate(object sender, EventArgs e)
         {
-            this.Opacity = 0.6;
-        }
-
-        private void SqlEditorForm_DragEnter(object sender, DragEventArgs e)
-        {
-            this.Opacity = 0.95;
-        }
-
-        private void SqlEditorForm_DragLeave(object sender, EventArgs e)
-        {
-            this.Opacity = 0.6;
+            this.Opacity = 0.65;
         }
 
         private void variablesDataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void formatToSqlBtn_Click(object sender, EventArgs e)
+        {
+            UtilsScintilla.ReformatTextToSql(sqlEditorScintilla);
+        }
+
+        private void separateBtn_Click(object sender, EventArgs e)
+        {
+            sqlEditorScintilla.ReplaceSelection("\n--------------------------------------------------\n");
+        }
+
+        private void objectsAndVariablesTabControl_TabIndexChanged(object sender, EventArgs e)
+        {
+            if (objectsAndVariablesTabControl.SelectedTab == runningQueriesTabPage)
+            {
+                runningQueriesDataGridView.Rows.Clear();
+
+                foreach (var cmd in m_sqlManager.RunningQueriesCmdOracle)
+                {
+                    runningQueriesDataGridView.Rows.Add("Cancel", "query oracle", DateTime.Now.TimeOfDay.ToString(), "Query");
+                }
+
+                foreach (var cmd in m_sqlManager.RunningQueriesCmdSqlServer)
+                {
+                    runningQueriesDataGridView.Rows.Add("Cancel", "query sql", DateTime.Now.TimeOfDay.ToString(), "Query");
+                }
+            }
+        }
+
+        private void runningQueriesDataGridView_CellClick(object sender, DataGridViewCellEventArgs e)
         {
 
         }
