@@ -440,6 +440,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Scripts\ExcelExecutionBlock.cs" />
+    <Compile Include="Scripts\SqlElement.cs" />
     <Compile Include="Scripts\UtilsExcel.cs" />
     <Compile Include="Scripts\FileManager.cs" />
     <Compile Include="MiscRibbon.cs">

@@ -5,52 +5,50 @@ using System.Data.OleDb;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Windows.Forms;
-using ColorMine.ColorSpaces;
-using ExcelAddInByMarcinOlszewski.Forms;
-using ExcelAddInByMarcinOlszewski.Scripts;
 using Oracle.ManagedDataAccess.Client;
 using Excel = Microsoft.Office.Interop.Excel;
 
-namespace ExcelAddInByMarcinOlszewski
+namespace ExcelAddInByMarcinOlszewski.Scripts
 {
     public class SqlServerManager
     {
-        public List<SqlCommand> RunningQueriesCmdSqlServer = new List<SqlCommand>();
-        public List<OracleCommand> RunningQueriesCmdOracle = new List<OracleCommand>();
+        public List<SqlElement> SqlElements = new List<SqlElement>();
 
         // Define events for command completion
-        public event Action<SqlCommand> SqlServerCommandFinished;
-        public event Action<OracleCommand> OracleCommandFinished;
-
+        public event Action CommandFinished;
         public static readonly string LookupString = "#TkL@.qKs1Hm8hJ-[nxB";
+
+        private event Action<SqlCommand> SqlServerCommandFinished;
+        private event Action<OracleCommand> OracleCommandFinished;
+        private event Action<dynamic> CommandCancelled;
 
         public SqlServerManager()
         {
-            // Subscribe to events
-            SqlServerCommandFinished += OnSqlServerCommandFinished;
-            OracleCommandFinished += OnOracleCommandFinished;
+            SqlServerCommandFinished += OnCommandFinished;
+            OracleCommandFinished += OnCommandFinished;
+            CommandCancelled += OnCommandFinished;
         }
 
-        // Method to handle SQL Server command completion
-        private void OnSqlServerCommandFinished(SqlCommand command)
+        private void OnCommandFinished(dynamic cmd)
         {
             try
             {
-                RunningQueriesCmdSqlServer.RemoveAll(cmd => cmd == null);
-                RunningQueriesCmdSqlServer.Remove(command);
+                SqlElement sqlElement = SqlElements.FirstOrDefault(p => p.Cmd == cmd);
+                if (sqlElement != null)
+                    SqlElements.Remove(sqlElement);
+                else
+                    SqlElements.RemoveAll(p => p.Cmd == null);
             }
-            catch (Exception) { }
+            catch (Exception)
+            {
+                SqlElements.RemoveAll(p => p.Cmd == null);
+            }
+            CommandFinished.Invoke();
         }
 
-        // Method to handle Oracle command completion
-        private void OnOracleCommandFinished(OracleCommand command)
+        public void CancelCmd(dynamic cmd)
         {
-            try
-            {
-                RunningQueriesCmdOracle.RemoveAll(cmd => cmd == null);
-                RunningQueriesCmdOracle.Remove(command);
-            }
-            catch (Exception) { }
+            CommandCancelled.Invoke(cmd);
         }
 
         public static bool AddSqlConnection()
@@ -111,51 +109,6 @@ namespace ExcelAddInByMarcinOlszewski
             return result;
         }
 
-        public static bool GetDataFromServerToNewSheet(Control control, SqlServerManager manager, string query, SqlConn sqlConn, bool headers = true, string wsName = "")
-        {
-            Excel.Workbook wb = Globals.ThisAddIn.Application.ActiveWorkbook;
-            Excel.Worksheet ws = wb.Sheets.Add();
-            if (!string.IsNullOrEmpty(wsName))
-                ws.Rename(wsName);
-
-            SqlResult sqlResult = GetDataFromServer(manager, query, sqlConn);
-            if (sqlResult.HasErrors || sqlResult.DataTable.Rows.Count < 1)
-            {
-                MessageBox.Show($"No data extracted\n{(sqlResult.Errors == null ? string.Empty : sqlResult.Errors)}", "Query finished", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                return false;
-            }
-
-            if (!ws.Exists())
-                return false;
-
-            if (sqlResult.DataTable.Rows.Count >= ws.Rows.Count - 1)
-            {
-                if (control == null || control.IsDisposed)
-                    return false;
-
-                control.Invoke(new Action(() =>
-                {
-                    MessageBoxForm messageBoxForm = new MessageBoxForm($"Query finished and too big to be pasted. Display as DataTable or discard? To discard close the message\n\n\n{query}", "Query finished and too big", true);
-                    messageBoxForm.ShowDialog();
-                    if (messageBoxForm.DialogResult == DialogResult.OK)
-                    {
-                        if (control == null || control.IsDisposed)
-                            return;
-
-                        DataTableForm dataTableForm = new DataTableForm(sqlResult.DataTable, query, ws.Application);
-                        dataTableForm.Show();
-                        dataTableForm.Activate();
-                    }
-                }));
-                return false;
-            }
-            else
-            {
-                UtilsExcel.PasteDataTableToRange(sqlResult.DataTable, ws.Cells[1, 1], headers);
-                return true;
-            }
-        }
-
         public static (SqlResult, bool OperationSuccessfullyCompleted) GetDataFromServerToExcelRange(SqlServerManager manager, string query, SqlConn sqlConn, Excel.Range rng, bool headers = true)
         {
             SqlResult sqlResult = GetDataFromServer(manager, query, sqlConn, 180);
@@ -167,46 +120,6 @@ namespace ExcelAddInByMarcinOlszewski
 
             UtilsExcel.PasteDataTableToRange(sqlResult.DataTable, rng, headers);
             return (sqlResult, true);
-        }
-
-        public static bool GetDataFromServerToSelection(Control control, SqlServerManager manager, string query, SqlConn sqlConn, Excel.Range rng, bool headers = true)
-        {
-            SqlResult sqlResult = GetDataFromServer(manager, query, sqlConn, 180);
-            if (sqlResult.HasErrors || sqlResult.DataTable.Rows.Count < 1)
-            {
-                MessageBox.Show($"No data extracted\n{(sqlResult.Errors == null ? string.Empty : sqlResult.Errors)}", "Query finished", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                return false;
-            }
-
-            if (!rng.Valid())
-                return false;
-
-            if (sqlResult.DataTable.Rows.Count >= rng.Worksheet.Rows.Count - rng.Row + 1)
-            {
-                if (control == null || control.IsDisposed)
-                    return false;
-
-                control.Invoke(new Action(() =>
-                {
-                    MessageBoxForm messageBoxForm = new MessageBoxForm($"Query finished and too big to be pasted. Display as DataTable or discard? To discard close the message\n\n\n{query}", "Query finished and too big", true);
-                    messageBoxForm.ShowDialog();
-                    if (messageBoxForm.DialogResult == DialogResult.OK)
-                    {
-                        if (control == null || control.IsDisposed)
-                            return;
-
-                        DataTableForm form = new DataTableForm(sqlResult.DataTable, query, rng.Application);
-                        form.Show();
-                        form.Activate();
-                    }
-                }));
-                return false;
-            }
-            else
-            {
-                UtilsExcel.PasteDataTableToRange(sqlResult.DataTable, rng, headers);
-                return true;
-            }
         }
 
         public static string CheckOracleSqlSyntax(string query, SqlConn sqlConn)
@@ -340,14 +253,22 @@ namespace ExcelAddInByMarcinOlszewski
                     con.Open();
                     OracleCommand cmd = new OracleCommand(query, con);
                     cmd.CommandTimeout = timeout > 0 ? timeout : cmd.CommandTimeout;
-                    manager.RunningQueriesCmdOracle.Add(cmd);
-                    using (OracleDataReader rdr = cmd.ExecuteReader())
+                    manager.SqlElements.Add(new SqlElement(cmd, sqlConn.Type, con.Database ?? "Oracle query"));
+                    try
                     {
-                        DataTable dt = new DataTable();
-                        rdr.SuppressGetDecimalInvalidCastException = true;
-                        dt.Load(rdr);
+                        using (OracleDataReader rdr = cmd.ExecuteReader())
+                        {
+                            DataTable dt = new DataTable();
+                            rdr.SuppressGetDecimalInvalidCastException = true;
+                            dt.Load(rdr);
+                            manager.OracleCommandFinished?.Invoke(cmd);
+                            return new SqlResult(dt, null);
+                        }
+                    }
+                    catch (OracleException ex)
+                    {
                         manager.OracleCommandFinished?.Invoke(cmd);
-                        return new SqlResult(dt, null);
+                        return new SqlResult(null, ex.Message);
                     }
                 }
             }
@@ -367,19 +288,27 @@ namespace ExcelAddInByMarcinOlszewski
                     con.Open();
                     SqlCommand cmd = new SqlCommand(query, con);
                     cmd.CommandTimeout = timeout > 0 ? timeout : cmd.CommandTimeout;
-                    manager.RunningQueriesCmdSqlServer.Add(cmd);
-                    //cmd.StatementCompleted += (s, a) => SqlServerCommandFinished?.Invoke(s as SqlCommand);
-                    using (SqlDataReader rdr = cmd.ExecuteReader())
+                    manager.SqlElements.Add(new SqlElement(cmd, sqlConn.Type, con.Database ?? "MS Sql query"));
+                    try
                     {
-                        DataTable dt = new DataTable();
-                        dt.Load(rdr);
+                        using (SqlDataReader rdr = cmd.ExecuteReader())
+                        {
+                            DataTable dt = new DataTable();
+                            dt.Load(rdr);
+                            manager.SqlServerCommandFinished?.Invoke(cmd);
+                            return new SqlResult(dt, null);
+                        }
+                    }
+                    catch (SqlException ex)
+                    {
                         manager.SqlServerCommandFinished?.Invoke(cmd);
-                        return new SqlResult(dt, null);
+                        return new SqlResult(null, ex.Message);
                     }
                 }
             }
             catch (SqlException ex)
             {
+                manager.SqlServerCommandFinished?.Invoke(null);
                 return new SqlResult(null, ex.Message);
             }
         }

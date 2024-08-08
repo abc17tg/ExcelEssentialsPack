@@ -5,7 +5,7 @@ using System.IO;
 using System.Windows.Forms;
 using Shell32;
 
-namespace ExcelAddInByMarcinOlszewski
+namespace ExcelAddInByMarcinOlszewski.Scripts
 {
 
     internal class FileManager

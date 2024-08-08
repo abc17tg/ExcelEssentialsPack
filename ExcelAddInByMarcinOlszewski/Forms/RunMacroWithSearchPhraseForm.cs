@@ -4,6 +4,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using ExcelAddInByMarcinOlszewski.Scripts;
 using ExcelVB = Microsoft.Vbe.Interop;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Xml.Linq;

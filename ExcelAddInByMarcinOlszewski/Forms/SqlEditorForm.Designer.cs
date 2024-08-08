@@ -72,10 +72,6 @@ namespace ExcelAddInByMarcinOlszewski
             this.VariableInstancesColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.runningQueriesTabPage = new System.Windows.Forms.TabPage();
             this.runningQueriesDataGridView = new System.Windows.Forms.DataGridView();
-            this.CancelQueryColumn = new System.Windows.Forms.DataGridViewButtonColumn();
-            this.QueryNameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.TimeColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.QueryColumn = new System.Windows.Forms.DataGridViewButtonColumn();
             this.parametersTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.worksheetTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.pasteToDataTableCheckBox = new System.Windows.Forms.CheckBox();
@@ -96,6 +92,10 @@ namespace ExcelAddInByMarcinOlszewski
             this.savedQueriesComboBox = new System.Windows.Forms.ComboBox();
             this.saveQueryBtn = new System.Windows.Forms.Button();
             this.runBtn = new System.Windows.Forms.Button();
+            this.CancelQueryColumn = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.QueryNameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.TimeColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.QueryColumn = new System.Windows.Forms.DataGridViewButtonColumn();
             this.mainTableLayoutPanel.SuspendLayout();
             this.upperTableLayoutPanel.SuspendLayout();
             this.objectsAndVariablesTabControl.SuspendLayout();
@@ -608,36 +608,6 @@ namespace ExcelAddInByMarcinOlszewski
             this.runningQueriesDataGridView.TabStop = false;
             this.runningQueriesDataGridView.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.runningQueriesDataGridView_CellClick);
             // 
-            // CancelQueryColumn
-            // 
-            this.CancelQueryColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
-            this.CancelQueryColumn.HeaderText = "Cancel";
-            this.CancelQueryColumn.MinimumWidth = 25;
-            this.CancelQueryColumn.Name = "CancelQueryColumn";
-            this.CancelQueryColumn.Width = 46;
-            // 
-            // QueryNameColumn
-            // 
-            this.QueryNameColumn.HeaderText = "Query name";
-            this.QueryNameColumn.MinimumWidth = 60;
-            this.QueryNameColumn.Name = "QueryNameColumn";
-            // 
-            // TimeColumn
-            // 
-            this.TimeColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCellsExceptHeader;
-            this.TimeColumn.HeaderText = "Time";
-            this.TimeColumn.MinimumWidth = 40;
-            this.TimeColumn.Name = "TimeColumn";
-            this.TimeColumn.Width = 40;
-            // 
-            // QueryColumn
-            // 
-            this.QueryColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.QueryColumn.HeaderText = "Query";
-            this.QueryColumn.MinimumWidth = 30;
-            this.QueryColumn.Name = "QueryColumn";
-            this.QueryColumn.Width = 41;
-            // 
             // parametersTableLayoutPanel
             // 
             this.parametersTableLayoutPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
@@ -955,6 +925,38 @@ namespace ExcelAddInByMarcinOlszewski
             this.runBtn.UseVisualStyleBackColor = true;
             this.runBtn.Click += new System.EventHandler(this.runBtn_Click);
             // 
+            // CancelQueryColumn
+            // 
+            this.CancelQueryColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
+            this.CancelQueryColumn.HeaderText = "Cancel";
+            this.CancelQueryColumn.MinimumWidth = 25;
+            this.CancelQueryColumn.Name = "CancelQueryColumn";
+            this.CancelQueryColumn.Width = 46;
+            // 
+            // QueryNameColumn
+            // 
+            this.QueryNameColumn.HeaderText = "Query name";
+            this.QueryNameColumn.MinimumWidth = 60;
+            this.QueryNameColumn.Name = "QueryNameColumn";
+            this.QueryNameColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            // 
+            // TimeColumn
+            // 
+            this.TimeColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCellsExceptHeader;
+            this.TimeColumn.HeaderText = "Time";
+            this.TimeColumn.MinimumWidth = 40;
+            this.TimeColumn.Name = "TimeColumn";
+            this.TimeColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.TimeColumn.Width = 40;
+            // 
+            // QueryColumn
+            // 
+            this.QueryColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.QueryColumn.HeaderText = "Query";
+            this.QueryColumn.MinimumWidth = 30;
+            this.QueryColumn.Name = "QueryColumn";
+            this.QueryColumn.Width = 41;
+            // 
             // SqlEditorForm
             // 
             this.AllowDrop = true;
@@ -1043,10 +1045,6 @@ namespace ExcelAddInByMarcinOlszewski
         private Button fetchFieldsBtn;
         private TabPage runningQueriesTabPage;
         private DataGridView runningQueriesDataGridView;
-        private DataGridViewButtonColumn CancelQueryColumn;
-        private DataGridViewTextBoxColumn QueryNameColumn;
-        private DataGridViewTextBoxColumn TimeColumn;
-        private DataGridViewButtonColumn QueryColumn;
         private DataGridView variablesDataGridView;
         private DataGridViewComboBoxColumn VariableTypeColumn;
         private DataGridViewTextBoxColumn VariableNameColumn;
@@ -1054,5 +1052,9 @@ namespace ExcelAddInByMarcinOlszewski
         private DataGridViewTextBoxColumn VariableInstancesColumn;
         private Button formatToSqlBtn;
         private Button separateBtn;
+        private DataGridViewButtonColumn CancelQueryColumn;
+        private DataGridViewTextBoxColumn QueryNameColumn;
+        private DataGridViewTextBoxColumn TimeColumn;
+        private DataGridViewButtonColumn QueryColumn;
     }
 }

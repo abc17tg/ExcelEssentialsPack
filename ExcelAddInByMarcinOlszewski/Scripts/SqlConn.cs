@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using Newtonsoft.Json;
 
-namespace ExcelAddInByMarcinOlszewski
+namespace ExcelAddInByMarcinOlszewski.Scripts
 {
     public class SqlConn
     {
