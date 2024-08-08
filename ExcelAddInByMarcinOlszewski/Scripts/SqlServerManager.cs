@@ -109,9 +109,9 @@ namespace ExcelAddInByMarcinOlszewski.Scripts
             return result;
         }
 
-        public static (SqlResult, bool OperationSuccessfullyCompleted) GetDataFromServerToExcelRange(SqlServerManager manager, string query, SqlConn sqlConn, Excel.Range rng, bool headers = true)
+        public static (SqlResult, bool OperationSuccessfullyCompleted) GetDataFromServerToExcelRange(SqlServerManager manager, string query, SqlConn sqlConn, Excel.Range rng, bool headers = true, int timeout = -1)
         {
-            SqlResult sqlResult = GetDataFromServer(manager, query, sqlConn, 180);
+            SqlResult sqlResult = GetDataFromServer(manager, query, sqlConn, timeout);
             if (sqlResult.HasErrors || sqlResult.DataTable.Rows.Count < 1)
                 return (sqlResult, true);
 
@@ -164,7 +164,7 @@ namespace ExcelAddInByMarcinOlszewski.Scripts
 
                     using (SqlCommand syntaxCheckCmd = new SqlCommand(syntaxCheckQuery, con))
                     {
-                        syntaxCheckCmd.CommandTimeout = 1;
+                        syntaxCheckCmd.CommandTimeout = 2;
                         syntaxCheckCmd.ExecuteNonQuery();
                     }
 

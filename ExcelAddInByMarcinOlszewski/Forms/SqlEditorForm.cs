@@ -307,7 +307,7 @@ namespace ExcelAddInByMarcinOlszewski
                     MessageBox.Show("Error! Maybe no internet connection.");
                     break;
                 case "":
-                    MessageBox.Show("Syntax ok.");
+                    MessageBox.Show("Syntax OK");
                     break;
                 default:
                     MessageBox.Show(err);
@@ -408,7 +408,7 @@ namespace ExcelAddInByMarcinOlszewski
 
             if (pasteToDataTableCheckBox.Checked)
             {
-                runQueryWithResult = new Task<(SqlResult, bool)>(() => (SqlServerManager.GetDataFromServer(m_sqlManager, query, SqlConn), true));
+                runQueryWithResult = new Task<(SqlResult, bool)>(() => (SqlServerManager.GetDataFromServer(m_sqlManager, query, SqlConn, 10000), true));
 
                 runQueryWithResult.GetAwaiter().OnCompleted(() =>
                 {
@@ -466,7 +466,7 @@ namespace ExcelAddInByMarcinOlszewski
                     wsName = rng.Worksheet?.Name;
                 }
 
-                runQueryWithResult = new Task<(SqlResult, bool)>(() => SqlServerManager.GetDataFromServerToExcelRange(m_sqlManager, query, SqlConn, rng, PasteHeaders));
+                runQueryWithResult = new Task<(SqlResult, bool)>(() => SqlServerManager.GetDataFromServerToExcelRange(m_sqlManager, query, SqlConn, rng, PasteHeaders, 10000));
 
                 runQueryWithResult.GetAwaiter().OnCompleted(() =>
                 {
@@ -507,18 +507,19 @@ namespace ExcelAddInByMarcinOlszewski
                             string msg;
                             SqlResult sqlResult = runQueryWithResult.Result.Item1;
                             if (sqlResult.HasErrors)
+                            {
                                 msg = $"Query finished with errors:\n\n{sqlResult.Errors}\n\nQuery:\n\n{query}";
+                                if (ws.Exists() && (ws.Parent as Excel.Workbook).Worksheets.Count > 1)
+                                {
+                                    App.DisplayAlerts = false;
+                                    ws.Delete();
+                                    App.DisplayAlerts = true;
+                                }
+                            }
                             else
                                 msg = $"{query}\n\nFinished";
                             MessageBoxForm messageBox = new MessageBoxForm(msg, $"{wsName ?? string.Empty} query finished", false);
                             messageBox.Show();
-
-                            if (ws.Exists())
-                            {
-                                App.DisplayAlerts = false;
-                                ws.Delete();
-                                App.DisplayAlerts = true;
-                            }
                         }
                     }));
                 });
@@ -1035,10 +1036,11 @@ namespace ExcelAddInByMarcinOlszewski
         private void runningQueriesDataGridView_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.ColumnIndex == 0 && runningQueriesDataGridView.RowCount == m_sqlManager.SqlElements.Count)
+            {
                 if (m_sqlManager.SqlElements[e.RowIndex].TryToCancelQuery())
                     m_sqlManager.CancelCmd(m_sqlManager.SqlElements[e.RowIndex].Cmd);
-
-            if (e.ColumnIndex == 3 && runningQueriesDataGridView.RowCount == m_sqlManager.SqlElements.Count)
+            }
+            else if (e.ColumnIndex == 3 && runningQueriesDataGridView.RowCount == m_sqlManager.SqlElements.Count)
             {
                 string msg = $"DB: {m_sqlManager.SqlElements[e.RowIndex].Cmd.Connection.Database}\n\n------------------------------\n\nQuery:\n\n{m_sqlManager.SqlElements[e.RowIndex].Cmd.CommandText}";
                 MessageBoxForm messageBox = new MessageBoxForm(msg, "Query", true);
