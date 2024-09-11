@@ -47,5 +47,10 @@ namespace ExcelAddInByMarcinOlszewski
         {
             UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Name, m_macroWorkbook));
         }
+
+        private void changePivotTableSourceButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Name, m_macroWorkbook));
+        }
     }
 }

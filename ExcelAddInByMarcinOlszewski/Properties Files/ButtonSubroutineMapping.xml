@@ -13,6 +13,10 @@
     <Subroutine>RemoveCells.RemoveEmptyCells</Subroutine>
   </Mapping>
   <Mapping>
+    <ButtonID>removeErrSplitBtn</ButtonID>
+    <Subroutine>RemoveCells.DeleteErrFromSelection</Subroutine>
+  </Mapping>
+  <Mapping>
     <ButtonID>removeNaButton</ButtonID>
     <Subroutine>RemoveCells.DeleteNAFromSelection</Subroutine>
   </Mapping>
@@ -27,6 +31,10 @@
   <Mapping>
     <ButtonID>updatePivotTableSourceButton</ButtonID>
     <Subroutine>PivotTablesFormat.UpdatePivotTableSource</Subroutine>
+  </Mapping>
+  <Mapping>
+    <ButtonID>changePivotTableSourceButton</ButtonID>
+    <Subroutine>PivotTablesFormat.ChangePivotTableSource</Subroutine>
   </Mapping>
   <Mapping>
     <ButtonID>trimButton</ButtonID>
@@ -69,12 +77,20 @@
     <Subroutine>FilesSubs.GetCurrentFilePath</Subroutine>
   </Mapping>
   <Mapping>
-    <ButtonID>saveEachWorksheetsAsTxtButton</ButtonID>
-    <Subroutine>DivideFile.SaveSheetsAsTextFiles</Subroutine>
+    <ButtonID>saveSelectedWorksheetsAsTxtButton</ButtonID>
+    <Subroutine>DivideFile.SaveSelectedSheetsAsTextFiles</Subroutine>
   </Mapping>
   <Mapping>
-    <ButtonID>saveEachSheetAsSplitBtn</ButtonID>
-    <Subroutine>DivideFile.SaveSheetsAsExcelFiles</Subroutine>
+    <ButtonID>saveAllWorksheetsAsTxtButton</ButtonID>
+    <Subroutine>DivideFile.SaveAllSheetsAsTextFiles</Subroutine>
+  </Mapping>
+  <Mapping>
+    <ButtonID>saveSelectedWorksheetsAsXlsxSplitBtn</ButtonID>
+    <Subroutine>DivideFile.SaveSelectedSheetsAsExcelFiles</Subroutine>
+  </Mapping>
+  <Mapping>
+    <ButtonID>saveAllWorksheetsAsXlsxButton</ButtonID>
+    <Subroutine>DivideFile.SaveAllSheetsAsExcelFiles</Subroutine>
   </Mapping>
   <Mapping>
     <ButtonID>combinedTableFromPvValuesButton</ButtonID>

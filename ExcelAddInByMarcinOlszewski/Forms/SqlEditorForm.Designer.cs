@@ -32,14 +32,16 @@ namespace ExcelAddInByMarcinOlszewski
         {
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle10 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle11 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle12 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SqlEditorForm));
             this.sqlEditorScintilla = new ScintillaNET.Scintilla();
             this.transferTablesToQueryBtn = new System.Windows.Forms.Button();
@@ -66,12 +68,16 @@ namespace ExcelAddInByMarcinOlszewski
             this.fetchFieldsBtn = new System.Windows.Forms.Button();
             this.variablesTabPage = new System.Windows.Forms.TabPage();
             this.variablesDataGridView = new System.Windows.Forms.DataGridView();
-            this.VariableTypeColumn = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.variableValuesCountColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.VariableNameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.VariableValuesColumn = new System.Windows.Forms.DataGridViewButtonColumn();
             this.VariableInstancesColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.runningQueriesTabPage = new System.Windows.Forms.TabPage();
             this.runningQueriesDataGridView = new System.Windows.Forms.DataGridView();
+            this.CancelQueryColumn = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.QueryNameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.TimeColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.QueryColumn = new System.Windows.Forms.DataGridViewButtonColumn();
             this.parametersTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.worksheetTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.pasteToDataTableCheckBox = new System.Windows.Forms.CheckBox();
@@ -92,10 +98,6 @@ namespace ExcelAddInByMarcinOlszewski
             this.savedQueriesComboBox = new System.Windows.Forms.ComboBox();
             this.saveQueryBtn = new System.Windows.Forms.Button();
             this.runBtn = new System.Windows.Forms.Button();
-            this.CancelQueryColumn = new System.Windows.Forms.DataGridViewButtonColumn();
-            this.QueryNameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.TimeColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.QueryColumn = new System.Windows.Forms.DataGridViewButtonColumn();
             this.mainTableLayoutPanel.SuspendLayout();
             this.upperTableLayoutPanel.SuspendLayout();
             this.objectsAndVariablesTabControl.SuspendLayout();
@@ -477,11 +479,11 @@ namespace ExcelAddInByMarcinOlszewski
             dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
             dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
             dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
             this.variablesDataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
             this.variablesDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.variablesDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.VariableTypeColumn,
+            this.variableValuesCountColumn,
             this.VariableNameColumn,
             this.VariableValuesColumn,
             this.VariableInstancesColumn});
@@ -490,46 +492,53 @@ namespace ExcelAddInByMarcinOlszewski
             this.variablesDataGridView.Location = new System.Drawing.Point(0, 3);
             this.variablesDataGridView.MultiSelect = false;
             this.variablesDataGridView.Name = "variablesDataGridView";
-            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.variablesDataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle7.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle7.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle7.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle7.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.variablesDataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle7;
             this.variablesDataGridView.RowHeadersVisible = false;
-            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.variablesDataGridView.RowsDefaultCellStyle = dataGridViewCellStyle6;
+            dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.variablesDataGridView.RowsDefaultCellStyle = dataGridViewCellStyle8;
             this.variablesDataGridView.RowTemplate.DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
             this.variablesDataGridView.Size = new System.Drawing.Size(239, 641);
             this.variablesDataGridView.TabIndex = 0;
             this.variablesDataGridView.TabStop = false;
             this.variablesDataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.variablesDataGridView_CellContentClick);
             // 
-            // VariableTypeColumn
+            // variableValuesCountColumn
             // 
-            this.VariableTypeColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.VariableTypeColumn.HeaderText = "Type";
-            this.VariableTypeColumn.Items.AddRange(new object[] {
-            "List",
-            "Single"});
-            this.VariableTypeColumn.Name = "VariableTypeColumn";
-            this.VariableTypeColumn.ToolTipText = "Choose type of value";
-            this.VariableTypeColumn.Width = 39;
+            this.variableValuesCountColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle3.Format = "N0";
+            dataGridViewCellStyle3.NullValue = "0";
+            this.variableValuesCountColumn.DefaultCellStyle = dataGridViewCellStyle3;
+            this.variableValuesCountColumn.HeaderText = "Count";
+            this.variableValuesCountColumn.Name = "variableValuesCountColumn";
+            this.variableValuesCountColumn.ReadOnly = true;
+            this.variableValuesCountColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            this.variableValuesCountColumn.ToolTipText = "Count of values";
+            this.variableValuesCountColumn.Width = 60;
             // 
             // VariableNameColumn
             // 
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            this.VariableNameColumn.DefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            this.VariableNameColumn.DefaultCellStyle = dataGridViewCellStyle4;
             this.VariableNameColumn.HeaderText = "Variable";
             this.VariableNameColumn.MaxInputLength = 40;
             this.VariableNameColumn.Name = "VariableNameColumn";
+            this.VariableNameColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
             this.VariableNameColumn.ToolTipText = "Choose unique variable name";
             // 
             // VariableValuesColumn
             // 
             this.VariableValuesColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
+            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle5.NullValue = "Edit";
+            this.VariableValuesColumn.DefaultCellStyle = dataGridViewCellStyle5;
             this.VariableValuesColumn.HeaderText = "Values";
             this.VariableValuesColumn.Name = "VariableValuesColumn";
             this.VariableValuesColumn.Text = "Values";
@@ -539,12 +548,15 @@ namespace ExcelAddInByMarcinOlszewski
             // VariableInstancesColumn
             // 
             this.VariableInstancesColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.VariableInstancesColumn.DefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle6.Format = "N0";
+            dataGridViewCellStyle6.NullValue = "0";
+            this.VariableInstancesColumn.DefaultCellStyle = dataGridViewCellStyle6;
             this.VariableInstancesColumn.HeaderText = "i";
             this.VariableInstancesColumn.MaxInputLength = 3;
             this.VariableInstancesColumn.MinimumWidth = 15;
             this.VariableInstancesColumn.Name = "VariableInstancesColumn";
+            this.VariableInstancesColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
             this.VariableInstancesColumn.ToolTipText = "Instances that will divide query";
             this.VariableInstancesColumn.Width = 34;
             // 
@@ -565,32 +577,6 @@ namespace ExcelAddInByMarcinOlszewski
             this.runningQueriesDataGridView.AllowUserToDeleteRows = false;
             this.runningQueriesDataGridView.AllowUserToResizeRows = false;
             this.runningQueriesDataGridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle7.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle7.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle7.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle7.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.runningQueriesDataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle7;
-            this.runningQueriesDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.runningQueriesDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.CancelQueryColumn,
-            this.QueryNameColumn,
-            this.TimeColumn,
-            this.QueryColumn});
-            dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle8.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle8.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle8.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle8.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.runningQueriesDataGridView.DefaultCellStyle = dataGridViewCellStyle8;
-            this.runningQueriesDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.runningQueriesDataGridView.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
-            this.runningQueriesDataGridView.Location = new System.Drawing.Point(3, 3);
-            this.runningQueriesDataGridView.Name = "runningQueriesDataGridView";
             dataGridViewCellStyle9.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
             dataGridViewCellStyle9.BackColor = System.Drawing.SystemColors.Control;
             dataGridViewCellStyle9.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -598,15 +584,73 @@ namespace ExcelAddInByMarcinOlszewski
             dataGridViewCellStyle9.SelectionBackColor = System.Drawing.SystemColors.Highlight;
             dataGridViewCellStyle9.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
             dataGridViewCellStyle9.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.runningQueriesDataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle9;
-            this.runningQueriesDataGridView.RowHeadersVisible = false;
+            this.runningQueriesDataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle9;
+            this.runningQueriesDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.runningQueriesDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.CancelQueryColumn,
+            this.QueryNameColumn,
+            this.TimeColumn,
+            this.QueryColumn});
             dataGridViewCellStyle10.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.runningQueriesDataGridView.RowsDefaultCellStyle = dataGridViewCellStyle10;
+            dataGridViewCellStyle10.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle10.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle10.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle10.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle10.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle10.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.runningQueriesDataGridView.DefaultCellStyle = dataGridViewCellStyle10;
+            this.runningQueriesDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.runningQueriesDataGridView.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
+            this.runningQueriesDataGridView.Location = new System.Drawing.Point(3, 3);
+            this.runningQueriesDataGridView.Name = "runningQueriesDataGridView";
+            dataGridViewCellStyle11.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle11.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle11.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle11.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle11.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle11.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle11.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.runningQueriesDataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle11;
+            this.runningQueriesDataGridView.RowHeadersVisible = false;
+            dataGridViewCellStyle12.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.runningQueriesDataGridView.RowsDefaultCellStyle = dataGridViewCellStyle12;
             this.runningQueriesDataGridView.RowTemplate.DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
             this.runningQueriesDataGridView.Size = new System.Drawing.Size(233, 638);
             this.runningQueriesDataGridView.TabIndex = 0;
             this.runningQueriesDataGridView.TabStop = false;
             this.runningQueriesDataGridView.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.runningQueriesDataGridView_CellClick);
+            // 
+            // CancelQueryColumn
+            // 
+            this.CancelQueryColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
+            this.CancelQueryColumn.HeaderText = "Cancel";
+            this.CancelQueryColumn.MinimumWidth = 25;
+            this.CancelQueryColumn.Name = "CancelQueryColumn";
+            this.CancelQueryColumn.Width = 46;
+            // 
+            // QueryNameColumn
+            // 
+            this.QueryNameColumn.HeaderText = "Query name";
+            this.QueryNameColumn.MinimumWidth = 60;
+            this.QueryNameColumn.Name = "QueryNameColumn";
+            this.QueryNameColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            // 
+            // TimeColumn
+            // 
+            this.TimeColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCellsExceptHeader;
+            this.TimeColumn.HeaderText = "Time";
+            this.TimeColumn.MinimumWidth = 40;
+            this.TimeColumn.Name = "TimeColumn";
+            this.TimeColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.TimeColumn.Width = 40;
+            // 
+            // QueryColumn
+            // 
+            this.QueryColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.QueryColumn.HeaderText = "Query";
+            this.QueryColumn.MinimumWidth = 30;
+            this.QueryColumn.Name = "QueryColumn";
+            this.QueryColumn.Width = 41;
             // 
             // parametersTableLayoutPanel
             // 
@@ -925,38 +969,6 @@ namespace ExcelAddInByMarcinOlszewski
             this.runBtn.UseVisualStyleBackColor = true;
             this.runBtn.Click += new System.EventHandler(this.runBtn_Click);
             // 
-            // CancelQueryColumn
-            // 
-            this.CancelQueryColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
-            this.CancelQueryColumn.HeaderText = "Cancel";
-            this.CancelQueryColumn.MinimumWidth = 25;
-            this.CancelQueryColumn.Name = "CancelQueryColumn";
-            this.CancelQueryColumn.Width = 46;
-            // 
-            // QueryNameColumn
-            // 
-            this.QueryNameColumn.HeaderText = "Query name";
-            this.QueryNameColumn.MinimumWidth = 60;
-            this.QueryNameColumn.Name = "QueryNameColumn";
-            this.QueryNameColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            // 
-            // TimeColumn
-            // 
-            this.TimeColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCellsExceptHeader;
-            this.TimeColumn.HeaderText = "Time";
-            this.TimeColumn.MinimumWidth = 40;
-            this.TimeColumn.Name = "TimeColumn";
-            this.TimeColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.TimeColumn.Width = 40;
-            // 
-            // QueryColumn
-            // 
-            this.QueryColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.QueryColumn.HeaderText = "Query";
-            this.QueryColumn.MinimumWidth = 30;
-            this.QueryColumn.Name = "QueryColumn";
-            this.QueryColumn.Width = 41;
-            // 
             // SqlEditorForm
             // 
             this.AllowDrop = true;
@@ -1046,15 +1058,15 @@ namespace ExcelAddInByMarcinOlszewski
         private TabPage runningQueriesTabPage;
         private DataGridView runningQueriesDataGridView;
         private DataGridView variablesDataGridView;
-        private DataGridViewComboBoxColumn VariableTypeColumn;
-        private DataGridViewTextBoxColumn VariableNameColumn;
-        private DataGridViewButtonColumn VariableValuesColumn;
-        private DataGridViewTextBoxColumn VariableInstancesColumn;
         private Button formatToSqlBtn;
         private Button separateBtn;
         private DataGridViewButtonColumn CancelQueryColumn;
         private DataGridViewTextBoxColumn QueryNameColumn;
         private DataGridViewTextBoxColumn TimeColumn;
         private DataGridViewButtonColumn QueryColumn;
+        private DataGridViewTextBoxColumn variableValuesCountColumn;
+        private DataGridViewTextBoxColumn VariableNameColumn;
+        private DataGridViewButtonColumn VariableValuesColumn;
+        private DataGridViewTextBoxColumn VariableInstancesColumn;
     }
 }

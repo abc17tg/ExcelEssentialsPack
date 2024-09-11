@@ -370,6 +370,12 @@
     <Compile Include="Forms\DataTableForm.Designer.cs">
       <DependentUpon>DataTableForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\EditSqlVariableForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\EditSqlVariableForm.Designer.cs">
+      <DependentUpon>EditSqlVariableForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\FileDropForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -441,6 +447,8 @@
     </Compile>
     <Compile Include="Scripts\ExcelExecutionBlock.cs" />
     <Compile Include="Scripts\SqlElement.cs" />
+    <Compile Include="Scripts\SqlVariable.cs" />
+    <Compile Include="Scripts\SuperSqlQuery.cs" />
     <Compile Include="Scripts\UtilsExcel.cs" />
     <Compile Include="Scripts\FileManager.cs" />
     <Compile Include="MiscRibbon.cs">
@@ -483,6 +491,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\DataTableForm.resx">
       <DependentUpon>DataTableForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\EditSqlVariableForm.resx">
+      <DependentUpon>EditSqlVariableForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FileDropForm.resx">
       <DependentUpon>FileDropForm.cs</DependentUpon>
@@ -574,6 +585,9 @@
     </Content>
     <Content Include="Properties Files\SdePath.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Properties Files\SqlKeywords.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Properties Files\WebsitesListMap.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

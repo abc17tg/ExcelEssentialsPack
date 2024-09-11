@@ -136,7 +136,7 @@ public static class UtilsExcel
             Excel.Range firstColRng = rng.Columns[1];
             Dictionary<string, Color> valueColorD = new Dictionary<string, Color>();
             List<string> values;
-            values = firstColRng.Cells.Cast<Excel.Range>().Select(p => ((object)p.Value)?.ToString() ?? "").Distinct().ToList();
+            values = firstColRng.Cells.Cast<Excel.Range>().Select(p => ((object)p.Value2)?.ToString() ?? "").Distinct().ToList();
             List<Color> colorsList = Utils.GenerateColorPalette(values.Count);
             colorsList.Shuffle();
             for (int i = 0; i < values.Count; i++)
@@ -259,7 +259,7 @@ public static class UtilsExcel
                 else if (!chooseRangeByForm)
                     rng = selection.CurrentRegion;
 
-                var valuesToFilter = getRangeToUseAsFilterForm.Range.Cells.Cast<Excel.Range>().Select(p => ((object)p.Value).ToString()).Distinct().ToList();
+                var valuesToFilter = getRangeToUseAsFilterForm.Range.Cells.Cast<Excel.Range>().Select(p => ((object)p.Value2)?.ToString() ?? "").Distinct().ToList();
                 if (notInMode)
                 {
                     List<string> values = new List<string>();
@@ -272,7 +272,7 @@ public static class UtilsExcel
                     else
                     {
                         column = rng.Columns[selection.Column - rng.Column + 1];
-                        values = column.Cells.Cast<Excel.Range>().Select(p => ((object)p.Value).ToString()).Skip(1).ToList();
+                        values = column.Cells.Cast<Excel.Range>().Select(p => ((object)p.Value2)?.ToString() ?? "").Skip(1).ToList();
                     }
 
                     valuesToFilter = values.Distinct().Except(valuesToFilter).ToList();
@@ -331,7 +331,7 @@ public static class UtilsExcel
             else
             {
                 column = rng.Columns[selection.Column - rng.Column + 1];
-                values = column.Cells.Cast<Excel.Range>().Select(p => ((object)p.Value).ToString()).Skip(1).ToList();
+                values = column.Cells.Cast<Excel.Range>().Select(p => ((object)p.Value2)?.ToString() ?? "").Skip(1).ToList();
             }
 
             Regex regex = new Regex(regexString);
@@ -833,6 +833,7 @@ public static class UtilsExcel
             if (region.Column > 1)
             {
                 Excel.Range leftColumns = activeSheet.Range[activeSheet.Cells[1, 1], activeSheet.Cells[1, region.Column - 1]].EntireColumn;
+                leftColumns.Hidden = false;
                 leftColumns.Delete(Excel.XlDeleteShiftDirection.xlShiftToLeft);
             }
 
@@ -841,6 +842,7 @@ public static class UtilsExcel
             if (lastColumn < activeSheet.Columns.Count)
             {
                 Excel.Range rightColumns = activeSheet.Range[activeSheet.Cells[1, lastColumn + 1], activeSheet.Cells[1, activeSheet.Columns.Count]].EntireColumn;
+                rightColumns.Hidden = false;
                 rightColumns.ClearFormats();
                 rightColumns.Delete(Excel.XlDeleteShiftDirection.xlShiftToLeft);
             }
@@ -849,6 +851,7 @@ public static class UtilsExcel
             if (region.Row > 1)
             {
                 Excel.Range aboveRows = activeSheet.Range[activeSheet.Cells[1, 1], activeSheet.Cells[region.Row - 1, 1]].EntireRow;
+                aboveRows.Hidden = false;
                 aboveRows.Delete(Excel.XlDeleteShiftDirection.xlShiftUp);
             }
 
@@ -857,6 +860,7 @@ public static class UtilsExcel
             if (lastRow < activeSheet.Rows.Count)
             {
                 Excel.Range belowRows = activeSheet.Range[activeSheet.Cells[lastRow + 1, 1], activeSheet.Cells[activeSheet.Rows.Count, 1]].EntireRow;
+                belowRows.Hidden = false;
                 belowRows.ClearFormats();
                 belowRows.Delete(Excel.XlDeleteShiftDirection.xlShiftUp);
             }

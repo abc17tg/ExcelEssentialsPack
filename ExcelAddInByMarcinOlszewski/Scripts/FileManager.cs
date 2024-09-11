@@ -11,6 +11,7 @@ namespace ExcelAddInByMarcinOlszewski.Scripts
     internal class FileManager
     {
         public static string BasePath => AppDomain.CurrentDomain.BaseDirectory;
+        public static string SqlKeywords => GetSqlKeywords();
         public static string SqlQueriesPath => Path.Combine(BasePath, "SQL Queries");
         public static string PropertiesFilesPath => Path.Combine(BasePath, "Properties Files");
         public static string SqlServerQueriesPath => Path.Combine(SqlQueriesPath, "SqlServer");
@@ -61,6 +62,23 @@ namespace ExcelAddInByMarcinOlszewski.Scripts
                 }
             }
             catch { }
+        }
+
+        private static string GetSqlKeywords()
+        {
+            try
+            {
+                string filePath = Path.Combine(PropertiesFilesPath, "SqlKeywords.txt");
+                return File.ReadAllText(filePath);
+            }
+            catch (IOException)
+            {
+                return "select from where group by in not is sum count null";
+            }
+            catch (Exception)
+            {
+                return "select from where group by in not is sum count null";
+            }
         }
 
         public static bool IsExplorerPathOpen(string path)
@@ -225,7 +243,7 @@ namespace ExcelAddInByMarcinOlszewski.Scripts
             if (!string.IsNullOrEmpty(initialDirectory))
                 saveDlg.InitialDirectory = initialDirectory;
             else
-                saveDlg.InitialDirectory = 
+                saveDlg.InitialDirectory =
 
             saveDlg.FileName = initialName;
             saveDlg.OverwritePrompt = true;

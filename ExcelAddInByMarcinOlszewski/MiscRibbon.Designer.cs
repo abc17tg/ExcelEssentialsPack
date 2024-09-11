@@ -48,6 +48,7 @@
             this.copyAsPictureButton = this.Factory.CreateRibbonButton();
             this.separator11 = this.Factory.CreateRibbonSeparator();
             this.removeEmptyButton = this.Factory.CreateRibbonButton();
+            this.removeErrSplitBtn = this.Factory.CreateRibbonSplitButton();
             this.removeNaButton = this.Factory.CreateRibbonButton();
             this.removeDuplicatesButton = this.Factory.CreateRibbonButton();
             this.removeHiddenRowsSplitButton = this.Factory.CreateRibbonSplitButton();
@@ -84,8 +85,10 @@
             this.searchGroup = this.Factory.CreateRibbonGroup();
             this.searchDialogButton = this.Factory.CreateRibbonButton();
             this.fileAndExportGroup = this.Factory.CreateRibbonGroup();
-            this.saveEachSheetAsSplitBtn = this.Factory.CreateRibbonSplitButton();
-            this.saveEachWorksheetsAsTxtButton = this.Factory.CreateRibbonButton();
+            this.saveSelectedWorksheetsAsXlsxSplitBtn = this.Factory.CreateRibbonSplitButton();
+            this.saveAllWorksheetsAsXlsxButton = this.Factory.CreateRibbonButton();
+            this.saveSelectedWorksheetsAsTxtButton = this.Factory.CreateRibbonButton();
+            this.saveAllWorksheetsAsTxtButton = this.Factory.CreateRibbonButton();
             this.duplicateWorksheetsSplitBtn = this.Factory.CreateRibbonSplitButton();
             this.duplicateWorksheetsToNewWorkbookBtn = this.Factory.CreateRibbonButton();
             this.duplicateWorkbookBtn = this.Factory.CreateRibbonButton();
@@ -167,6 +170,7 @@
             this.updateMacrosButton = this.Factory.CreateRibbonButton();
             this.createMacroUpdateButton = this.Factory.CreateRibbonButton();
             this.checkMacrosButton = this.Factory.CreateRibbonButton();
+            this.changePivotTableSourceButton = this.Factory.CreateRibbonButton();
             this.miscTab.SuspendLayout();
             this.importGroup.SuspendLayout();
             this.modifiersGroup.SuspendLayout();
@@ -237,7 +241,7 @@
             this.modifiersGroup.Items.Add(this.copyAsPictureButton);
             this.modifiersGroup.Items.Add(this.separator11);
             this.modifiersGroup.Items.Add(this.removeEmptyButton);
-            this.modifiersGroup.Items.Add(this.removeNaButton);
+            this.modifiersGroup.Items.Add(this.removeErrSplitBtn);
             this.modifiersGroup.Items.Add(this.removeDuplicatesButton);
             this.modifiersGroup.Items.Add(this.removeHiddenRowsSplitButton);
             this.modifiersGroup.Items.Add(this.clearRangeOutsideButton);
@@ -331,14 +335,24 @@
     "r save everything before)";
             this.removeEmptyButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.removeEmptyButton_Click);
             // 
+            // removeErrSplitBtn
+            // 
+            this.removeErrSplitBtn.Items.Add(this.removeNaButton);
+            this.removeErrSplitBtn.Label = "Remove Err";
+            this.removeErrSplitBtn.Name = "removeErrSplitBtn";
+            this.removeErrSplitBtn.OfficeImageId = "ConditionalFormattingClearMenu";
+            this.removeErrSplitBtn.ScreenTip = "Blank Error cells";
+            this.removeErrSplitBtn.SuperTip = "Select range and it will blank all cells with error";
+            this.removeErrSplitBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.removeErrSplitBtn_Click);
+            // 
             // removeNaButton
             // 
             this.removeNaButton.Label = "Remove #N/A";
             this.removeNaButton.Name = "removeNaButton";
             this.removeNaButton.OfficeImageId = "ConditionalFormattingClearMenu";
-            this.removeNaButton.ScreenTip = "Remove #N/A cells";
+            this.removeNaButton.ScreenTip = "Blank #N/A cells";
             this.removeNaButton.ShowImage = true;
-            this.removeNaButton.SuperTip = "Select range and it will remove N/A values";
+            this.removeNaButton.SuperTip = "Select range and it will blank N/A values";
             this.removeNaButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.removeNaButton_Click);
             // 
             // removeDuplicatesButton
@@ -690,7 +704,7 @@
             // 
             // fileAndExportGroup
             // 
-            this.fileAndExportGroup.Items.Add(this.saveEachSheetAsSplitBtn);
+            this.fileAndExportGroup.Items.Add(this.saveSelectedWorksheetsAsXlsxSplitBtn);
             this.fileAndExportGroup.Items.Add(this.duplicateWorksheetsSplitBtn);
             this.fileAndExportGroup.Items.Add(this.saveThisWorksheetAsTxt);
             this.fileAndExportGroup.Items.Add(this.divideTableToPartsAndSaveButton);
@@ -703,27 +717,51 @@
             this.fileAndExportGroup.Label = "File && Export";
             this.fileAndExportGroup.Name = "fileAndExportGroup";
             // 
-            // saveEachSheetAsSplitBtn
+            // saveSelectedWorksheetsAsXlsxSplitBtn
             // 
-            this.saveEachSheetAsSplitBtn.Items.Add(this.saveEachWorksheetsAsTxtButton);
-            this.saveEachSheetAsSplitBtn.Label = "Save sheets as xlsx";
-            this.saveEachSheetAsSplitBtn.Name = "saveEachSheetAsSplitBtn";
-            this.saveEachSheetAsSplitBtn.OfficeImageId = "OrgChartSubordinatesExpand";
-            this.saveEachSheetAsSplitBtn.ScreenTip = "Save each sheet as xlsx";
-            this.saveEachSheetAsSplitBtn.SuperTip = "Saves each sheet from workbook to separate xlsx file into folder named as workboo" +
-    "k and into path of that workbook";
-            this.saveEachSheetAsSplitBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.saveEachSheetAsSplitBtn_Click);
+            this.saveSelectedWorksheetsAsXlsxSplitBtn.Items.Add(this.saveAllWorksheetsAsXlsxButton);
+            this.saveSelectedWorksheetsAsXlsxSplitBtn.Items.Add(this.saveSelectedWorksheetsAsTxtButton);
+            this.saveSelectedWorksheetsAsXlsxSplitBtn.Items.Add(this.saveAllWorksheetsAsTxtButton);
+            this.saveSelectedWorksheetsAsXlsxSplitBtn.Label = "Save sel sheets as xlsx";
+            this.saveSelectedWorksheetsAsXlsxSplitBtn.Name = "saveSelectedWorksheetsAsXlsxSplitBtn";
+            this.saveSelectedWorksheetsAsXlsxSplitBtn.OfficeImageId = "OrgChartSubordinatesExpand";
+            this.saveSelectedWorksheetsAsXlsxSplitBtn.ScreenTip = "Save selected sheets as xlsx";
+            this.saveSelectedWorksheetsAsXlsxSplitBtn.SuperTip = "Saves selected sheets from workbook to separate xlsx file into folder named as wo" +
+    "rkbook and into path of that workbook";
+            this.saveSelectedWorksheetsAsXlsxSplitBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.saveSelectedWorksheetsAsXlsxSplitBtn_Click);
             // 
-            // saveEachWorksheetsAsTxtButton
+            // saveAllWorksheetsAsXlsxButton
             // 
-            this.saveEachWorksheetsAsTxtButton.Label = "Save each sheet as txt";
-            this.saveEachWorksheetsAsTxtButton.Name = "saveEachWorksheetsAsTxtButton";
-            this.saveEachWorksheetsAsTxtButton.OfficeImageId = "OrgChartHorizontalGallery";
-            this.saveEachWorksheetsAsTxtButton.ScreenTip = "Save each sheet as txt";
-            this.saveEachWorksheetsAsTxtButton.ShowImage = true;
-            this.saveEachWorksheetsAsTxtButton.SuperTip = "Saves each sheet from workbook to separate txt file into folder named as workbook" +
+            this.saveAllWorksheetsAsXlsxButton.Label = "Save all sheets as xlsx";
+            this.saveAllWorksheetsAsXlsxButton.Name = "saveAllWorksheetsAsXlsxButton";
+            this.saveAllWorksheetsAsXlsxButton.OfficeImageId = "OrgChartSubordinatesExpand";
+            this.saveAllWorksheetsAsXlsxButton.ScreenTip = "Save all sheets as xlsx";
+            this.saveAllWorksheetsAsXlsxButton.ShowImage = true;
+            this.saveAllWorksheetsAsXlsxButton.SuperTip = "Saves all sheets from workbook to separate txt file into folder named as workbook" +
     " and into path of that workbook";
-            this.saveEachWorksheetsAsTxtButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.saveEachWorksheetsAsTxtButton_Click);
+            this.saveAllWorksheetsAsXlsxButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.saveAllWorksheetsAsXlsxButton_Click);
+            // 
+            // saveSelectedWorksheetsAsTxtButton
+            // 
+            this.saveSelectedWorksheetsAsTxtButton.Label = "Save selected sheets as txt";
+            this.saveSelectedWorksheetsAsTxtButton.Name = "saveSelectedWorksheetsAsTxtButton";
+            this.saveSelectedWorksheetsAsTxtButton.OfficeImageId = "OrgChartHorizontalGallery";
+            this.saveSelectedWorksheetsAsTxtButton.ScreenTip = "Save selected sheets as txt";
+            this.saveSelectedWorksheetsAsTxtButton.ShowImage = true;
+            this.saveSelectedWorksheetsAsTxtButton.SuperTip = "Saves selected sheets from workbook to separate txt file into folder named as wor" +
+    "kbook and into path of that workbook";
+            this.saveSelectedWorksheetsAsTxtButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.saveAllWorksheetsAsTxtButton_Click);
+            // 
+            // saveAllWorksheetsAsTxtButton
+            // 
+            this.saveAllWorksheetsAsTxtButton.Label = "Save all sheets as txt";
+            this.saveAllWorksheetsAsTxtButton.Name = "saveAllWorksheetsAsTxtButton";
+            this.saveAllWorksheetsAsTxtButton.OfficeImageId = "OrgChartHorizontalGallery";
+            this.saveAllWorksheetsAsTxtButton.ScreenTip = "Save all sheets as txt";
+            this.saveAllWorksheetsAsTxtButton.ShowImage = true;
+            this.saveAllWorksheetsAsTxtButton.SuperTip = "Saves all sheets from workbook to separate txt file into folder named as workbook" +
+    " and into path of that workbook";
+            this.saveAllWorksheetsAsTxtButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.saveAllWorksheetsAsTxtButton_Click);
             // 
             // duplicateWorksheetsSplitBtn
             // 
@@ -792,7 +830,7 @@
             this.exportMacrosButton.Label = "Export macros";
             this.exportMacrosButton.Name = "exportMacrosButton";
             this.exportMacrosButton.OfficeImageId = "FileMenuPublishHeader";
-            this.exportMacrosButton.ScreenTip = "It will export macros from choosen Workbook to filder in Downloads folder.";
+            this.exportMacrosButton.ScreenTip = "It will export macros from choosen Workbook to folder in Downloads folder.";
             this.exportMacrosButton.ShowImage = true;
             this.exportMacrosButton.SuperTip = "Export macros from choosen workbook";
             this.exportMacrosButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.exportMacrosButton_Click);
@@ -1208,9 +1246,10 @@
             // 
             // pivotToolsGroup
             // 
-            this.pivotToolsGroup.Items.Add(this.combinedTableFromPvValuesButton);
-            this.pivotToolsGroup.Items.Add(this.refreshPivotsButton);
+            this.pivotToolsGroup.Items.Add(this.changePivotTableSourceButton);
             this.pivotToolsGroup.Items.Add(this.updatePivotTableSourceButton);
+            this.pivotToolsGroup.Items.Add(this.refreshPivotsButton);
+            this.pivotToolsGroup.Items.Add(this.combinedTableFromPvValuesButton);
             this.pivotToolsGroup.Label = "Pivot tools";
             this.pivotToolsGroup.Name = "pivotToolsGroup";
             // 
@@ -1334,7 +1373,7 @@
             // 
             this.sdeQueryComboBox.Label = "Query";
             this.sdeQueryComboBox.Name = "sdeQueryComboBox";
-            this.sdeQueryComboBox.SuperTip = "Choose SDE Lanucher avaliable queries";
+            this.sdeQueryComboBox.SuperTip = "Choose SDE Lanucher available queries";
             this.sdeQueryComboBox.Text = null;
             // 
             // sdeInstancesEditBox
@@ -1432,6 +1471,17 @@
             this.checkMacrosButton.ShowImage = true;
             this.checkMacrosButton.SuperTip = "It will check if all macros that are assigned to buttons are present";
             // 
+            // changePivotTableSourceButton
+            // 
+            this.changePivotTableSourceButton.Label = "Change pv source";
+            this.changePivotTableSourceButton.Name = "changePivotTableSourceButton";
+            this.changePivotTableSourceButton.OfficeImageId = "PivotShowDetails";
+            this.changePivotTableSourceButton.ScreenTip = "Change pivot table source";
+            this.changePivotTableSourceButton.ShowImage = true;
+            this.changePivotTableSourceButton.SuperTip = "Will show you range picker and select table or click on one cell in that table to" +
+    " change pivot table source of current pivot table";
+            this.changePivotTableSourceButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.changePivotTableSourceButton_Click);
+            // 
             // MiscRibbon
             // 
             this.Name = "MiscRibbon";
@@ -1513,7 +1563,7 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup importGroup;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup fileAndExportGroup;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton getFilePathButton;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton saveEachWorksheetsAsTxtButton;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton saveSelectedWorksheetsAsTxtButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton deleteWorksheetButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton deleteOtherWorksheetsButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton deleteWorkbookButton;
@@ -1565,7 +1615,7 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup sqlImportGroup;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup sapImportGroup;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup sdeImportGroup;
-        internal Microsoft.Office.Tools.Ribbon.RibbonSplitButton saveEachSheetAsSplitBtn;
+        internal Microsoft.Office.Tools.Ribbon.RibbonSplitButton saveSelectedWorksheetsAsXlsxSplitBtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonSplitButton duplicateWorksheetsSplitBtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton duplicateWorkbookBtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton duplicateWorksheetsToNewWorkbookBtn;
@@ -1619,6 +1669,10 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonButton createMacroUpdateButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton checkMacrosButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton updatePivotTableSourceButton;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton saveAllWorksheetsAsTxtButton;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton saveAllWorksheetsAsXlsxButton;
+        internal Microsoft.Office.Tools.Ribbon.RibbonSplitButton removeErrSplitBtn;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton changePivotTableSourceButton;
     }
 
     partial class ThisRibbonCollection

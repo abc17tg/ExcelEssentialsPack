@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using ScintillaNET;
 
@@ -257,12 +258,45 @@ namespace ExcelAddInByMarcinOlszewski.Scripts
             editor.Styles[Style.Sql.Identifier].Bold = true;
             // Set SQL keywords
 
-            editor.SetKeywords(0, SqlKeywords);
+            editor.SetKeywords(0, FileManager.SqlKeywords);
 
             editor.ClearCmdKey(Keys.Control | Keys.Oem2);
             editor.ClearCmdKey(Keys.Control | Keys.Divide);
             editor.ClearCmdKey(Keys.Shift | Keys.Control | Keys.Divide);
             editor.ClearCmdKey(Keys.Shift | Keys.Control | Keys.Oem2);
+
+            // Set up an indicator for highlighting words starting with ':::'
+            int indicatorIndex = 8; // Choose an unused indicator index
+            editor.Indicators[indicatorIndex].Style = IndicatorStyle.RoundBox;
+            editor.Indicators[indicatorIndex].ForeColor = Color.Aquamarine;
+            editor.Indicators[indicatorIndex].Alpha = 45;
+            editor.Indicators[indicatorIndex].OutlineAlpha = 120;
+            editor.Indicators[indicatorIndex].Under = true; // Set to true to highlight under the text
+
+            // Apply custom highlighting whenever the text changes
+            editor.TextChanged += (sender, e) =>
+            {
+                HighlightCustomWords(editor, indicatorIndex);
+            };
+        }
+
+        private static void HighlightCustomWords(Scintilla editor, int indicatorIndex)
+        {
+            // Clear previous indicator highlights
+            editor.IndicatorClearRange(0, editor.TextLength);
+
+            // Define the regex pattern to match words that start with ":::" and are not connected to other characters
+            string pattern = @"(?<!\S):::\w+";
+
+            // Use regex to find matches
+            var matches = Regex.Matches(editor.Text, pattern);
+
+            foreach (Match match in matches)
+            {
+                // Apply the indicator to the matched range
+                editor.IndicatorCurrent = indicatorIndex;
+                editor.IndicatorFillRange(match.Index, match.Length);
+            }
         }
 
         private static void Editor_DragOver(object sender, DragEventArgs e)
@@ -306,14 +340,6 @@ namespace ExcelAddInByMarcinOlszewski.Scripts
             // Remove the selected text from the original position
             editor.DeleteRange(startSelection, endSelection - startSelection);
         }
-
-
-
-
-        public readonly static string SqlKeywords = "absolute action add admin after aggregate alias all allocate alter and any are array as asc assertion at authorization before begin binary bit blob boolean both breadth by call cascade cascaded case cast catalog char character check class clob close collate collation column commit completion connect connection constraint constraints constructor continue corresponding count create cross cube current current_date current_path current_role current_time current_timestamp current_user cursor cycle data date day deallocate dec decimal declare default deferrable deferred delete depth deref desc describe descriptor destroy destructor deterministic diagnostics dictionary disconnect distinct domain double drop dynamic each else end end-exec equals escape every except exception exec execute external false fetch first float for foreign found free from full function general get global go goto grant group grouping having host hour identity ignore immediate in indicator initcap initialize initially inner inout input insert int integer intersect interval into is isolation iterate join key language large last lateral leading left length less level like limit local localtime localtimestamp locator map match minute modifies modify module month names national natural nchar nclob new next no none not null numeric object of off old on only open operation option or order ordinality out outer output over pad parameter parameters partial partition path postfix precision prefix preorder prepare preserve primary prior privileges procedure public read reads real recursive ref references referencing regexp_like regexp_replace regexp_substr relative restrict result return returns revoke right role rollback rollup round row_number rows savepoint schema scope scroll search second section select sequence session session_user set sets size smallint some space specific specifictype sql sqlexception sqlstate sqlwarning start state statement static structure sum system_user table temporary terminate than then time timestamp timezone_hour timezone_minute to to_char to_date to_number top trailing transaction translation treat trigger trim true under union unique unknown unnest update usage user using value values varchar variable varying view when whenever where with without work write year zone";
     }
-
-
-
 }
 

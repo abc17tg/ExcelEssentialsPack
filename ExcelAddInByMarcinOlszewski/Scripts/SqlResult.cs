@@ -9,11 +9,13 @@ namespace ExcelAddInByMarcinOlszewski.Scripts
         public DataTable DataTable;
         public string Errors;
         public bool HasErrors => !string.IsNullOrEmpty(Errors) || DataTable == null;
+        public bool Cancelled;
         
-        public SqlResult(DataTable dataTable, string errors) 
+        public SqlResult(DataTable dataTable, string errors, bool cancelled = false) 
         { 
             DataTable = dataTable;
             Errors = errors;
+            Cancelled = cancelled;
         }
 
         public static SqlResult MergeResults(List<SqlResult> results)

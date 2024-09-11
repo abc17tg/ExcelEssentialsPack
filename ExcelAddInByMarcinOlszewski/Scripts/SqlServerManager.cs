@@ -119,6 +119,7 @@ namespace ExcelAddInByMarcinOlszewski.Scripts
                 return (sqlResult, false);
 
             UtilsExcel.PasteDataTableToRange(sqlResult.DataTable, rng, headers);
+            UtilsExcel.Updating(rng.Application, true);
             return (sqlResult, true);
         }
 
@@ -206,6 +207,14 @@ namespace ExcelAddInByMarcinOlszewski.Scripts
             return err;
         }
 
+        public static bool CheckSqlQueriesSyntaxOnline(List<string> queries, SqlConn sqlConn)
+        {
+            if(queries.All(p=>CheckSqlQuerySyntaxOnline(p, sqlConn) == string.Empty))
+                return true;
+            else
+                return false;
+        }
+
         public static SqlResult GetDataFromServer(SqlServerManager manager, string query, SqlConn sqlConn, int timeout = -1)
         {
             DataTable dt = new DataTable();
@@ -252,8 +261,9 @@ namespace ExcelAddInByMarcinOlszewski.Scripts
                 {
                     con.Open();
                     OracleCommand cmd = new OracleCommand(query, con);
-                    cmd.CommandTimeout = timeout > 0 ? timeout : cmd.CommandTimeout;
-                    manager.SqlElements.Add(new SqlElement(cmd, sqlConn.Type, con.Database ?? "Oracle query"));
+                    cmd.CommandTimeout = timeout >= 0 ? timeout : cmd.CommandTimeout;
+                    SqlElement sqlElement = new SqlElement(cmd, sqlConn.Type, string.IsNullOrEmpty(con.Database) ? con.Database : "Oracle query");
+                    manager.SqlElements.Add(sqlElement);
                     try
                     {
                         using (OracleDataReader rdr = cmd.ExecuteReader())
@@ -268,7 +278,7 @@ namespace ExcelAddInByMarcinOlszewski.Scripts
                     catch (OracleException ex)
                     {
                         manager.OracleCommandFinished?.Invoke(cmd);
-                        return new SqlResult(null, ex.Message);
+                        return new SqlResult(null, ex.Message, sqlElement?.Cancelled ?? false);
                     }
                 }
             }
@@ -287,8 +297,9 @@ namespace ExcelAddInByMarcinOlszewski.Scripts
                 {
                     con.Open();
                     SqlCommand cmd = new SqlCommand(query, con);
-                    cmd.CommandTimeout = timeout > 0 ? timeout : cmd.CommandTimeout;
-                    manager.SqlElements.Add(new SqlElement(cmd, sqlConn.Type, con.Database ?? "MS Sql query"));
+                    cmd.CommandTimeout = timeout >= 0 ? timeout : cmd.CommandTimeout;
+                    SqlElement sqlElement = new SqlElement(cmd, sqlConn.Type, string.IsNullOrEmpty(con.Database) ? con.Database : "MS Sql query");
+                    manager.SqlElements.Add(sqlElement);
                     try
                     {
                         using (SqlDataReader rdr = cmd.ExecuteReader())
@@ -302,7 +313,7 @@ namespace ExcelAddInByMarcinOlszewski.Scripts
                     catch (SqlException ex)
                     {
                         manager.SqlServerCommandFinished?.Invoke(cmd);
-                        return new SqlResult(null, ex.Message);
+                        return new SqlResult(null, ex.Message, sqlElement?.Cancelled ?? false);
                     }
                 }
             }

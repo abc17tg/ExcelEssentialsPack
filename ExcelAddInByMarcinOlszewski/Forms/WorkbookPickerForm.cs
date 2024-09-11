@@ -16,16 +16,16 @@ namespace ExcelAddInByMarcinOlszewski.Forms
         public Excel.Workbook Workbook;
         private List<Excel.Workbook> m_macroWorkbookList;
 
-        public WorkbookPickerForm(Excel.Workbook wb)
+        public WorkbookPickerForm(Excel.Application app)
         {
             InitializeComponent();
-            if(wb == null)
+            if(app == null || app.Workbooks.Count<1 || app.ActiveWorkbook == null)
                 this.Close();
 
-            Workbook = wb;
+            Workbook = app.ActiveWorkbook;
 
-            m_macroWorkbookList = Workbook.Application.Workbooks.Cast<Excel.Workbook>().Where(p => p.HasVBProject || p.IsAddin).ToList();
-            var addInsList = Workbook.Application.AddIns2.Cast<Excel.AddIn>().Where(p=>p.IsOpen).Select(a => Workbook.Application.Workbooks[a.Name]).ToList();
+            m_macroWorkbookList = app.Workbooks.Cast<Excel.Workbook>().Where(p => p.HasVBProject || p.IsAddin).ToList();
+            var addInsList = app.AddIns2.Cast<Excel.AddIn>().Where(p=>p.IsOpen).Select(a => app.Workbooks[a.Name]).ToList();
             m_macroWorkbookList.AddRange(addInsList);
             workbookPickerComboBox.Items.AddRange(m_macroWorkbookList.Select(p => p.Name).ToArray());
             workbookPickerComboBox.SelectedIndex = workbookPickerComboBox.Items.IndexOf(Workbook.Name);

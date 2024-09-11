@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -8,12 +7,8 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Windows.Interop;
 using ExcelAddInByMarcinOlszewski.Forms;
 using ExcelAddInByMarcinOlszewski.Scripts;
-using static System.Net.Mime.MediaTypeNames;
-using static ScintillaNET.Style;
-using static SQLite.SQLite3;
 using Excel = Microsoft.Office.Interop.Excel;
 
 namespace ExcelAddInByMarcinOlszewski
@@ -41,6 +36,7 @@ namespace ExcelAddInByMarcinOlszewski
         private Dictionary<string, string> m_queriesDic;
         private bool m_selectionChangedByCode = false;
         private static readonly string m_sheetNameTextBoxPlaceholder = "Worksheet name";
+        private Dictionary<string, List<string>> m_variablesD = new Dictionary<string, List<string>>();
 
         public const Int32 WM_SYSCOMMAND = 0x112;
         public const Int32 MF_BYPOSITION = 0x400;
@@ -408,7 +404,7 @@ namespace ExcelAddInByMarcinOlszewski
 
             if (pasteToDataTableCheckBox.Checked)
             {
-                runQueryWithResult = new Task<(SqlResult, bool)>(() => (SqlServerManager.GetDataFromServer(m_sqlManager, query, SqlConn, 10000), true));
+                runQueryWithResult = new Task<(SqlResult, bool)>(() => (SqlServerManager.GetDataFromServer(m_sqlManager, query, SqlConn, 0), true));
 
                 runQueryWithResult.GetAwaiter().OnCompleted(() =>
                 {
@@ -430,9 +426,12 @@ namespace ExcelAddInByMarcinOlszewski
                         SqlResult sqlResult = runQueryWithResult.Result.Item1;
                         if (sqlResult.HasErrors)
                         {
-                            string msg = $"Query finished with errors:\n\n{sqlResult.Errors}\n\nQuery:\n\n{query}";
-                            MessageBoxForm messageBox = new MessageBoxForm(msg, "Query finished", false);
-                            messageBox.Show();
+                            if (!sqlResult.Cancelled)
+                            {
+                                string msg = $"Query finished with errors:\n\n{sqlResult.Errors}\n\nQuery:\n\n{query}";
+                                MessageBoxForm messageBox = new MessageBoxForm(msg, "Query finished", true);
+                                messageBox.Show();
+                            }
                             return;
                         }
                         DataTableForm form = new DataTableForm(sqlResult.DataTable, query, App);
@@ -466,7 +465,7 @@ namespace ExcelAddInByMarcinOlszewski
                     wsName = rng.Worksheet?.Name;
                 }
 
-                runQueryWithResult = new Task<(SqlResult, bool)>(() => SqlServerManager.GetDataFromServerToExcelRange(m_sqlManager, query, SqlConn, rng, PasteHeaders, 10000));
+                runQueryWithResult = new Task<(SqlResult, bool)>(() => SqlServerManager.GetDataFromServerToExcelRange(m_sqlManager, query, SqlConn, rng, PasteHeaders, 0));
 
                 runQueryWithResult.GetAwaiter().OnCompleted(() =>
                 {
@@ -487,7 +486,7 @@ namespace ExcelAddInByMarcinOlszewski
 
                         if (!runQueryWithResult.Result.Item2)
                         {
-                            var result = MessageBox.Show($"Query for Worksheet [{wsName ?? "null"}] finished but Worksheet/Range unavaliable/too small.\n\nPaste to DataTable?", "Query finished", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                            var result = MessageBox.Show($"Query for Worksheet [{wsName ?? "null"}] finished but Worksheet/Range unavailable/too small.\n\nPaste to DataTable?", "Query finished", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                             if (result == DialogResult.Yes)
                             {
                                 SqlResult sqlResult = runQueryWithResult.Result.Item1;
@@ -518,8 +517,11 @@ namespace ExcelAddInByMarcinOlszewski
                             }
                             else
                                 msg = $"{query}\n\nFinished";
-                            MessageBoxForm messageBox = new MessageBoxForm(msg, $"{wsName ?? string.Empty} query finished", false);
-                            messageBox.Show();
+                            if (!sqlResult.Cancelled)
+                            {
+                                MessageBoxForm messageBox = new MessageBoxForm(msg, $"{wsName ?? string.Empty} query finished", true);
+                                messageBox.Show();
+                            }
                         }
                     }));
                 });
@@ -607,11 +609,11 @@ namespace ExcelAddInByMarcinOlszewski
                     case DialogResult.Yes:
                         sqlEditorScintilla.Text = sqlEditorScintilla.Text.TrimEnd('\n', '\r', '\t', ' ');
                         int position = sqlEditorScintilla.Lines.Last().Position;
-                        sqlEditorScintilla.AppendText($"\n\n{new string('-', 50)}\n\n{m_queriesDic[m_queriesDic.Keys.First(p => p.Contains(savedQueriesComboBox.SelectedItem.ToString()))]}");
+                        sqlEditorScintilla.AppendText($"\n\n{new string('-', 50)}\n\n{m_queriesDic[m_queriesDic.Keys.First(p => Path.GetFileName(p) == savedQueriesComboBox.SelectedItem.ToString())]}");
                         sqlEditorScintilla.GotoPosition(position);
                         break;
                     case DialogResult.No:
-                        sqlEditorScintilla.Text = m_queriesDic[m_queriesDic.Keys.First(p => p.Contains(savedQueriesComboBox.SelectedItem.ToString()))];
+                        sqlEditorScintilla.Text = m_queriesDic[m_queriesDic.Keys.First(p => Path.GetFileName(p) == savedQueriesComboBox.SelectedItem.ToString())];
                         break;
                     case DialogResult.Cancel:
                     case DialogResult.None:
@@ -620,7 +622,7 @@ namespace ExcelAddInByMarcinOlszewski
                 }
             }
             else
-                sqlEditorScintilla.Text = m_queriesDic[m_queriesDic.Keys.First(p => p.Contains(savedQueriesComboBox.SelectedItem.ToString()))];
+                sqlEditorScintilla.Text = m_queriesDic[m_queriesDic.Keys.First(p => Path.GetFileName(p) == savedQueriesComboBox.SelectedItem.ToString())];
         }
 
         private void serverComboBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -776,7 +778,7 @@ namespace ExcelAddInByMarcinOlszewski
 
             if (string.IsNullOrWhiteSpace(lastText) ||
                 lastText.EndsWith("select", true, System.Globalization.CultureInfo.InvariantCulture) ||
-                UtilsScintilla.SqlKeywords.Split(' ').Any(p => lastText.EndsWith(p, true, System.Globalization.CultureInfo.InvariantCulture)) || lastText.EndsWith("("))
+                FileManager.SqlKeywords.Split(' ').Any(p => lastText.EndsWith(p, true, System.Globalization.CultureInfo.InvariantCulture)) || lastText.EndsWith("("))
             {
                 if ((new char[] { ' ', '\t' }).ToList().Contains((char)sqlEditorScintilla.GetCharAt(sqlEditorScintilla.SelectionStart - 1)))
                     sqlEditorScintilla.ReplaceSelection(text?.TrimStart(',', ' ') ?? "");
@@ -1004,7 +1006,34 @@ namespace ExcelAddInByMarcinOlszewski
 
         private void objectsAndVariablesTabControl_TabIndexChanged(object sender, EventArgs e)
         {
+            if (objectsAndVariablesTabControl.SelectedTab == variablesTabPage)
+            {
+                RefreshVariables();
+            }
+        }
 
+        private void RefreshVariables()
+        {
+            // Remove rows without variable name
+            foreach (var row in variablesDataGridView.Rows.Cast<DataGridViewRow>().Where(p => !p.IsNewRow && p.Visible && string.IsNullOrEmpty(p.Cells[1].Value?.ToString())).ToList())
+                variablesDataGridView.Rows.Remove(row);
+
+            List<string> currentVariables = variablesDataGridView.Rows.Cast<DataGridViewRow>().Select(p => p.Cells[1].Value?.ToString()).Distinct().ToList();
+            List<string> keysToRemove = m_variablesD.Keys.Where(p => !currentVariables.Contains(p)).ToList();
+
+            // Update variables dictionary
+            foreach (var k in keysToRemove)
+                m_variablesD.Remove(k);
+
+            // Add new rows with detected variables
+            foreach (var v in SuperSqlQuery.GetVariablesFromString(sqlEditorScintilla.Text))
+            {
+                if (!m_variablesD.Keys.Contains(v))
+                    m_variablesD.Add(v, null);
+            }
+
+            foreach (var d in m_variablesD.Where(p => !currentVariables.Contains(p.Key)))
+                variablesDataGridView.Rows.Add("List", d.Key, "Edit", d.Value?.Count ?? 0);
         }
 
         private void RefreshRunningQueriesDataGridView()
@@ -1019,7 +1048,9 @@ namespace ExcelAddInByMarcinOlszewski
                     {
                         for (int i = 0; i < m_sqlManager.SqlElements.Count; i++)
                         {
-                            runningQueriesDataGridView.Rows[i].Cells[2].Value = $"{(DateTime.UtcNow - m_sqlManager.SqlElements[i].m_startTime).Value.Minutes} min";
+                            string time = $"{Math.Floor(DateTime.Now.Subtract((DateTime)m_sqlManager.SqlElements[i].m_startTime).TotalMinutes)} min";
+                            if (runningQueriesDataGridView.Rows[i].Cells[2].Value.ToString() != time)
+                                runningQueriesDataGridView.Rows[i].Cells[2].Value = time;
                         }
                     }
                     else

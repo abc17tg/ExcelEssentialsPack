@@ -119,6 +119,10 @@ namespace ExcelAddInByMarcinOlszewski
             UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
             //UtilsExcel.RunMacro("RemoveCells.RemoveEmptyCells");
         }
+        private void removeErrSplitBtn_Click(object sender, RibbonControlEventArgs e)
+        {
+            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonSplitButton).Id, m_macroWorkbook));
+        }
 
         private void removeNaButton_Click(object sender, RibbonControlEventArgs e)
         {
@@ -203,7 +207,7 @@ namespace ExcelAddInByMarcinOlszewski
 
                 Dictionary<string, Color> valueColorD = new Dictionary<string, Color>();
                 List<string> values;
-                values = rngSel.Cells.Cast<Excel.Range>().Select(p => ((object)p.Value)?.ToString() ?? "").Distinct().ToList();
+                values = rngSel.Cells.Cast<Excel.Range>().Select(p => ((object)p.Value2)?.ToString() ?? "").Distinct().ToList();
                 List<Color> colorsList = Utils.GenerateColorPalette(values.Count);
                 colorsList.Shuffle();
                 for (int i = 0; i < values.Count; i++)
@@ -304,16 +308,25 @@ namespace ExcelAddInByMarcinOlszewski
             UtilsExcel.FilterByRegex(app.ActiveWindow.RangeSelection, true);
         }
 
-        private void saveEachWorksheetsAsTxtButton_Click(object sender, RibbonControlEventArgs e)
-        {
-            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
-            //UtilsExcel.RunMacro("DivideFile.SaveSheetsAsTextFiles");
-        }
-
-        private void saveEachSheetAsSplitBtn_Click(object sender, RibbonControlEventArgs e)
+        private void saveSelectedWorksheetsAsXlsxSplitBtn_Click(object sender, RibbonControlEventArgs e)
         {
             UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonSplitButton).Id, m_macroWorkbook));
             //UtilsExcel.RunMacro("DivideFile.SaveSheetsAsExcelFiles");
+        }
+
+        private void saveAllWorksheetsAsXlsxButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
+        }
+
+        private void saveSelectedWorksheetsAsTxtButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
+        }
+
+        private void saveAllWorksheetsAsTxtButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
         }
 
         private void duplicateWorkbookBtn_Click(object sender, RibbonControlEventArgs e)
@@ -559,12 +572,12 @@ namespace ExcelAddInByMarcinOlszewski
             form.Show();
         }
 
-
         private void colorRowsWithTextSplitButton_Click(object sender, RibbonControlEventArgs e)
         {
             ColorCellsWithTextForm form = new ColorCellsWithTextForm(Globals.ThisAddIn.Application, UtilsExcel.RangeType.Rows);
             form.Show();
         }
+
         private void colorCellsWithTextButton_Click(object sender, RibbonControlEventArgs e)
         {
             ColorCellsWithTextForm form = new ColorCellsWithTextForm(Globals.ThisAddIn.Application, UtilsExcel.RangeType.Cells);
@@ -672,7 +685,7 @@ namespace ExcelAddInByMarcinOlszewski
             var result = openFileDialog.ShowDialog();
             if (result == DialogResult.OK)
             {
-                WorkbookPickerForm workbookPicker = new WorkbookPickerForm(m_macroWorkbook);
+                WorkbookPickerForm workbookPicker = new WorkbookPickerForm(Globals.ThisAddIn.Application);
                 var result2 = workbookPicker.ShowDialog();
                 if (result2 == DialogResult.OK)
                 {
@@ -701,7 +714,7 @@ namespace ExcelAddInByMarcinOlszewski
 
         private void exportMacrosButton_Click(object sender, RibbonControlEventArgs e)
         {
-            WorkbookPickerForm workbookPicker = new WorkbookPickerForm(m_macroWorkbook);
+            WorkbookPickerForm workbookPicker = new WorkbookPickerForm(Globals.ThisAddIn.Application);
             var result = workbookPicker.ShowDialog();
             if (result == DialogResult.OK)
             {
