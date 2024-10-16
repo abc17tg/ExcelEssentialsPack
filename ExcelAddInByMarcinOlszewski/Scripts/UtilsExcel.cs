@@ -152,7 +152,7 @@ public static class UtilsExcel
                 {
                     Excel.Worksheet ws = (rng.Worksheet.Parent as Excel.Workbook).Worksheets.Add(After: rng.Worksheet);
                     rng.Copy();
-                    (ws.Cells[1, 1] as Excel.Range).PasteSpecial(Excel.XlPasteType.xlPasteValues);
+                    (ws.Cells[1, 1] as Excel.Range).PasteSpecial(Excel.XlPasteType.xlPasteValuesAndNumberFormats);
                     ColorRowsUnique(ws.UsedRange);
                     ws.UsedRange.Copy();
                     rng.PasteSpecial(Excel.XlPasteType.xlPasteFormats);
@@ -782,7 +782,7 @@ public static class UtilsExcel
                     format = "[Color49]#" + thousandsSeparator + "##0;[Color9]-#" + thousandsSeparator + "##0;[Color16]0;@";
                 rng.NumberFormatLocal = format;
                 if (dateColumns != null && dateColumns.Count > 0)
-                    dateColumns.ForEach(p => p.NumberFormatLocal = "[Color10]yyyy.mm.dd;@");
+                    dateColumns.ForEach(p => p.NumberFormatLocal = "[Color47]yyyy-mm-dd;@");
             }
             else
             {
@@ -791,7 +791,7 @@ public static class UtilsExcel
                     format = "[Color49]#" + thousandsSeparator + "##0;[Color9](#" + thousandsSeparator + "##0);[Color16]0;@";
                 rng.NumberFormatLocal = format;
                 if (dateColumns != null && dateColumns.Count > 0)
-                    dateColumns.ForEach(p => p.NumberFormatLocal = "[Color10]yyyy.mm.dd;@");
+                    dateColumns.ForEach(p => p.NumberFormatLocal = "[Color47]yyyy-mm-dd;@");
             }
         }
     }

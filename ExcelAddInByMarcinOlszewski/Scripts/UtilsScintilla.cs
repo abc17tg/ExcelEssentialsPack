@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using ScintillaNET;
 
@@ -228,6 +229,8 @@ namespace ExcelAddInByMarcinOlszewski.Scripts
             editor.Styles[Style.Sql.Operator].ForeColor = Color.FromArgb(240, 240, 240); // Almost white
             editor.Styles[Style.Sql.Identifier].ForeColor = Color.FromArgb(240, 240, 240); // Almost white
             editor.Styles[Style.LineNumber].ForeColor = Color.FromArgb(100, 100, 100); // Gray
+            editor.Styles[Style.BraceLight].ForeColor = Color.Yellow;
+            editor.Styles[Style.BraceBad].ForeColor = Color.LightGoldenrodYellow;
 
             editor.Styles[Style.Sql.Default].BackColor = Color.FromArgb(30, 30, 30);
             editor.Styles[Style.Sql.Comment].BackColor = editor.Styles[Style.Default].BackColor;
@@ -241,6 +244,8 @@ namespace ExcelAddInByMarcinOlszewski.Scripts
             editor.Styles[Style.Sql.Operator].BackColor = editor.Styles[Style.Default].BackColor;
             editor.Styles[Style.Sql.Identifier].BackColor = editor.Styles[Style.Default].BackColor;
             editor.Styles[Style.LineNumber].BackColor = Color.FromArgb(15, 15, 15); ;
+            editor.Styles[Style.BraceLight].BackColor = Color.DarkGray;
+            editor.Styles[Style.BraceBad].BackColor = Color.Red;
 
             editor.Styles[Style.Sql.Word].Case = StyleCase.Upper;
             editor.Styles[Style.Sql.Word2].Case = StyleCase.Upper;
@@ -256,8 +261,10 @@ namespace ExcelAddInByMarcinOlszewski.Scripts
             editor.Styles[Style.Sql.Character].Bold = true;
             editor.Styles[Style.Sql.Operator].Bold = true;
             editor.Styles[Style.Sql.Identifier].Bold = true;
-            // Set SQL keywords
+            editor.Styles[Style.BraceLight].Bold = true;
+            editor.Styles[Style.BraceBad].Bold = true;
 
+            // Set SQL keywords
             editor.SetKeywords(0, FileManager.SqlKeywords);
 
             editor.ClearCmdKey(Keys.Control | Keys.Oem2);
@@ -273,27 +280,224 @@ namespace ExcelAddInByMarcinOlszewski.Scripts
             editor.Indicators[indicatorIndex].OutlineAlpha = 120;
             editor.Indicators[indicatorIndex].Under = true; // Set to true to highlight under the text
 
-            // Apply custom highlighting whenever the text changes
-            editor.TextChanged += (sender, e) =>
+            // Set up an indicator for highlighting words case sensitive
+            int indicatorIndexForSelection = 9; // Choose an unused indicator index
+            editor.Indicators[indicatorIndexForSelection].Style = IndicatorStyle.RoundBox;
+            editor.Indicators[indicatorIndexForSelection].ForeColor = Color.GreenYellow;
+            editor.Indicators[indicatorIndexForSelection].Alpha = 40;
+            editor.Indicators[indicatorIndexForSelection].OutlineAlpha = 110;
+            editor.Indicators[indicatorIndexForSelection].Under = true; // Set to true to highlight under the text
+
+            // Set up an indicator for highlighting matching brackets
+            int indicatorIndexForBrackets = 10; // Choose an unused indicator index
+            editor.Indicators[indicatorIndexForBrackets].Style = IndicatorStyle.PointCharacter;
+            editor.Indicators[indicatorIndexForBrackets].ForeColor = Color.OrangeRed;
+            editor.Indicators[indicatorIndexForBrackets].Alpha = 255;
+            //editor.Indicators[indicatorIndexForBrackets].OutlineAlpha = 120;
+            //editor.Indicators[indicatorIndexForBrackets].Under = true; // Set to true to highlight under the text 
+
+            editor.UpdateUI += (sender, e) =>
+             {
+                 int position, matchPos, currentChar;
+                 switch (e.Change)
+                 {
+                     case UpdateChange.Content:
+                         foreach (var ind in editor.Indicators.Select(p => p.Index))
+                         {
+                             editor.IndicatorCurrent = ind;
+                             editor.IndicatorClearRange(0, editor.TextLength);
+                         }
+                         //editor.IndicatorClearRange(0, editor.TextLength);
+                         HighlightVariables(editor, indicatorIndex);
+                         position = editor.CurrentPosition;
+                         matchPos = editor.BraceMatch(position);
+                         currentChar = editor.GetCharAt(position);
+                         if (matchPos != Scintilla.InvalidPosition)
+                             editor.BraceHighlight(position, matchPos); // Highlight matching brackets
+                         else if (currentChar == '(' || currentChar == ')')
+                         {
+                             editor.BraceHighlight(Scintilla.InvalidPosition, Scintilla.InvalidPosition);
+                             editor.BraceBadLight(position); // Highlight if there's a mismatched bracket
+                         }
+                         else
+                             editor.BraceHighlight(Scintilla.InvalidPosition, Scintilla.InvalidPosition);
+                         break;
+
+                     case UpdateChange.Selection:
+                         foreach (var ind in editor.Indicators.Select(p => p.Index))
+                         {
+                             editor.IndicatorCurrent = ind;
+                             editor.IndicatorClearRange(0, editor.TextLength);
+                         }
+                         //editor.IndicatorClearRange(0, editor.TextLength);
+                         HighlightVariables(editor, indicatorIndex);
+                         HighlightCustomWords(editor, indicatorIndexForSelection, editor.SelectedText);
+
+                         position = editor.CurrentPosition;
+                         matchPos = editor.BraceMatch(position);
+                         currentChar = editor.GetCharAt(position);
+                         if (matchPos != Scintilla.InvalidPosition)
+                             editor.BraceHighlight(position, matchPos); // Highlight matching brackets
+                         else if (currentChar == '(' || currentChar == ')')
+                         {
+                             editor.BraceHighlight(Scintilla.InvalidPosition, Scintilla.InvalidPosition);
+                             editor.BraceBadLight(position); // Highlight if there's a mismatched bracket
+                         }
+                         else
+                             editor.BraceHighlight(Scintilla.InvalidPosition, Scintilla.InvalidPosition);
+
+                         //HighlightMatchingBrackets(editor, indicatorIndexForBrackets);
+                         break;
+                 }
+             };
+
+            // Add this in your constructor or initialization function
+            editor.CharAdded += (sender, e) =>
             {
-                HighlightCustomWords(editor, indicatorIndex);
+                // Get the char that was just added
+                char addedChar = (char)e.Char;
+
+                switch (addedChar)
+                {
+                    case '(':
+                        InsertMatchingBracket(editor, addedChar, ')');
+                        break;
+                    case '[':
+                        InsertMatchingBracket(editor, addedChar, ']');
+                        break;
+                    case '"':
+                        InsertMatchingBracket(editor, addedChar, '"');
+                        break;
+                    case '\'':
+                        InsertMatchingBracket(editor, addedChar, '\'');
+                        break;
+                    case ')':
+                        SkipClosingBracket(editor, '(', addedChar);
+                        break;
+                    case ']':
+                        SkipClosingBracket(editor, '[', addedChar);
+                        break;
+                }
             };
+
+            /*            editor.BeforeDelete += (sender, e) =>
+                        {
+                            if (e.Source != ModificationSource.User)
+                                return;
+
+                            if (e.Text == "(" || e.Text == "[")
+                            {
+                                int currentPos = e.Position;
+                                int match = editor.BraceMatch(currentPos);
+                                if (match != Scintilla.InvalidPosition && editor.GetTextRange(currentPos + 1, match - currentPos - 1).Trim() == string.Empty)
+                                {
+                                    editor.DeleteRange(currentPos - 1, match - currentPos + 5);
+                                }
+                            }
+                        };*/
+
         }
 
-        private static void HighlightCustomWords(Scintilla editor, int indicatorIndex)
+        private static void InsertMatchingBracket(Scintilla editor, char addedChar, char closingChar)
         {
-            // Clear previous indicator highlights
-            editor.IndicatorClearRange(0, editor.TextLength);
+            int currentPos = editor.CurrentPosition;
+            bool isNotBracket = new char[] { '"', '\'' }.Contains(closingChar);
+
+            if (!isNotBracket)
+            {
+                editor.InsertText(currentPos, addedChar.ToString());
+                if (editor.BraceMatch(currentPos) != Scintilla.InvalidPosition)
+                {
+                    editor.DeleteRange(currentPos - 1, 1);
+                    editor.GotoPosition(currentPos);
+                    return;
+                }
+                editor.DeleteRange(currentPos - 1, 1);
+            }
+
+            editor.InsertText(currentPos, closingChar.ToString());
+            editor.GotoPosition(currentPos);
+        }
+
+        private static void SkipClosingBracket(Scintilla editor, char openingChar, char closingChar)
+        {
+            int currentPos = editor.CurrentPosition;
+            int nextChar = editor.GetCharAt(currentPos - 1);
+            int previousChar = editor.GetCharAt(currentPos - 2);
+
+            if (nextChar == closingChar && previousChar == openingChar && editor.BraceMatch(currentPos - 2) != Scintilla.InvalidPosition)
+            {
+                editor.DeleteRange(currentPos - 1, 1);
+                editor.GotoPosition(currentPos);
+            }
+        }
+
+        private static void HighlightMatchingBrackets(Scintilla editor, int indicatorIndexForBrackets)
+        {
+            if (editor == null || !editor.Indicators.Select(p => p.Index).Contains(indicatorIndexForBrackets))
+                return;
+
+            int position = editor.CurrentPosition;
+
+            // Check for an opening or closing bracket at the current position
+            if (editor.GetCharAt(position) == '(')
+            {
+                int matchPos = editor.BraceMatch(position);
+                if (matchPos != Scintilla.InvalidPosition)
+                {
+                    // Highlight the matching brackets
+                    editor.IndicatorCurrent = indicatorIndexForBrackets;
+                    editor.IndicatorFillRange(position, 1); // Highlight the opening bracket
+                    editor.IndicatorFillRange(matchPos, 1); // Highlight the matching closing bracket
+                }
+            }
+            else if (editor.GetCharAt(position) == ')')
+            {
+                int matchPos = editor.BraceMatch(position);
+                if (matchPos != Scintilla.InvalidPosition)
+                {
+                    // Highlight the matching brackets
+                    editor.IndicatorCurrent = indicatorIndexForBrackets;
+                    editor.IndicatorFillRange(position, 1); // Highlight the closing bracket
+                    editor.IndicatorFillRange(matchPos, 1); // Highlight the matching opening bracket
+                }
+            }
+        }
+
+        private static void HighlightVariables(Scintilla editor, int indicatorIndex)
+        {
+            if (editor == null || !editor.Indicators.Select(p => p.Index).Contains(indicatorIndex))
+                return;
 
             // Define the regex pattern to match words that start with ":::" and are not connected to other characters
             string pattern = @"(?<!\S):::\w+";
-
-            // Use regex to find matches
             var matches = Regex.Matches(editor.Text, pattern);
-
             foreach (Match match in matches)
             {
                 // Apply the indicator to the matched range
+                foreach (var ind in editor.Indicators.Select(p => p.Index).Where(p => p != indicatorIndex))
+                {
+                    editor.IndicatorCurrent = ind;
+                    editor.IndicatorClearRange(match.Index, match.Length);
+                }
+                editor.IndicatorCurrent = indicatorIndex;
+                editor.IndicatorFillRange(match.Index, match.Length);
+            }
+        }
+
+        private static void HighlightCustomWords(Scintilla editor, int indicatorIndex, string search, string regexPatternL = @"(?i)", string regexPatternR = "")
+        {
+            if (editor == null || search == null || !editor.Indicators.Select(p => p.Index).Contains(indicatorIndex))
+                return;
+
+            // Define the regex pattern to match words that start with ":::" and are not connected to other characters
+            string pattern = regexPatternL + Regex.Escape(search) + regexPatternR;
+            var matches = Regex.Matches(editor.Text, pattern);
+            foreach (Match match in matches)
+            {
+                // Apply the indicator to the matched range except selection
+                if (editor.SelectionStart == match.Index)
+                    continue;
                 editor.IndicatorCurrent = indicatorIndex;
                 editor.IndicatorFillRange(match.Index, match.Length);
             }
