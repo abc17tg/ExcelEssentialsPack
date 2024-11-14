@@ -186,7 +186,7 @@ namespace ExcelAddInByMarcinOlszewski.Forms
             searchContentsCheckBox.Checked = false;
             searchTextBox.Text = string.Empty;
 
-            m_rng = m_app.ActiveWindow.RangeSelection;
+            m_rng = m_app.ActiveWindow.RangeSelection.GetUsableRange();
             m_isPivotTable = m_rng.IsPivotCell();
             if (m_rng.Columns.Count < 2)
             {

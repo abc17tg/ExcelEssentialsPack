@@ -44,8 +44,8 @@
             this.useDataTableToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.ResultColumn = new System.Windows.Forms.DataGridViewButtonColumn();
             this.CountColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Select = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.Clear = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.SelectCol = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.ClearCol = new System.Windows.Forms.DataGridViewButtonColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).BeginInit();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
@@ -85,8 +85,8 @@
             this.dataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.ResultColumn,
             this.CountColumn,
-            this.Select,
-            this.Clear});
+            this.SelectCol,
+            this.ClearCol});
             this.tableLayoutPanel1.SetColumnSpan(this.dataGridView, 5);
             this.dataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridView.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
@@ -223,15 +223,15 @@
             // 
             // Select
             // 
-            this.Select.FillWeight = 10F;
-            this.Select.HeaderText = "Select with color";
-            this.Select.Name = "Select";
+            this.SelectCol.FillWeight = 10F;
+            this.SelectCol.HeaderText = "Select with color";
+            this.SelectCol.Name = "Select";
             // 
             // Clear
             // 
-            this.Clear.FillWeight = 15F;
-            this.Clear.HeaderText = "Clear contents";
-            this.Clear.Name = "Clear";
+            this.ClearCol.FillWeight = 15F;
+            this.ClearCol.HeaderText = "Clear contents";
+            this.ClearCol.Name = "Clear";
             // 
             // SearchColumnsForm
             // 
@@ -267,7 +267,7 @@
         private System.Windows.Forms.CheckBox countsCheckBox;
         private System.Windows.Forms.DataGridViewButtonColumn ResultColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn CountColumn;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn Select;
-        private System.Windows.Forms.DataGridViewButtonColumn Clear;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn SelectCol;
+        private System.Windows.Forms.DataGridViewButtonColumn ClearCol;
     }
 }

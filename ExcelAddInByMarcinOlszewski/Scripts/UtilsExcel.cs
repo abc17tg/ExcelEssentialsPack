@@ -961,6 +961,14 @@ public static class UtilsExcel
         int rowCount = rng.Rows.Count;
         int colCount = rng.Columns.Count;
 
+        // If only one cell is selected, handle it specially
+        if (rowCount == 1 && colCount == 1)
+        {
+            dt.Columns.Add("Column1", typeof(string)); // Add a default column
+            dt.Rows.Add((object)rng.Value2 ?? DBNull.Value); // Add the single cell value
+            return dt;
+        }
+
         object[,] cellValues = (object[,])rng.Value2;
 
         // Add columns to DataTable

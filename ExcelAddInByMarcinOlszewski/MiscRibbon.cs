@@ -147,10 +147,16 @@ namespace ExcelAddInByMarcinOlszewski
             //UtilsExcel.RunMacro("Utils.RemoveLeadingTrailingSpaces");
         }
 
-        private void formatNumberButton_Click(object sender, RibbonControlEventArgs e)
+        private void formatNumberSplitButton_Click(object sender, RibbonControlEventArgs e)
         {
-            Excel.Application app = Globals.ThisAddIn.Application;
+            Excel.Application app = Globals.ThisAddIn.Application; 
             UtilsExcel.ApplyCustomNumberFormat(app.ActiveWindow.RangeSelection);
+        }
+
+        private void formatStringToDateButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            FormatToDateForm formatToDateForm = new FormatToDateForm(Globals.ThisAddIn.Application);
+            formatToDateForm.Show();
         }
 
         private void hideRowsWithTextSplitButton_Click(object sender, RibbonControlEventArgs e)
@@ -696,7 +702,7 @@ namespace ExcelAddInByMarcinOlszewski
                         switch (extension.ToLower())
                         {
                             case ".bas":
-                                bool replace = MessageBox.Show("Keep macros that do not exist in updated version of VBA module?", $"Module {Path.GetFileNameWithoutExtension(fileName)}", MessageBoxButtons.YesNo, MessageBoxIcon.Question,MessageBoxDefaultButton.Button1) == DialogResult.No;
+                                bool replace = MessageBox.Show("Keep macros that do not exist in updated version of VBA module?", $"Module {Path.GetFileNameWithoutExtension(fileName)}", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.No;
                                 logs += $"\n{fileName}\t{(UtilsExcel.UpdateModule(fileName, workbookPicker.Workbook, replace) ? "✔" : "❌")}";
                                 break;
                             case ".macro":
@@ -768,7 +774,7 @@ namespace ExcelAddInByMarcinOlszewski
         {
             Excel.Application app = Globals.ThisAddIn.Application;
             string directory = Directory.CreateDirectory(Path.Combine(FileManager.DownloadsPath, "Macros Updates")).FullName;
-            UtilsExcel.CreateMacroUpdateFileFromActiveVbaCode(app,directory);
+            UtilsExcel.CreateMacroUpdateFileFromActiveVbaCode(app, directory);
         }
 
         private void importTxtFileLegacyButton_Click(object sender, RibbonControlEventArgs e)
@@ -832,6 +838,76 @@ namespace ExcelAddInByMarcinOlszewski
                 else
                     return;
             };
+        }
+
+        private void sqlEditorDataFolderBtn_Click(object sender, RibbonControlEventArgs e)
+        {
+
+        }
+
+        private void generatePivotTemlateCodeButton_Click(object sender, RibbonControlEventArgs e)
+        {
+
+        }
+
+        private void runPvTemplateButton_Click(object sender, RibbonControlEventArgs e)
+        {
+
+        }
+
+        private void formatClickedPivotButton_Click(object sender, RibbonControlEventArgs e)
+        {
+
+        }
+
+        private void formatAllPivotButton_Click(object sender, RibbonControlEventArgs e)
+        {
+
+        }
+
+        private void changePivotTableSourceButton_Click(object sender, RibbonControlEventArgs e)
+        {
+
+        }
+
+        private void updatePivotTableSourceButton_Click(object sender, RibbonControlEventArgs e)
+        {
+
+        }
+
+        private void refreshPivotsButton_Click(object sender, RibbonControlEventArgs e)
+        {
+
+        }
+
+        private void combinedTableFromPvValuesButton_Click(object sender, RibbonControlEventArgs e)
+        {
+
+        }
+
+        private void sqlEditorBtn_Click(object sender, RibbonControlEventArgs e)
+        {
+
+        }
+
+        private void loadToDataTableButton_Click(object sender, RibbonControlEventArgs e)
+        {
+
+        }
+
+        private void runS4ExtractButton_Click(object sender, RibbonControlEventArgs e)
+        {
+
+        }
+
+        private void runSdeButton_Click(object sender, RibbonControlEventArgs e)
+        {
+
+        }
+
+        private void browserButton_Click(object sender, RibbonControlEventArgs e)
+        {
+
         }
     }
 }

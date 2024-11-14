@@ -6,6 +6,7 @@ using Excel = Microsoft.Office.Interop.Excel;
 using System.Diagnostics;
 using ExcelAddInByMarcinOlszewski.Forms;
 using ExcelAddInByMarcinOlszewski.Scripts;
+using ScintillaNET;
 
 namespace ExcelAddInByMarcinOlszewski
 {
@@ -28,7 +29,7 @@ namespace ExcelAddInByMarcinOlszewski
             RunMacroWithSearchPhraseForm form = new RunMacroWithSearchPhraseForm(m_macroWorkbook, "SapS4ExtractionSearch");
             form.Show();
         }
-
+        
         private void runSdeButton_Click(object sender, RibbonControlEventArgs e)
         {
             if (string.IsNullOrWhiteSpace(sdeQueryComboBox.Text))

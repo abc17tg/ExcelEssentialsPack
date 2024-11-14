@@ -14,6 +14,7 @@ namespace ExcelAddInByMarcinOlszewski.Scripts
         public static string SqlKeywords => GetSqlKeywords();
         public static string SqlQueriesPath => Path.Combine(BasePath, "SQL Queries");
         public static string PropertiesFilesPath => Path.Combine(BasePath, "Properties Files");
+        public static string ResourcesPath => Path.Combine(BasePath, "Resources");
         public static string SqlServerQueriesPath => Path.Combine(SqlQueriesPath, "SqlServer");
         public static string OracleQueriesPath => Path.Combine(SqlQueriesPath, "Oracle");
         public static string ExcelQueriesPath => Path.Combine(SqlQueriesPath, "Excel");
