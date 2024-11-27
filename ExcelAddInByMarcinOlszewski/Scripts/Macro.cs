@@ -6,7 +6,7 @@ using System.Xml.Linq;
 using Excel = Microsoft.Office.Interop.Excel;
 using ExcelVB = Microsoft.Vbe.Interop;
 
-namespace ExcelAddInByMarcinOlszewski.Scripts
+namespace ExcelEssentials.Scripts
 {
     internal class Macro
     {

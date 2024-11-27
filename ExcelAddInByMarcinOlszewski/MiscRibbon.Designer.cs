@@ -1,4 +1,4 @@
-﻿namespace ExcelAddInByMarcinOlszewski
+﻿namespace ExcelEssentials
 {
     partial class MiscRibbon : Microsoft.Office.Tools.Ribbon.RibbonBase
     {
@@ -705,7 +705,7 @@
             // searchDialogButton
             // 
             this.searchDialogButton.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
-            this.searchDialogButton.Image = global::ExcelAddInByMarcinOlszewski.Properties.Resources.table_lookup_512;
+            this.searchDialogButton.Image = global::ExcelEssentials.Properties.Resources.table_lookup_512;
             this.searchDialogButton.Label = "Search dialog";
             this.searchDialogButton.Name = "searchDialogButton";
             this.searchDialogButton.OfficeImageId = "DrawingExplorer";
@@ -1328,7 +1328,7 @@
             // sqlEditorBtn
             // 
             this.sqlEditorBtn.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
-            this.sqlEditorBtn.Image = global::ExcelAddInByMarcinOlszewski.Properties.Resources.sql;
+            this.sqlEditorBtn.Image = global::ExcelEssentials.Properties.Resources.sql;
             this.sqlEditorBtn.Label = "SQL Editor";
             this.sqlEditorBtn.Name = "sqlEditorBtn";
             this.sqlEditorBtn.ScreenTip = "SQL Editor";
@@ -1366,7 +1366,7 @@
             // runS4ExtractButton
             // 
             this.runS4ExtractButton.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
-            this.runS4ExtractButton.Image = global::ExcelAddInByMarcinOlszewski.Properties.Resources.S4_HANA_cloud;
+            this.runS4ExtractButton.Image = global::ExcelEssentials.Properties.Resources.S4_HANA_cloud;
             this.runS4ExtractButton.Label = "Run SAP Extract";
             this.runS4ExtractButton.Name = "runS4ExtractButton";
             this.runS4ExtractButton.ScreenTip = "Run SAP Extract form";
@@ -1384,7 +1384,7 @@
             // 
             // runSdeButton
             // 
-            this.runSdeButton.Image = global::ExcelAddInByMarcinOlszewski.Properties.Resources.rocketLogo_scale_400;
+            this.runSdeButton.Image = global::ExcelEssentials.Properties.Resources.rocketLogo_scale_400;
             this.runSdeButton.Label = "Run SDE";
             this.runSdeButton.Name = "runSdeButton";
             this.runSdeButton.ScreenTip = "Run SDE Launcher";
@@ -1420,7 +1420,7 @@
             // 
             // browserButton
             // 
-            this.browserButton.Image = global::ExcelAddInByMarcinOlszewski.Properties.Resources.Microsoft_Edge_logo__2019__svg;
+            this.browserButton.Image = global::ExcelEssentials.Properties.Resources.Microsoft_Edge_logo__2019__svg;
             this.browserButton.Label = "Launch Browser";
             this.browserButton.Name = "browserButton";
             this.browserButton.ScreenTip = "Launch Browser";

@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
-namespace ExcelAddInByMarcinOlszewski.Scripts
+namespace ExcelEssentials.Scripts
 {
     internal class Sde
     {

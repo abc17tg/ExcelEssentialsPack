@@ -5,10 +5,10 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using ExcelAddInByMarcinOlszewski.Scripts;
+using ExcelEssentials.Scripts;
 using Excel = Microsoft.Office.Interop.Excel;
 
-namespace ExcelAddInByMarcinOlszewski.Forms
+namespace ExcelEssentials.Forms
 {
     public partial class FormatToDateForm : Form
     {

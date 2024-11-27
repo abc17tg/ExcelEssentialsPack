@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using Oracle.ManagedDataAccess.Client;
 
-namespace ExcelAddInByMarcinOlszewski.Scripts
+namespace ExcelEssentials.Scripts
 {
     public class SqlElement
     {

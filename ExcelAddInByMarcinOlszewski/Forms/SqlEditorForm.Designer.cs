@@ -1,6 +1,6 @@
 ﻿using System.Windows.Forms;
 
-namespace ExcelAddInByMarcinOlszewski
+namespace ExcelEssentials
 {
     partial class SqlEditorForm
     {

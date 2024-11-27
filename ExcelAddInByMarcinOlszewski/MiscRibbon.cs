@@ -8,14 +8,14 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Xml.Linq;
-using ExcelAddInByMarcinOlszewski.Forms;
-using ExcelAddInByMarcinOlszewski.Scripts;
+using ExcelEssentials.Forms;
+using ExcelEssentials.Scripts;
 using Microsoft.Office.Tools.Ribbon;
 using Color = System.Drawing.Color;
 using Excel = Microsoft.Office.Interop.Excel;
 using WTC = ImportTableToExcel.WorksheetFromTxtCreator;
 
-namespace ExcelAddInByMarcinOlszewski
+namespace ExcelEssentials
 {
     public partial class MiscRibbon
     {

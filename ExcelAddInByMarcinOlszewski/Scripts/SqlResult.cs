@@ -2,7 +2,7 @@
 using System.Data;
 using System.Linq;
 
-namespace ExcelAddInByMarcinOlszewski.Scripts
+namespace ExcelEssentials.Scripts
 {
     public class SqlResult
     {

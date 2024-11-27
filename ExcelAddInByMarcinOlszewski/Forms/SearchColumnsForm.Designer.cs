@@ -1,4 +1,4 @@
-﻿namespace ExcelAddInByMarcinOlszewski.Forms
+﻿namespace ExcelEssentials.Forms
 {
     partial class SearchColumnsForm
     {
@@ -176,7 +176,7 @@
             // 
             // searchBtn
             // 
-            this.searchBtn.BackgroundImage = global::ExcelAddInByMarcinOlszewski.Properties.Resources.search_outline_filled;
+            this.searchBtn.BackgroundImage = global::ExcelEssentials.Properties.Resources.search_outline_filled;
             this.searchBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.searchBtn.Dock = System.Windows.Forms.DockStyle.Fill;
             this.searchBtn.Enabled = false;

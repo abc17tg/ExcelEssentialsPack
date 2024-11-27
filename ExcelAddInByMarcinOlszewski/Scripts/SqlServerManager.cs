@@ -8,7 +8,7 @@ using System.Windows.Forms;
 using Oracle.ManagedDataAccess.Client;
 using Excel = Microsoft.Office.Interop.Excel;
 
-namespace ExcelAddInByMarcinOlszewski.Scripts
+namespace ExcelEssentials.Scripts
 {
     public class SqlServerManager
     {

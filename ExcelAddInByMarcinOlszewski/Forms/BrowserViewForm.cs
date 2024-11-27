@@ -5,12 +5,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using ExcelAddInByMarcinOlszewski.Scripts;
+using ExcelEssentials.Scripts;
 using System.Windows.Forms;
 using Excel = Microsoft.Office.Interop.Excel;
 using WTC = ImportTableToExcel.WorksheetFromTxtCreator;
 
-namespace ExcelAddInByMarcinOlszewski.Forms
+namespace ExcelEssentials.Forms
 {
     public partial class BrowserViewForm : Form
     {

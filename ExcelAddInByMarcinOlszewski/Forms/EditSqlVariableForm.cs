@@ -4,7 +4,7 @@ using System.Linq;
 using System.Windows.Forms;
 using Excel = Microsoft.Office.Interop.Excel;
 
-namespace ExcelAddInByMarcinOlszewski.Forms
+namespace ExcelEssentials.Forms
 {
     public partial class EditSqlVariableForm : Form
     {

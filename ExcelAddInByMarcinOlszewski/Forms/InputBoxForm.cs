@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace ExcelAddInByMarcinOlszewski.Forms
+namespace ExcelEssentials.Forms
 {
     public partial class InputBoxForm : Form
     {

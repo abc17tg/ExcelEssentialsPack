@@ -7,11 +7,11 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using ExcelAddInByMarcinOlszewski.Forms;
-using ExcelAddInByMarcinOlszewski.Scripts;
+using ExcelEssentials.Forms;
+using ExcelEssentials.Scripts;
 using Excel = Microsoft.Office.Interop.Excel;
 
-namespace ExcelAddInByMarcinOlszewski
+namespace ExcelEssentials
 {
     public partial class SqlEditorForm : Form
     {

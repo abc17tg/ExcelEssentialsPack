@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using ExcelAddInByMarcinOlszewski;
+using ExcelEssentials;
 using System.Windows.Forms;
 using Excel = Microsoft.Office.Interop.Excel;
 using ExcelVB = Microsoft.Vbe.Interop;
 using System.Runtime.InteropServices;
-using ExcelAddInByMarcinOlszewski.Forms;
+using ExcelEssentials.Forms;
 using System.Data;
-using ExcelAddInByMarcinOlszewski.Scripts;
+using ExcelEssentials.Scripts;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Numerics;

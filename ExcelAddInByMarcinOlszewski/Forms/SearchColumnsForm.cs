@@ -5,11 +5,11 @@ using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using ExcelAddInByMarcinOlszewski.Scripts;
+using ExcelEssentials.Scripts;
 using ScintillaNET;
 using Excel = Microsoft.Office.Interop.Excel;
 
-namespace ExcelAddInByMarcinOlszewski.Forms
+namespace ExcelEssentials.Forms
 {
     public partial class SearchColumnsForm : Form
     {

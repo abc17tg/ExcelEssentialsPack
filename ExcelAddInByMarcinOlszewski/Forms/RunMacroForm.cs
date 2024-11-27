@@ -6,9 +6,9 @@ using System.Linq;
 using System.Windows.Forms;
 using ExcelVB = Microsoft.Vbe.Interop;
 using Excel = Microsoft.Office.Interop.Excel;
-using ExcelAddInByMarcinOlszewski.Scripts;
+using ExcelEssentials.Scripts;
 
-namespace ExcelAddInByMarcinOlszewski.Forms
+namespace ExcelEssentials.Forms
 {
     public partial class RunMacroForm : Form
     {

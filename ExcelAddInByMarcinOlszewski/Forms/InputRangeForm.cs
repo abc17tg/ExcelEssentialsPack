@@ -2,7 +2,7 @@
 using System.Windows.Forms;
 using Excel = Microsoft.Office.Interop.Excel;
 
-namespace ExcelAddInByMarcinOlszewski.Forms
+namespace ExcelEssentials.Forms
 {
     public partial class InputRangeForm : Form
     {

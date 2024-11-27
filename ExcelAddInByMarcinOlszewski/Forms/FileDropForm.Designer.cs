@@ -1,4 +1,4 @@
-﻿namespace ExcelAddInByMarcinOlszewski.Forms
+﻿namespace ExcelEssentials.Forms
 {
     partial class FileDropForm
     {

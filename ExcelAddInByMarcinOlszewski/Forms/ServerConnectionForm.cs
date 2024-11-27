@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Windows.Forms;
-using ExcelAddInByMarcinOlszewski.Scripts;
+using ExcelEssentials.Scripts;
 
-namespace ExcelAddInByMarcinOlszewski
+namespace ExcelEssentials
 {
     public partial class ServerConnectionForm : Form
     {

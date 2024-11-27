@@ -1,4 +1,4 @@
-﻿namespace ExcelAddInByMarcinOlszewski
+﻿namespace ExcelEssentials
 {
     partial class ServerConnectionForm
     {

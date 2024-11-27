@@ -11,7 +11,7 @@ using System.Drawing;
 using System.Text;
 using Microsoft.Data.Sqlite;
 using System.Threading.Tasks;
-using ExcelAddInByMarcinOlszewski.Forms;
+using ExcelEssentials.Forms;
 
 public static class Utils
 {

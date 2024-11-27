@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace ExcelAddInByMarcinOlszewski.Properties {
+namespace ExcelEssentials.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]

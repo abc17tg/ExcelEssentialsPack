@@ -1,4 +1,4 @@
-﻿namespace ExcelAddInByMarcinOlszewski
+﻿namespace ExcelEssentials
 {
     public partial class ThisAddIn
     {

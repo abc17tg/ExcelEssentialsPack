@@ -25,26 +25,26 @@
     <ProjectGuid>{33FB6559-C279-48CE-AB8D-BE335BF41F9C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <NoStandardLibraries>false</NoStandardLibraries>
-    <RootNamespace>ExcelAddInByMarcinOlszewski</RootNamespace>
-    <AssemblyName>ExcelAddInByMarcinOlszewski</AssemblyName>
+    <RootNamespace>ExcelEssentials</RootNamespace>
+    <AssemblyName>ExcelEssentialsPack</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <DefineConstants>VSTO40</DefineConstants>
     <IsWebBootstrapper>False</IsWebBootstrapper>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <PublishUrl>C:\Users\olszewsm\Documents\Documents\Custom ribbon\Releses\CustomRibbon_v2.0\ExcelCustomRibbon\</PublishUrl>
+    <PublishUrl>C:\Users\olszewsm\Documents\Documents\Custom ribbon\Releses\CustomRibbon_v2.1\ExcelCustomRibbon\</PublishUrl>
     <InstallUrl />
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>1.7.0.23</ApplicationVersion>
+    <ApplicationVersion>2.1.0.25</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>7</UpdateInterval>
     <UpdateIntervalUnits>days</UpdateIntervalUnits>
-    <ProductName>ExcelAddInByMarcinOlszewski</ProductName>
+    <ProductName>ExcelEssentialsPack</ProductName>
     <PublisherName />
     <SupportUrl />
-    <FriendlyName>ExcelAddInByMarcinOlszewski</FriendlyName>
+    <FriendlyName>ExcelEssentialsPack</FriendlyName>
     <OfficeApplicationDescription />
     <LoadBehavior>3</LoadBehavior>
   </PropertyGroup>
@@ -565,6 +565,7 @@
       <DependentUpon>ServerConnectionForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="App.config" />
+    <None Include="ExcelAddInByMarcinOlszewski_1_TemporaryKey.pfx" />
     <None Include="ExcelAddInByMarcinOlszewski_TemporaryKey.pfx" />
     <None Include="Oracle.DataAccess.Common.Configuration.Section.xsd">
       <SubType>Designer</SubType>
@@ -694,10 +695,10 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>ExcelAddInByMarcinOlszewski_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>ExcelAddInByMarcinOlszewski_1_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>5BA252A963AC8696B84E320F20AF4BBA29DE5394</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>1675B3429B8D63E6E79C312E855AA915DE1BF579</ManifestCertificateThumbprint>
   </PropertyGroup>
   <!-- Include the build rules for a C# project. -->
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -708,7 +709,7 @@
     <VisualStudio>
       <FlavorProperties GUID="{BAA0C2D2-18E2-41B9-852F-F413020CAA33}">
         <ProjectProperties HostName="Excel" HostPackage="{29A7B9D7-A7F1-4328-8EF0-6B2D1A56B2C1}" OfficeVersion="15.0" VstxVersion="4.0" ApplicationType="Excel" Language="cs" TemplatesPath="" DebugInfoExeName="#Software\Microsoft\Office\16.0\Excel\InstallRoot\Path#excel.exe" DebugInfoCommandLine="/x" AddItemTemplatesGuid="{51063C3A-E220-4D12-8922-BDA915ACD783}" />
-        <Host Name="Excel" GeneratedCodeNamespace="ExcelAddInByMarcinOlszewski" PublishedHash="69C324AB27932AA2FBF2B7EA72250886FF164DE6" IconIndex="0">
+        <Host Name="Excel" GeneratedCodeNamespace="ExcelEssentials" PublishedHash="69C324AB27932AA2FBF2B7EA72250886FF164DE6" IconIndex="0">
           <HostItem Name="ThisAddIn" Code="ThisAddIn.cs" CanonicalName="AddIn" PublishedHash="CBDDDD8CDC7F8ECF323577A55E2769EB613A6E38" CanActivate="false" IconIndex="1" Blueprint="ThisAddIn.Designer.xml" GeneratedCode="ThisAddIn.Designer.cs" />
         </Host>
       </FlavorProperties>

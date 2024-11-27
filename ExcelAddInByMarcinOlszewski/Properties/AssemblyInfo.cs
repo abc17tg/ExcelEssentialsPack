@@ -4,12 +4,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ExcelAddInByMarcinOlszewski")]
+[assembly: AssemblyTitle("ExcelEssentialsPack")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Hewlett Packard Enterprise")]
-[assembly: AssemblyProduct("ExcelAddInByMarcinOlszewski")]
-[assembly: AssemblyCopyright("Copyright © Hewlett Packard Enterprise 2023")]
+[assembly: AssemblyCompany("Marcin")]
+[assembly: AssemblyProduct("ExcelEssentialsPack")]
+[assembly: AssemblyCopyright("Copyright © Marcin Olszewski")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

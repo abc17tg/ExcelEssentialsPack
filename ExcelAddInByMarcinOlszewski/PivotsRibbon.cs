@@ -1,9 +1,9 @@
-﻿using ExcelAddInByMarcinOlszewski.Forms;
-using ExcelAddInByMarcinOlszewski.Scripts;
+﻿using ExcelEssentials.Forms;
+using ExcelEssentials.Scripts;
 using Microsoft.Office.Tools.Ribbon;
 using Excel = Microsoft.Office.Interop.Excel;
 
-namespace ExcelAddInByMarcinOlszewski
+namespace ExcelEssentials
 {
     public partial class MiscRibbon
     {
