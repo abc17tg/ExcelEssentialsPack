@@ -534,6 +534,25 @@ public static class UtilsExcel
         return date;
     }
 
+    public static void RepasteAsValues<T>(this T rng) where T : Excel.Range
+    {
+        if (rng.Valid())
+            foreach (var ar in rng.Areas.Cast<Excel.Range>())
+            {
+                try
+                {
+                    if (!ar.Valid())
+                        continue;
+
+                    ar.Copy();
+                    ar.PasteSpecial(Excel.XlPasteType.xlPasteValuesAndNumberFormats, Excel.XlPasteSpecialOperation.xlPasteSpecialOperationNone);
+                    ar.Application.CutCopyMode = 0;
+                }
+                catch (COMException) { }
+                catch (Exception) { }
+            }
+    }
+
     public static void PasteDataTableToRange(DataTable dt, Excel.Range rng, bool headers = true)
     {
         if (dt == null || !rng.Valid())
@@ -1428,6 +1447,178 @@ public static class UtilsExcel
             MessageBox.Show("Please select a range first.");
         }
     }
+
+    public static void SaveWorksheetsAsExcelFiles(Excel.Sheets worksheets, string folderPath = null)
+    {
+        if (worksheets == null)
+            throw new ArgumentNullException(nameof(worksheets));
+
+        var app = worksheets.Application;
+        var wb = worksheets.Parent as Excel.Workbook;
+
+        if (wb == null)
+            throw new InvalidOperationException("Could not retrieve the parent workbook.");
+
+        // Prompt for folder path if not provided or invalid
+        if (string.IsNullOrWhiteSpace(folderPath) || !Directory.Exists(folderPath))
+        {
+            string defaultPath = Path.GetDirectoryName(wb.FullName) ?? Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+
+            using (var folderDialog = new FolderBrowserDialog())
+            {
+                folderDialog.Description = "Select folder to save sheets as Excel files";
+                folderDialog.SelectedPath = defaultPath;
+
+                if (folderDialog.ShowDialog() == DialogResult.OK)
+                    folderPath = folderDialog.SelectedPath;
+                else
+                    return; // Exit if no folder selected
+            }
+        }
+
+        // Ensure folder exists
+        Directory.CreateDirectory(folderPath);
+
+        // Save each sheet as a separate Excel file
+        using (new ExcelExecutionBlock(app))
+        {
+            foreach (Excel.Worksheet ws in worksheets.Cast<Excel.Worksheet>())
+            {
+                try
+                {
+                    string safeSheetName = FileManager.GetValidFileName(ws.Name) ?? $"Sheet_{ws.Index}";
+                    string filePath = Path.Combine(folderPath, $"{safeSheetName}.xlsx");
+
+                    // Copy the worksheet to a new workbook
+                    ws.Copy();
+
+                    // Save the new workbook with the single sheet
+                    var newWorkbook = app.ActiveWorkbook;
+                    app.DisplayAlerts = false;
+                    newWorkbook.SaveAs(filePath, Excel.XlFileFormat.xlOpenXMLWorkbook);
+                    newWorkbook.Close(false);
+                    app.DisplayAlerts = true;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Failed to save sheet '{ws.Name}': {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+    }
+
+    public static void SaveWorksheetsAsTxtFiles(Excel.Sheets worksheets, string folderPath = null)
+    {
+        if (worksheets == null)
+            throw new ArgumentNullException(nameof(worksheets));
+
+        var app = worksheets.Application;
+        var wb = worksheets.Parent as Excel.Workbook;
+
+        if (wb == null)
+            throw new InvalidOperationException("Could not retrieve the parent workbook.");
+
+        // Prompt for folder path if not provided or invalid
+        if (string.IsNullOrWhiteSpace(folderPath) || !Directory.Exists(folderPath))
+        {
+            string defaultPath = Path.GetDirectoryName(wb.FullName) ?? Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+
+            using (var folderDialog = new FolderBrowserDialog())
+            {
+                folderDialog.Description = "Select folder to save sheets as Tab delimited files";
+                folderDialog.SelectedPath = defaultPath;
+
+                if (folderDialog.ShowDialog() == DialogResult.OK)
+                    folderPath = folderDialog.SelectedPath;
+                else
+                    return; // Exit if no folder selected
+            }
+        }
+
+        // Ensure folder exists
+        Directory.CreateDirectory(folderPath);
+
+        // Save each sheet as a separate Excel file
+        using (new ExcelExecutionBlock(app))
+        {
+            foreach (Excel.Worksheet ws in worksheets.Cast<Excel.Worksheet>())
+            {
+                try
+                {
+                    string safeSheetName = FileManager.GetValidFileName(ws.Name) ?? $"Sheet_{ws.Index}";
+                    string filePath = Path.Combine(folderPath, $"{safeSheetName}.txt");
+
+                    Excel.Workbook newWb;
+                    Excel.Worksheet newWs;
+
+                    // Copy the worksheet into the new workbook
+                    ws.Copy();
+                    newWb = app.ActiveWorkbook;
+                    // Get the reference to the copied worksheet, which is now the active sheet
+                    newWs = app.ActiveSheet;
+
+                    if (newWb == null || newWs == null)
+                        throw new InvalidOperationException("Failed to retrieve the copied worksheet.");
+
+                    // Check for new lines or tabs in the copied worksheet
+                    CheckAndAskToRemoveNewLineOrTabInCellsInWorksheet(newWs);
+
+                    // Save the new workbook as a text file
+                    app.DisplayAlerts = false;
+                    newWb.SaveAs(filePath, Excel.XlFileFormat.xlTextWindows);
+                    newWb.Close(false);
+                    app.DisplayAlerts = true;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Failed to save sheet '{ws.Name}': {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+    }
+
+    public static bool CheckAndAskToRemoveNewLineOrTabInCellsInWorksheet(Excel.Worksheet ws)
+    {
+        if (ws == null)
+            throw new ArgumentNullException(nameof(ws));
+
+        var app = ws.Application;
+        var usedRange = ws.UsedRange;
+        string hasNewLineOrTabAddress = null;
+
+        foreach (Excel.Range cell in usedRange.Cells.Cast<Excel.Range>().Where(p => p.Value2 != null && p.Value2 is string))
+        {
+            string value2 = cell.Value2.ToString();
+            // Check if the cell contains new line or tab characters
+            if (value2.Contains("\n") || value2.Contains("\t"))
+            {
+                hasNewLineOrTabAddress = cell.Address;
+                break;
+            }
+        }
+
+        if (hasNewLineOrTabAddress != null)
+        {
+            var result = MessageBox.Show($"The worksheet contains cells (like: {hasNewLineOrTabAddress}) with new lines or tab characters. Would you like to remove all of them?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+            if (result == DialogResult.Yes)
+            {
+                // Iterate through the cells again to remove new lines and tabs
+                foreach (Excel.Range cell in usedRange.Cells.Cast<Excel.Range>().Where(p => p.Value2 != null && p.Value2 is string))
+                {
+                    string value2 = cell.Value2.ToString();
+                    // Replace new lines and tabs
+                    if (value2.Contains("\n") || value2.Contains("\t"))
+                        cell.Value2 = value2?.Replace("\n", "")?.Replace("\t", "") ?? string.Empty;
+                }
+                return true;
+            }
+            else
+                return false;
+        }
+        return true;
+    }
+
 
     public static string ExportMacros(this Excel.Workbook wb, string path = "")
     {

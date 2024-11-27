@@ -1,6 +1,7 @@
 ﻿using ExcelAddInByMarcinOlszewski.Forms;
 using ExcelAddInByMarcinOlszewski.Scripts;
 using Microsoft.Office.Tools.Ribbon;
+using Excel = Microsoft.Office.Interop.Excel;
 
 namespace ExcelAddInByMarcinOlszewski
 {
@@ -51,6 +52,32 @@ namespace ExcelAddInByMarcinOlszewski
         private void changePivotTableSourceButton_Click(object sender, RibbonControlEventArgs e)
         {
             UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Name, m_macroWorkbook));
+        }
+
+        private void grandTotalsToggleButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            Excel.Application app = Globals.ThisAddIn.Application;
+            Excel.Range rng = app.ActiveWindow.RangeSelection;
+            if (rng.IsPivotCell() && rng.PivotCell.PivotTable != null)
+            {
+                var pv = rng.PivotCell.PivotTable;
+                bool toggle = !pv.ColumnGrand && !pv.RowGrand;
+                pv.ColumnGrand = toggle;
+                pv.RowGrand = toggle;
+                grandTotalsToggleButton.Checked = toggle;
+            }
+        }
+
+        private void subtotalsToggleButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            Excel.Application app = Globals.ThisAddIn.Application;
+            Excel.Range rng = app.ActiveWindow.RangeSelection;
+            if (rng.IsPivotCell() && rng.PivotCell.PivotTable != null)
+            {
+                var pf = rng.PivotCell.PivotField;
+                pf.Subtotals[1] = !pf.Subtotals[1];
+                subtotalsToggleButton.Checked = pf.Subtotals[1];
+            }
         }
     }
 }

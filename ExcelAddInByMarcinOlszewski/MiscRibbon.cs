@@ -5,11 +5,13 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using ExcelAddInByMarcinOlszewski.Forms;
 using ExcelAddInByMarcinOlszewski.Scripts;
 using Microsoft.Office.Tools.Ribbon;
+using Color = System.Drawing.Color;
 using Excel = Microsoft.Office.Interop.Excel;
 using WTC = ImportTableToExcel.WorksheetFromTxtCreator;
 
@@ -110,7 +112,21 @@ namespace ExcelAddInByMarcinOlszewski
 
         private void repasteAsValuesButton_Click(object sender, RibbonControlEventArgs e)
         {
-            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
+            //UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
+            Excel.Application app = Globals.ThisAddIn.Application;
+            Excel.Range rng = app.ActiveWindow.RangeSelection.GetUsableRange();
+            if (!rng.Valid())
+                return;
+
+            Excel.Range firstCell = rng.Cells[1, 1] as Excel.Range;
+            string formula = null;
+            if (firstCell.Valid() && firstCell.HasFormula)
+                formula = firstCell.Formula;
+
+            rng.RepasteAsValues();
+
+            if (formula != null)
+                Clipboard.SetText(firstCell.Formula);
             //UtilsExcel.RunMacro("Converting.RepasteSelectedRangeAsValues");
         }
 
@@ -121,35 +137,130 @@ namespace ExcelAddInByMarcinOlszewski
         }
         private void removeErrSplitBtn_Click(object sender, RibbonControlEventArgs e)
         {
-            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonSplitButton).Id, m_macroWorkbook));
+            //UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonSplitButton).Id, m_macroWorkbook));
+            Excel.Application app = Globals.ThisAddIn.Application;
+            Excel.Range rng = app.ActiveWindow.RangeSelection.GetUsableRange();
+            if (!rng.Valid())
+                return;
+
+            using (new ExcelExecutionBlock(app))
+            {
+                foreach (var cell in rng.Cells.Cast<Excel.Range>())
+                {
+                    if (app.WorksheetFunction.IsError(cell))
+                        cell.Clear();
+                }
+            }
         }
 
         private void removeNaButton_Click(object sender, RibbonControlEventArgs e)
         {
-            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
+            //UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
             //UtilsExcel.RunMacro("RemoveCells.DeleteNAFromSelection");
+            Excel.Application app = Globals.ThisAddIn.Application;
+            Excel.Range rng = app.ActiveWindow.RangeSelection.GetUsableRange();
+            if (!rng.Valid())
+                return;
+
+            using (new ExcelExecutionBlock(app))
+            {
+                foreach (var cell in rng.Cells.Cast<Excel.Range>())
+                {
+                    if (app.WorksheetFunction.IsNA(cell) || cell.Value2.ToString() == "#N/A")
+                        cell.Clear();
+                }
+            }
         }
 
         private void prependTextSplitButton_Click(object sender, RibbonControlEventArgs e)
         {
-            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonSplitButton).Id, m_macroWorkbook));
+            //UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonSplitButton).Id, m_macroWorkbook));
             //UtilsExcel.RunMacro("Utils.PrependText");
+
+            Excel.Application app = Globals.ThisAddIn.Application;
+
+            string input = app.InputBox("Enter the text to prepend:", "Input text");
+            if (string.IsNullOrEmpty(input))
+                return;
+
+            Excel.Range rng = app.ActiveWindow.RangeSelection.GetUsableRange();
+            if (!rng.Valid())
+                return;
+
+            using (new ExcelExecutionBlock(app))
+            {
+                foreach (var cell in rng.Cells.Cast<Excel.Range>())
+                {
+                    if (!app.WorksheetFunction.IsError(cell) && !string.IsNullOrEmpty(cell.Value2?.ToString()))
+                    {
+                        if (cell.NumberFormat != "@" && !char.IsDigit(input[0]) && input[0] != '0')
+                            cell.NumberFormat = "@";
+                        cell.Value2 = string.Concat(input, cell.Value2.ToString());
+                    }
+                }
+            }
         }
 
         private void appendTextButton_Click(object sender, RibbonControlEventArgs e)
         {
-            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
+            //UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
+            Excel.Application app = Globals.ThisAddIn.Application;
+            bool isInputNumeric = false;
+            string input = app.InputBox("Enter the text to append:", "Input text");
+            if (string.IsNullOrEmpty(input))
+                return;
+
+            Excel.Range rng = app.ActiveWindow.RangeSelection.GetUsableRange();
+            if (!rng.Valid())
+                return;
+
+            isInputNumeric = long.TryParse(input, out _);
+
+            using (new ExcelExecutionBlock(app))
+            {
+                foreach (var cell in rng.Cells.Cast<Excel.Range>())
+                {
+                    if (!app.WorksheetFunction.IsError(cell) && !string.IsNullOrEmpty(cell.Value2?.ToString()))
+                    {
+                        if (cell.NumberFormat != "@" && (!isInputNumeric || !(double.TryParse(cell.Value2.ToString(), out double _) || long.TryParse(cell.Value2.ToString(), out long _))))
+                            cell.NumberFormat = "@";
+                        cell.Value2 = string.Concat(cell.Value2.ToString(), input);
+                    }
+                }
+            }
         }
 
         private void trimButton_Click(object sender, RibbonControlEventArgs e)
         {
-            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
+            //UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
             //UtilsExcel.RunMacro("Utils.RemoveLeadingTrailingSpaces");
+            Excel.Application app = Globals.ThisAddIn.Application;
+            Excel.Range rng = app.ActiveWindow.RangeSelection.GetUsableRange();
+
+            if (!rng.Valid())
+                return;
+
+            using (new ExcelExecutionBlock(app))
+            {
+                foreach (var cell in rng.Cells.Cast<Excel.Range>())
+                {
+                    if (app.WorksheetFunction.IsError(cell) || string.IsNullOrEmpty(cell.Value2?.ToString()))
+                        continue;
+
+                    string trimmed = (cell.Value2.ToString()).Trim();
+                    if (cell.Value2.ToString() != trimmed)
+                    {
+                        if (long.TryParse(trimmed, out _) && cell.NumberFormat == "General")
+                            cell.NumberFormat = "@";
+                        cell.Value2 = (cell.Value2.ToString()).Trim();
+                    }
+                }
+            }
         }
 
         private void formatNumberSplitButton_Click(object sender, RibbonControlEventArgs e)
         {
-            Excel.Application app = Globals.ThisAddIn.Application; 
+            Excel.Application app = Globals.ThisAddIn.Application;
             UtilsExcel.ApplyCustomNumberFormat(app.ActiveWindow.RangeSelection);
         }
 
@@ -316,23 +427,63 @@ namespace ExcelAddInByMarcinOlszewski
 
         private void saveSelectedWorksheetsAsXlsxSplitBtn_Click(object sender, RibbonControlEventArgs e)
         {
-            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonSplitButton).Id, m_macroWorkbook));
+            //UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonSplitButton).Id, m_macroWorkbook));
             //UtilsExcel.RunMacro("DivideFile.SaveSheetsAsExcelFiles");
+            Excel.Application app = Globals.ThisAddIn.Application;
+            try
+            {
+                Excel.Sheets wss = app.ActiveWindow.SelectedSheets;
+                UtilsExcel.SaveWorksheetsAsExcelFiles(wss);
+            }
+            catch (InvalidOperationException ex)
+            {
+                MessageBox.Show(ex.Message, "Operation Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
 
         private void saveAllWorksheetsAsXlsxButton_Click(object sender, RibbonControlEventArgs e)
         {
-            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
+            //UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
+            Excel.Application app = Globals.ThisAddIn.Application;
+            try
+            {
+                Excel.Sheets wss = app.ActiveWorkbook.Sheets;
+                UtilsExcel.SaveWorksheetsAsExcelFiles(wss);
+            }
+            catch (InvalidOperationException ex)
+            {
+                MessageBox.Show(ex.Message, "Operation Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
 
         private void saveSelectedWorksheetsAsTxtButton_Click(object sender, RibbonControlEventArgs e)
         {
-            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
+            //UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
+            Excel.Application app = Globals.ThisAddIn.Application;
+            try
+            {
+                Excel.Sheets wss = app.ActiveWindow.SelectedSheets;
+                UtilsExcel.SaveWorksheetsAsTxtFiles(wss);
+            }
+            catch (InvalidOperationException ex)
+            {
+                MessageBox.Show(ex.Message, "Operation Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
 
         private void saveAllWorksheetsAsTxtButton_Click(object sender, RibbonControlEventArgs e)
         {
-            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
+            //UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
+            Excel.Application app = Globals.ThisAddIn.Application;
+            try
+            {
+                Excel.Sheets wss = app.ActiveWorkbook.Sheets;
+                UtilsExcel.SaveWorksheetsAsTxtFiles(wss);
+            }
+            catch (InvalidOperationException ex)
+            {
+                MessageBox.Show(ex.Message, "Operation Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
 
         private void duplicateWorkbookBtn_Click(object sender, RibbonControlEventArgs e)
@@ -371,7 +522,7 @@ namespace ExcelAddInByMarcinOlszewski
             if (!string.IsNullOrEmpty(wb.Path))
                 saveDlg.InitialDirectory = wb.Path;
             else
-                saveDlg.InitialDirectory = Microsoft.Win32.Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders", "{374DE290-123F-4565-9164-39C4925E467B}", String.Empty).ToString();
+                saveDlg.InitialDirectory = FileManager.DownloadsPath;
 
             saveDlg.FileName = ws.Name;
             saveDlg.OverwritePrompt = false;
@@ -383,18 +534,32 @@ namespace ExcelAddInByMarcinOlszewski
             {
                 try
                 {
-                    wb = app.Workbooks.Add();
-                    Excel.Worksheet newWs = wb.Worksheets.Add();
-                    ws.Copy(newWs);
-                    newWs.Delete();
-                    wb.SaveAs(saveDlg.FileName, Excel.XlFileFormat.xlTextWindows);
+                    Excel.Workbook newWb;
+                    Excel.Worksheet newWs;
+
+                    // Copy the worksheet into the new workbook
+                    ws.Copy();
+                    newWb = app.ActiveWorkbook;
+                    // Get the reference to the copied worksheet, which is now the active sheet
+                    newWs = app.ActiveSheet;
+
+                    if (newWb == null || newWs == null)
+                        throw new InvalidOperationException("Failed to retrieve the copied worksheet.");
+
+                    // Check for new lines or tabs in the copied worksheet
+                    UtilsExcel.CheckAndAskToRemoveNewLineOrTabInCellsInWorksheet(newWs);
+
+                    // Save the new workbook as a text file
                     app.DisplayAlerts = false;
-                    wb.Close();
+                    newWb.SaveAs(saveDlg.FileName, Excel.XlFileFormat.xlTextWindows);
+                    newWb.Close(false);
                     app.DisplayAlerts = true;
+                    Marshal.ReleaseComObject(newWb);
+
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message.ToString());
+                    MessageBox.Show($"Failed to save sheet '{ws.Name}': {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -418,8 +583,12 @@ namespace ExcelAddInByMarcinOlszewski
 
         private void getFilePathButton_Click(object sender, RibbonControlEventArgs e)
         {
-            UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
+            //UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
             //UtilsExcel.RunMacro("FilesSubs.GetCurrentFilePath");
+            string path = Globals.ThisAddIn.Application.ActiveWorkbook.FullName;
+            var result = MessageBox.Show($"Workbook path: {path ?? string.Empty}{Environment.NewLine}Copy?", "Workbook path", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+            if (result == DialogResult.Yes)
+                Clipboard.SetText(path);
         }
 
         private void deleteWorksheetButton_Click(object sender, RibbonControlEventArgs e)
@@ -630,32 +799,6 @@ namespace ExcelAddInByMarcinOlszewski
         {
             if (!FileManager.IsExplorerPathOpen(FileManager.PropertiesFilesPath))
                 Process.Start("explorer.exe", FileManager.PropertiesFilesPath);
-        }
-
-        private void grandTotalsToggleButton_Click(object sender, RibbonControlEventArgs e)
-        {
-            Excel.Application app = Globals.ThisAddIn.Application;
-            Excel.Range rng = app.ActiveWindow.RangeSelection;
-            if (rng.IsPivotCell() && rng.PivotCell.PivotTable != null)
-            {
-                var pv = rng.PivotCell.PivotTable;
-                bool toggle = !pv.ColumnGrand && !pv.RowGrand;
-                pv.ColumnGrand = toggle;
-                pv.RowGrand = toggle;
-                grandTotalsToggleButton.Checked = toggle;
-            }
-        }
-
-        private void subtotalsToggleButton_Click(object sender, RibbonControlEventArgs e)
-        {
-            Excel.Application app = Globals.ThisAddIn.Application;
-            Excel.Range rng = app.ActiveWindow.RangeSelection;
-            if (rng.IsPivotCell() && rng.PivotCell.PivotTable != null)
-            {
-                var pf = rng.PivotCell.PivotField;
-                pf.Subtotals[1] = !pf.Subtotals[1];
-                subtotalsToggleButton.Checked = pf.Subtotals[1];
-            }
         }
 
         private void checkMacrosButton_Click(object sender, RibbonControlEventArgs e)

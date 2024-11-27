@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Shell32;
 
@@ -256,6 +257,20 @@ namespace ExcelAddInByMarcinOlszewski.Scripts
                 return saveDlg.FileName;
             else
                 return null;
+        }
+
+        public static string GetValidFileName(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName))
+                return null;
+
+            // Define the invalid characters for Windows file names
+            char[] invalidChars = Path.GetInvalidFileNameChars();
+
+            // Replace invalid characters with an underscore
+            string sanitized = Regex.Replace(fileName, $"[{Regex.Escape(new string(invalidChars))}]", "_");
+
+            return sanitized;
         }
 
         public static void OpenStringWithNotepad(string text)

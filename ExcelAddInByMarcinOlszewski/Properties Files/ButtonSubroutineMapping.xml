@@ -5,28 +5,8 @@
     <Subroutine>Converting.EvaluateAndReplaceFormula</Subroutine>
   </Mapping>
   <Mapping>
-    <ButtonID>repasteAsValuesButton</ButtonID>
-    <Subroutine>Converting.RepasteSelectedRangeAsValues</Subroutine>
-  </Mapping>
-  <Mapping>
     <ButtonID>removeEmptyButton</ButtonID>
     <Subroutine>RemoveCells.RemoveEmptyCells</Subroutine>
-  </Mapping>
-  <Mapping>
-    <ButtonID>removeErrSplitBtn</ButtonID>
-    <Subroutine>RemoveCells.DeleteErrFromSelection</Subroutine>
-  </Mapping>
-  <Mapping>
-    <ButtonID>removeNaButton</ButtonID>
-    <Subroutine>RemoveCells.DeleteNAFromSelection</Subroutine>
-  </Mapping>
-  <Mapping>
-    <ButtonID>prependTextSplitButton</ButtonID>
-    <Subroutine>Utils.PrependText</Subroutine>
-  </Mapping>
-  <Mapping>
-    <ButtonID>appendTextButton</ButtonID>
-    <Subroutine>Utils.AppendText</Subroutine>
   </Mapping>
   <Mapping>
     <ButtonID>updatePivotTableSourceButton</ButtonID>
@@ -37,16 +17,8 @@
     <Subroutine>PivotTablesFormat.ChangePivotTableSource</Subroutine>
   </Mapping>
   <Mapping>
-    <ButtonID>trimButton</ButtonID>
-    <Subroutine>Utils.RemoveLeadingTrailingSpaces</Subroutine>
-  </Mapping>
-  <Mapping>
     <ButtonID>takeRowsWithTextButton</ButtonID>
     <Subroutine>GetRowsThatContainTextValue.GetRowsThatContainTextValueInput</Subroutine>
-  </Mapping>
-  <Mapping>
-    <ButtonID>searchDialogButton</ButtonID>
-    <Subroutine>HeadersListForm.OpenFinder</Subroutine>
   </Mapping>
   <Mapping>
     <ButtonID>colorRowsButton</ButtonID>
@@ -71,26 +43,6 @@
   <Mapping>
     <ButtonID>refreshPivotsButton</ButtonID>
     <Subroutine>PivotTablesFormat.RefreshPivotTables</Subroutine>
-  </Mapping>
-  <Mapping>
-    <ButtonID>getFilePathButton</ButtonID>
-    <Subroutine>FilesSubs.GetCurrentFilePath</Subroutine>
-  </Mapping>
-  <Mapping>
-    <ButtonID>saveSelectedWorksheetsAsTxtButton</ButtonID>
-    <Subroutine>DivideFile.SaveSelectedSheetsAsTextFiles</Subroutine>
-  </Mapping>
-  <Mapping>
-    <ButtonID>saveAllWorksheetsAsTxtButton</ButtonID>
-    <Subroutine>DivideFile.SaveAllSheetsAsTextFiles</Subroutine>
-  </Mapping>
-  <Mapping>
-    <ButtonID>saveSelectedWorksheetsAsXlsxSplitBtn</ButtonID>
-    <Subroutine>DivideFile.SaveSelectedSheetsAsExcelFiles</Subroutine>
-  </Mapping>
-  <Mapping>
-    <ButtonID>saveAllWorksheetsAsXlsxButton</ButtonID>
-    <Subroutine>DivideFile.SaveAllSheetsAsExcelFiles</Subroutine>
   </Mapping>
   <Mapping>
     <ButtonID>combinedTableFromPvValuesButton</ButtonID>

@@ -106,12 +106,19 @@ namespace ExcelAddInByMarcinOlszewski.Forms
         {
             m_updates = false;
 
-            startTextBox.Text = "(";
-            prependTextBox.Text = "'";
-            delimiterTextBox.Text = ", ";
-            appendTextBox.Text = prependTextBox.Text;
-            endTextBox.Text = ")";
-
+            if (startTextBox.Text == "(" && prependTextBox.Text == "'" && appendTextBox.Text == prependTextBox.Text && delimiterTextBox.Text == ", " && endTextBox.Text == ")")
+            {
+                prependTextBox.Text = string.Empty;
+                appendTextBox.Text = prependTextBox.Text;
+            }
+            else
+            {
+                startTextBox.Text = "(";
+                prependTextBox.Text = "'";
+                delimiterTextBox.Text = ", ";
+                appendTextBox.Text = prependTextBox.Text;
+                endTextBox.Text = ")";
+            }
             m_updates = true;
         }
 
