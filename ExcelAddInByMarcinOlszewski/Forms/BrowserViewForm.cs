@@ -34,7 +34,7 @@ namespace ExcelEssentials.Forms
         {
             InitializeComponent();
             webView2.CreationProperties = new Microsoft.Web.WebView2.WinForms.CoreWebView2CreationProperties();
-            webView2.CreationProperties.UserDataFolder = @"C:\Temp\ExcelAddInByMarcinOlszewski\";
+            webView2.CreationProperties.UserDataFolder = @"C:\Temp\ExcelEssentialsPack\";
             Url = url;
             urlTextBox.Text = url;
             AutoImport = autoImport;
