@@ -93,15 +93,42 @@ namespace ExcelEssentials
         private void changeToTextButton_Click(object sender, RibbonControlEventArgs e)
         {
             //Utils.RunMacro("ConvertSelectedRangeToText");
+
             Excel.Application app = Globals.ThisAddIn.Application;
-            app.ActiveWindow.RangeSelection.GetUsableRange().ChangeToText();
+            Excel.Range rng = app.ActiveWindow.RangeSelection;
+
+            if (!rng.Valid())
+                return;
+
+            using (new ExcelExecutionBlock(app))
+            {
+                foreach (var ar in rng.Areas.Cast<Excel.Range>())
+                {
+                    if (!ar.Valid())
+                        continue;
+                    ar.GetUsableRange().ChangeToText();
+                }
+            }
         }
 
         private void changeToValueButton_Click(object sender, RibbonControlEventArgs e)
         {
             //Utils.RunMacro("ConvertSelectedRangeToValues");
             Excel.Application app = Globals.ThisAddIn.Application;
-            app.ActiveWindow.RangeSelection.GetUsableRange().ChangeToValue();
+            Excel.Range rng = app.ActiveWindow.RangeSelection;
+
+            if (!rng.Valid())
+                return;
+
+            using (new ExcelExecutionBlock(app))
+            {
+                foreach (var ar in rng.Areas.Cast<Excel.Range>())
+                {
+                    if (!ar.Valid())
+                        continue;
+                    ar.GetUsableRange().ChangeToValue();
+                }
+            }
         }
 
         private void evaluateFormulaButton_Click(object sender, RibbonControlEventArgs e)
@@ -114,19 +141,29 @@ namespace ExcelEssentials
         {
             //UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
             Excel.Application app = Globals.ThisAddIn.Application;
-            Excel.Range rng = app.ActiveWindow.RangeSelection.GetUsableRange();
+            Excel.Range rng = app.ActiveWindow.RangeSelection;
+
             if (!rng.Valid())
                 return;
 
-            Excel.Range firstCell = rng.Cells[1, 1] as Excel.Range;
-            string formula = null;
-            if (firstCell.Valid() && firstCell.HasFormula)
-                formula = firstCell.Formula;
+            using (new ExcelExecutionBlock(app))
+            {
+                foreach (var ar in rng.Areas.Cast<Excel.Range>())
+                {
+                    if (!ar.Valid())
+                        continue;
 
-            rng.RepasteAsValues();
+                    Excel.Range firstCell = ar.Cells[1, 1] as Excel.Range;
+                    string formula = null;
+                    if (firstCell.Valid() && firstCell.HasFormula)
+                        formula = firstCell.Formula;
 
-            if (formula != null)
-                Clipboard.SetText(firstCell.Formula);
+                    ar.GetUsableRange().RepasteAsValues();
+
+                    if (formula != null)
+                        Clipboard.SetText(firstCell.Formula);
+                }
+            }
             //UtilsExcel.RunMacro("Converting.RepasteSelectedRangeAsValues");
         }
 
@@ -147,8 +184,13 @@ namespace ExcelEssentials
             {
                 foreach (var cell in rng.Cells.Cast<Excel.Range>())
                 {
-                    if (app.WorksheetFunction.IsError(cell))
-                        cell.Clear();
+                    try
+                    {
+                        if (app.WorksheetFunction.IsError(cell))
+                            cell.Clear();
+                    }
+                    catch (COMException) { }
+                    catch (Exception) { }
                 }
             }
         }
@@ -166,8 +208,13 @@ namespace ExcelEssentials
             {
                 foreach (var cell in rng.Cells.Cast<Excel.Range>())
                 {
-                    if (app.WorksheetFunction.IsNA(cell) || cell.Value2.ToString() == "#N/A")
-                        cell.Clear();
+                    try
+                    {
+                        if (app.WorksheetFunction.IsNA(cell) || cell.Value2.ToString() == "#N/A")
+                            cell.Clear();
+                    }
+                    catch (COMException) { }
+                    catch (Exception) { }
                 }
             }
         }
@@ -307,8 +354,12 @@ namespace ExcelEssentials
             try
             {
                 Excel.Application app = Globals.ThisAddIn.Application;
-                Excel.Range rngSel = app.ActiveWindow.RangeSelection.GetUsableRange();
-                UtilsExcel.ColorRowsUnique(rngSel);
+                Excel.Range rng = app.ActiveWindow.RangeSelection;
+
+                if (!rng.Valid())
+                    return;
+
+                UtilsExcel.ColorRowsUnique(rng.GetUsableRange());
             }
             catch (Exception) { }
         }
@@ -406,13 +457,6 @@ namespace ExcelEssentials
             UtilsExcel.FilterByRange(app.ActiveWindow.RangeSelection, true, true);
         }
 
-        private void sortingAbsButton_Click(object sender, RibbonControlEventArgs e)
-        {
-            Excel.Application app = Globals.ThisAddIn.Application;
-            Excel.Range rng = app.ActiveWindow.RangeSelection;
-            UtilsExcel.SortColumnByAbsoluteValues(rng);
-        }
-
         private void filterColumnInRegexButton_Click(object sender, RibbonControlEventArgs e)
         {
             Excel.Application app = Globals.ThisAddIn.Application;
@@ -423,6 +467,13 @@ namespace ExcelEssentials
         {
             Excel.Application app = Globals.ThisAddIn.Application;
             UtilsExcel.FilterByRegex(app.ActiveWindow.RangeSelection, true);
+        }
+
+        private void sortingAbsButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            Excel.Application app = Globals.ThisAddIn.Application;
+            Excel.Range rng = app.ActiveWindow.RangeSelection;
+            UtilsExcel.SortColumnByAbsoluteValues(rng);
         }
 
         private void saveSelectedWorksheetsAsXlsxSplitBtn_Click(object sender, RibbonControlEventArgs e)
@@ -716,6 +767,132 @@ namespace ExcelEssentials
             };
         }
 
+        private void importSheetOrTxtFileAdv_Click(object sender, RibbonControlEventArgs e)
+        {
+            string filePath = string.Empty;
+            FileDropForm form = new FileDropForm(Utils.TextExt.Concat(Utils.ExcelExt).ToList());
+            form.Show();
+            form.FormClosed += (s, _) =>
+            {
+                if (form.DialogResult != DialogResult.OK)
+                    return;
+
+                filePath = form.FilePath;
+                if (Utils.TextExt.Contains(Path.GetExtension(filePath), StringComparer.OrdinalIgnoreCase))
+                {
+                    char delimiter = Utils.DetermineTableDelimiter(filePath);
+                    if (delimiter == default(char))
+                    {
+                        string choosenDelimiter = Microsoft.VisualBasic.Interaction.InputBox("Can not determine delimiter, write one in ' characters:", "Write delimiter in ''", "", 0, 0);
+
+                        if (choosenDelimiter.Length != 1)
+                        {
+                            MessageBox.Show("Delimiter too long or missing!", "Delimiter too long or missing!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
+                        else
+                            delimiter = choosenDelimiter[0];
+                    }
+                    Excel.Application app = Globals.ThisAddIn.Application;
+                    Excel.Worksheet aWs = app.ActiveSheet;
+                    Excel.Worksheet ws = (aWs.Parent as Excel.Workbook).Worksheets.Add(aWs);
+
+                    if (File.ReadLines(filePath).LongCount() > ws.Rows.Count)
+                    {
+                        int columnCount = 0; long rowCount = File.ReadLines(filePath).LongCount();
+                        using (StreamReader reader = new StreamReader(filePath))
+                        {
+                            string firstLine = reader.ReadLine();
+                            columnCount = !string.IsNullOrEmpty(firstLine) ? firstLine.Split(delimiter).Length : 0;
+                        }
+                        UtilsExcel.RunMacro("LoadTextFileIntoDataModel", new object[] { $"\"{filePath}\"", delimiter.ToString(), columnCount.ToString() });
+                        return;
+                    }
+                    else
+                        WTC.ImportTextFileToExcelAdv(ws, filePath, delimiter);
+
+                    ws.Rename(Path.GetFileNameWithoutExtension(filePath));
+                }
+                else if (Utils.ExcelExt.Contains(Path.GetExtension(filePath), StringComparer.OrdinalIgnoreCase))
+                {
+                    Excel.Workbook wb = Microsoft.VisualBasic.Interaction.GetObject(filePath) as Excel.Workbook;
+                    Excel.Application app = Globals.ThisAddIn.Application;
+                    Excel.Worksheet aWs = app.ActiveSheet;
+                    wb.Worksheets.Item[1].Copy(aWs);
+                    if ((wb.Worksheets.Item[1].Name as string).StartsWith("Sheet"))
+                        (app.ActiveSheet as Excel.Worksheet).Rename(Path.GetFileNameWithoutExtension(wb.FullName));
+                    //Utils.RunMacro("RenameSheet", new object[] { Path.GetFileNameWithoutExtension(wb.FullName) });
+                    wb.Close();
+                    return;
+                }
+                else
+                    return;
+            };
+        }
+
+        private void importTxtFileLegacyButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            string filePath = string.Empty;
+            FileDropForm form = new FileDropForm(Utils.TextExt.Concat(Utils.ExcelExt).ToList());
+            form.Show();
+            form.FormClosed += (s, _) =>
+            {
+                if (form.DialogResult != DialogResult.OK)
+                    return;
+
+                filePath = form.FilePath;
+                if (Utils.TextExt.Contains(Path.GetExtension(filePath), StringComparer.OrdinalIgnoreCase))
+                {
+                    char delimiter = Utils.DetermineTableDelimiter(filePath);
+                    if (delimiter == default(char))
+                    {
+                        string choosenDelimiter = Microsoft.VisualBasic.Interaction.InputBox("Can not determine delimiter, write one in ' characters:", "Write delimiter in ''", "", 0, 0);
+
+                        if (choosenDelimiter.Length != 1)
+                        {
+                            MessageBox.Show("Delimiter too long or missing!", "Delimiter too long or missing!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
+                        else
+                            delimiter = choosenDelimiter[0];
+                    }
+                    Excel.Application app = Globals.ThisAddIn.Application;
+                    Excel.Worksheet aWs = app.ActiveSheet;
+                    Excel.Worksheet ws = (aWs.Parent as Excel.Workbook).Worksheets.Add(aWs);
+
+                    if (File.ReadLines(filePath).LongCount() > ws.Rows.Count)
+                    {
+                        int columnCount = 0; long rowCount = File.ReadLines(filePath).LongCount();
+                        using (StreamReader reader = new StreamReader(filePath))
+                        {
+                            string firstLine = reader.ReadLine();
+                            columnCount = !string.IsNullOrEmpty(firstLine) ? firstLine.Split(delimiter).Length : 0;
+                        }
+                        UtilsExcel.RunMacro("LoadTextFileIntoDataModel", new object[] { $"\"{filePath}\"", delimiter.ToString(), columnCount.ToString() });
+                        return;
+                    }
+                    else
+                        WTC.ImportTextFileToExcelLegacy(ws, filePath, delimiter);
+
+                    ws.Rename(Path.GetFileNameWithoutExtension(filePath));
+                }
+                else if (Utils.ExcelExt.Contains(Path.GetExtension(filePath), StringComparer.OrdinalIgnoreCase))
+                {
+                    Excel.Workbook wb = Microsoft.VisualBasic.Interaction.GetObject(filePath) as Excel.Workbook;
+                    Excel.Application app = Globals.ThisAddIn.Application;
+                    Excel.Worksheet aWs = app.ActiveSheet;
+                    wb.Worksheets.Item[1].Copy(aWs);
+                    if ((wb.Worksheets.Item[1].Name as string).StartsWith("Sheet"))
+                        (app.ActiveSheet as Excel.Worksheet).Rename(Path.GetFileNameWithoutExtension(wb.FullName));
+                    //Utils.RunMacro("RenameSheet", new object[] { Path.GetFileNameWithoutExtension(wb.FullName) });
+                    wb.Close();
+                    return;
+                }
+                else
+                    return;
+            };
+        }
+
         private void copyAsPictureButton_Click(object sender, RibbonControlEventArgs e)
         {
             Globals.ThisAddIn.Application.ActiveWindow.RangeSelection.GetUsableRange().CopyPicture(Excel.XlPictureAppearance.xlScreen, Excel.XlCopyPictureFormat.xlBitmap);
@@ -737,6 +914,32 @@ namespace ExcelEssentials
                         continue;
                     object[] columIndexArray = Enumerable.Range(1, ar.Columns.Count).Cast<object>().ToArray();
                     ar.RemoveDuplicates((object)columIndexArray, Excel.XlYesNoGuess.xlNo);
+                }
+            }
+        }
+
+        private void removeDuplicatesInColumnsButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            Excel.Application app = Globals.ThisAddIn.Application;
+            Excel.Range rng = app.ActiveWindow.RangeSelection;
+
+            if (!rng.Valid())
+                return;
+
+            using (new ExcelExecutionBlock(app))
+            {
+                foreach (var ar in rng.Areas.Cast<Excel.Range>())
+                {
+                    if (!ar.Valid())
+                        continue;
+
+                    foreach (var col in ar.Columns.Cast<Excel.Range>())
+                    {
+                        Excel.Range column = col.GetUsableRange();
+                        if (!column.Valid())
+                            continue;
+                        column.RemoveDuplicates(1, Header: Excel.XlYesNoGuess.xlNo);
+                    }
                 }
             }
         }
@@ -785,7 +988,20 @@ namespace ExcelEssentials
         {
             Excel.Application app = Globals.ThisAddIn.Application;
             Excel.Range rng = app.ActiveWindow.RangeSelection;
-            UtilsExcel.RemoveFormattingFromRange(rng);
+
+            if (!rng.Valid())
+                return;
+
+            using (new ExcelExecutionBlock(app))
+            {
+                foreach (var ar in rng.Areas.Cast<Excel.Range>())
+                {
+                    if (!ar.Valid())
+                        continue;
+
+                    UtilsExcel.RemoveFormattingFromRange(ar);
+                }
+            }
         }
 
         private void clearRangeOutsideButton_Click(object sender, RibbonControlEventArgs e)
@@ -918,69 +1134,6 @@ namespace ExcelEssentials
             Excel.Application app = Globals.ThisAddIn.Application;
             string directory = Directory.CreateDirectory(Path.Combine(FileManager.DownloadsPath, "Macros Updates")).FullName;
             UtilsExcel.CreateMacroUpdateFileFromActiveVbaCode(app, directory);
-        }
-
-        private void importTxtFileLegacyButton_Click(object sender, RibbonControlEventArgs e)
-        {
-            string filePath = string.Empty;
-            FileDropForm form = new FileDropForm(Utils.TextExt.Concat(Utils.ExcelExt).ToList());
-            form.Show();
-            form.FormClosed += (s, _) =>
-            {
-                if (form.DialogResult != DialogResult.OK)
-                    return;
-
-                filePath = form.FilePath;
-                if (Utils.TextExt.Contains(Path.GetExtension(filePath), StringComparer.OrdinalIgnoreCase))
-                {
-                    char delimiter = Utils.DetermineTableDelimiter(filePath);
-                    if (delimiter == default(char))
-                    {
-                        string choosenDelimiter = Microsoft.VisualBasic.Interaction.InputBox("Can not determine delimiter, write one in ' characters:", "Write delimiter in ''", "", 0, 0);
-
-                        if (choosenDelimiter.Length != 1)
-                        {
-                            MessageBox.Show("Delimiter too long or missing!", "Delimiter too long or missing!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            return;
-                        }
-                        else
-                            delimiter = choosenDelimiter[0];
-                    }
-                    Excel.Application app = Globals.ThisAddIn.Application;
-                    Excel.Worksheet aWs = app.ActiveSheet;
-                    Excel.Worksheet ws = (aWs.Parent as Excel.Workbook).Worksheets.Add(aWs);
-
-                    if (File.ReadLines(filePath).LongCount() > ws.Rows.Count)
-                    {
-                        int columnCount = 0; long rowCount = File.ReadLines(filePath).LongCount();
-                        using (StreamReader reader = new StreamReader(filePath))
-                        {
-                            string firstLine = reader.ReadLine();
-                            columnCount = !string.IsNullOrEmpty(firstLine) ? firstLine.Split(delimiter).Length : 0;
-                        }
-                        UtilsExcel.RunMacro("LoadTextFileIntoDataModel", new object[] { $"\"{filePath}\"", delimiter.ToString(), columnCount.ToString() });
-                        return;
-                    }
-                    else
-                        WTC.ImportTextFileToExcelLegacy(ws, filePath, delimiter);
-
-                    ws.Rename(Path.GetFileNameWithoutExtension(filePath));
-                }
-                else if (Utils.ExcelExt.Contains(Path.GetExtension(filePath), StringComparer.OrdinalIgnoreCase))
-                {
-                    Excel.Workbook wb = Microsoft.VisualBasic.Interaction.GetObject(filePath) as Excel.Workbook;
-                    Excel.Application app = Globals.ThisAddIn.Application;
-                    Excel.Worksheet aWs = app.ActiveSheet;
-                    wb.Worksheets.Item[1].Copy(aWs);
-                    if ((wb.Worksheets.Item[1].Name as string).StartsWith("Sheet"))
-                        (app.ActiveSheet as Excel.Worksheet).Rename(Path.GetFileNameWithoutExtension(wb.FullName));
-                    //Utils.RunMacro("RenameSheet", new object[] { Path.GetFileNameWithoutExtension(wb.FullName) });
-                    wb.Close();
-                    return;
-                }
-                else
-                    return;
-            };
         }
     }
 }

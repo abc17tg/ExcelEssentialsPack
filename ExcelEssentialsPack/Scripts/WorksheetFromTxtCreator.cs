@@ -4,6 +4,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Excel = Microsoft.Office.Interop.Excel;
 
@@ -54,7 +55,16 @@ namespace ImportTableToExcel
                 UtilsExcel.PasteDataTableToRange(dataTable, worksheet.Cells[1, 1]);
             });
         }
-
+        
+        public static void ImportTextFileToExcelAdv(Excel.Worksheet worksheet, string filePath, char delimiter)
+        {
+            Task<DataTable> taskReadFile = Task.Run(() => ReadFileIntoDataTableAdv(filePath, delimiter.ToString()));
+            taskReadFile.ContinueWith(t =>
+            {
+                DataTable dataTable = t.Result;
+                UtilsExcel.PasteDataTableToRange(dataTable, worksheet.Cells[1, 1]);
+            });
+        }
 
         public static DataTable ReadFileIntoDataTable(string filePath, char delimiter)
         {
@@ -75,6 +85,204 @@ namespace ImportTableToExcel
                 {
                     string[] fields = sr.ReadLine().Split(delimiter).Select(p => string.IsNullOrWhiteSpace(p) ? "" : p).ToArray();
                     allData.Add(fields);
+                }
+            }
+
+            Dictionary<int, Type> columnTypes = new Dictionary<int, Type>();
+            // Determine the most appropriate data type for each column
+            columnTypes = Enumerable.Range(0, dataTable.Columns.Count).AsParallel().WithDegreeOfParallelism(dataTable.Columns.Count).Select(colIndex =>
+            {
+                bool allNumbers = allData.All(row => !(row[colIndex].ToString().Length > 1 && row[colIndex].ToString().StartsWith("0") && !row[colIndex].ToString().Contains(".")) && double.TryParse(row[colIndex].ToString(), out _));
+                if (allNumbers)
+                    return new { ColIndex = colIndex, Type = typeof(double) };
+                else
+                    return new { ColIndex = colIndex, Type = typeof(string) };
+            }).ToDictionary(col => col.ColIndex, col => col.Type);
+
+
+            // Set the data types for the columns
+            for (int i = 0; i < dataTable.Columns.Count; i++)
+            {
+                if (
+                        !(
+                            dataTable.Columns[i].ColumnName.EndsWith("ID", StringComparison.OrdinalIgnoreCase) ||
+                            dataTable.Columns[i].ColumnName.EndsWith("CODE", StringComparison.OrdinalIgnoreCase) ||
+                            dataTable.Columns[i].ColumnName.EndsWith("KEY", StringComparison.OrdinalIgnoreCase)
+                        ) &&
+                        columnTypes.TryGetValue(i, out Type dataType)
+                   )
+                    dataTable.Columns[i].DataType = dataType;
+            }
+
+            // Populate the DataTable with data
+            foreach (var rowData in allData)
+            {
+                dataTable.Rows.Add(rowData);
+            }
+
+            return dataTable;
+        }
+
+        public static DataTable ReadFileIntoDataTableTest(string filePath, char delimiter)
+        {
+            DataTable dataTable = new DataTable();
+            List<object[]> allData = new List<object[]>();
+
+            using (StreamReader sr = new StreamReader(filePath, true))
+            {
+                // Read the first line to create column headers
+                string[] headers = sr.ReadLine().Split(delimiter);
+                foreach (string header in headers)
+                {
+                    dataTable.Columns.Add(header, typeof(string)); // Initially set as string
+                }
+
+                // Read all lines into memory
+                while (!sr.EndOfStream)
+                {
+                    string[] fields = sr.ReadLine().Split(delimiter).Select(p =>
+                    {
+                        if (string.IsNullOrWhiteSpace(p))
+                            return string.Empty;
+
+                        // Check if the value is quoted
+                        if (p.StartsWith("\"") && p.EndsWith("\""))
+                        {
+                            string innerValue = p.Substring(1, p.Length - 2);
+
+                            // Check if all quotes inside are doubled
+                            if (!innerValue.Replace("\"\"", "").Contains("\""))
+                            {
+                                // Replace doubled quotes with single quotes
+                                return innerValue.Replace("\"\"", "\"");
+                            }
+                            else
+                                return innerValue;
+                        }
+                        else
+                            return p; // Return unmodified if not wrapped in quotes
+                    }).ToArray();
+
+                    allData.Add(fields);
+                }
+
+            }
+
+            Dictionary<int, Type> columnTypes = new Dictionary<int, Type>();
+            // Determine the most appropriate data type for each column
+            columnTypes = Enumerable.Range(0, dataTable.Columns.Count).AsParallel().WithDegreeOfParallelism(dataTable.Columns.Count).Select(colIndex =>
+            {
+                bool allNumbers = allData.All(row => !(row[colIndex].ToString().Length > 1 && row[colIndex].ToString().StartsWith("0") && !row[colIndex].ToString().Contains(".")) && double.TryParse(row[colIndex].ToString(), out _));
+                if (allNumbers)
+                    return new { ColIndex = colIndex, Type = typeof(double) };
+                else
+                    return new { ColIndex = colIndex, Type = typeof(string) };
+            }).ToDictionary(col => col.ColIndex, col => col.Type);
+
+
+            // Set the data types for the columns
+            for (int i = 0; i < dataTable.Columns.Count; i++)
+            {
+                if (
+                        !(
+                            dataTable.Columns[i].ColumnName.EndsWith("ID", StringComparison.OrdinalIgnoreCase) ||
+                            dataTable.Columns[i].ColumnName.EndsWith("CODE", StringComparison.OrdinalIgnoreCase) ||
+                            dataTable.Columns[i].ColumnName.EndsWith("KEY", StringComparison.OrdinalIgnoreCase)
+                        ) &&
+                        columnTypes.TryGetValue(i, out Type dataType)
+                   )
+                    dataTable.Columns[i].DataType = dataType;
+            }
+
+            // Populate the DataTable with data
+            foreach (var rowData in allData)
+            {
+                dataTable.Rows.Add(rowData);
+            }
+
+            return dataTable;
+        }
+
+        public static DataTable ReadFileIntoDataTableAdv(string filePath, string delimiter)
+        {
+            DataTable dataTable = new DataTable();
+            List<object[]> allData = new List<object[]>();
+
+            using (StreamReader sr = new StreamReader(filePath, true))
+            {
+                string headersLine = sr.ReadLine();
+                List<string> headers = new List<string>();
+
+                // Regex to match quoted and unquoted fields
+                var matches = Regex.Matches(headersLine, $@"""([^""]*(?:""""[^""]*)*)""|([^{Regex.Escape(delimiter)}""]+)|(?<={Regex.Escape(delimiter)})$|(?<={Regex.Escape(delimiter)})(?={Regex.Escape(delimiter)})|^{Regex.Escape(delimiter)}|{Regex.Escape(delimiter)}$");
+
+                foreach (Match match in matches)
+                {
+                    string header = match.Value;
+
+                    if (header.StartsWith("\"") && header.EndsWith("\""))
+                    {
+                        // Remove surrounding quotes and replace doubled quotes
+                        header = header.Substring(1, header.Length - 2).Replace("\"\"", "\"");
+                    }
+
+                    headers.Add(header);
+                }
+
+                foreach (string header in headers)
+                {
+                    dataTable.Columns.Add(header, typeof(string)); // Initially set as string
+                }
+
+                while (!sr.EndOfStream)
+                {
+                    string line = sr.ReadLine();
+                    List<string> fields = new List<string>();
+
+                    // Regex to match quoted and unquoted fields
+/*                    matches = Regex.Matches(line, $@"""([^""]*(?:""""[^""]*)*)""|([^{Regex.Escape(delimiter)}""]+)|(?<={Regex.Escape(delimiter)})$|(?<={Regex.Escape(delimiter)})(?={Regex.Escape(delimiter)})|^{Regex.Escape(delimiter)}|{Regex.Escape(delimiter)}$");*/
+                    matches = Regex.Matches(line, $@"""([^""]*(?:""""[^""]*)*)""|([^{Regex.Escape(delimiter)}""]+)|(?<={Regex.Escape(delimiter)})$|(?<={Regex.Escape(delimiter)})(?={Regex.Escape(delimiter)})");
+
+                    foreach (Match match in matches)
+                    {
+                        string field;
+
+                        if (match.Groups[1].Success)
+                        {
+                            // Quoted field, remove surrounding quotes and replace doubled quotes
+                            field = match.Groups[1].Value.Replace("\"\"", "\"");
+                        }
+                        else if (match.Groups[2].Success)
+                        {
+                            // Unquoted field
+                            field = match.Groups[2].Value;
+                        }
+                        else
+                        {
+                            // Empty field
+                            field = string.Empty;
+                        }
+
+                        fields.Add(field);
+                    }
+
+                    // Add the parsed fields to allData
+                    allData.Add(fields.ToArray());
+
+                    /*foreach (Match match in matches)
+                    {
+                        string field = match.Value;
+
+                        if (field.StartsWith("\"") && field.EndsWith("\""))
+                        {
+                            // Remove surrounding quotes and replace doubled quotes
+                            field = field.Substring(1, field.Length - 2).Replace("\"\"", "\"");
+                        }
+
+                        fields.Add(field);
+                    }
+
+                    allData.Add(fields.ToArray());*/
                 }
             }
 
@@ -144,6 +352,6 @@ namespace ImportTableToExcel
             }
         }*/
     }
-}
+    }
 
 

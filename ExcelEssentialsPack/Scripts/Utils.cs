@@ -33,9 +33,7 @@ public static class Utils
                 {
                     char delimiter = delimiters.FirstOrDefault(d => line.Contains(d));
                     if (delimiter != default(char))
-                    {
                         foundDelimiters[i] = delimiter; // return the first delimiter found
-                    }
                 }
                 else
                     break;

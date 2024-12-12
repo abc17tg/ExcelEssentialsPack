@@ -12,12 +12,6 @@ namespace ExcelEssentials
 {
     public partial class MiscRibbon
     {
-        private void sqlEditorBtn_Click(object sender, RibbonControlEventArgs e)
-        {
-            /*SqlEditorForm form = new SqlEditorForm(Globals.ThisAddIn.Application);
-            form.Show();*/
-        }
-
         private void sqlEditorDataFolderBtn_Click(object sender, RibbonControlEventArgs e)
         {
             Process.Start("explorer.exe", FileManager.SqlQueriesPath);

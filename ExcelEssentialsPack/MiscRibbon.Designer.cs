@@ -37,35 +37,59 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MiscRibbon));
             this.miscTab = this.Factory.CreateRibbonTab();
             this.importGroup = this.Factory.CreateRibbonGroup();
-            this.importSheetOrTxtFileSplitButton = this.Factory.CreateRibbonSplitButton();
-            this.importTxtFileLegacyButton = this.Factory.CreateRibbonButton();
             this.modifiersGroup = this.Factory.CreateRibbonGroup();
+            this.separator11 = this.Factory.CreateRibbonSeparator();
+            this.separator1 = this.Factory.CreateRibbonSeparator();
+            this.separator13 = this.Factory.CreateRibbonSeparator();
+            this.filterGroup = this.Factory.CreateRibbonGroup();
+            this.validationGroup = this.Factory.CreateRibbonGroup();
+            this.searchGroup = this.Factory.CreateRibbonGroup();
+            this.fileAndExportGroup = this.Factory.CreateRibbonGroup();
+            this.separator2 = this.Factory.CreateRibbonSeparator();
+            this.macroGroup = this.Factory.CreateRibbonGroup();
+            this.pivotToolsTab = this.Factory.CreateRibbonTab();
+            this.pivotTemplatesGroup = this.Factory.CreateRibbonGroup();
+            this.pivotFormatGroup = this.Factory.CreateRibbonGroup();
+            this.pivotToolsGroup = this.Factory.CreateRibbonGroup();
+            this.dataImportTab = this.Factory.CreateRibbonTab();
+            this.sqlImportGroup = this.Factory.CreateRibbonGroup();
+            this.sapImportGroup = this.Factory.CreateRibbonGroup();
+            this.sdeImportGroup = this.Factory.CreateRibbonGroup();
+            this.sdeQueryComboBox = this.Factory.CreateRibbonComboBox();
+            this.sdeInstancesEditBox = this.Factory.CreateRibbonEditBox();
+            this.browserGroup = this.Factory.CreateRibbonGroup();
+            this.browserWebsitesComboBox = this.Factory.CreateRibbonComboBox();
+            this.importFromBrowserCheckBox = this.Factory.CreateRibbonCheckBox();
+            this.goToPropertiesButton = this.Factory.CreateRibbonButton();
+            this.updateMacrosButton = this.Factory.CreateRibbonButton();
+            this.createMacroUpdateButton = this.Factory.CreateRibbonButton();
+            this.checkMacrosButton = this.Factory.CreateRibbonButton();
+            this.importSheetOrTxtFileSplitButton = this.Factory.CreateRibbonSplitButton();
+            this.importSheetOrTxtFileAdvButton = this.Factory.CreateRibbonButton();
+            this.importTxtFileLegacyButton = this.Factory.CreateRibbonButton();
             this.changeToTextButton = this.Factory.CreateRibbonButton();
             this.changeToValueButton = this.Factory.CreateRibbonButton();
             this.evaluateFormulaButton = this.Factory.CreateRibbonButton();
             this.repasteAsValuesButton = this.Factory.CreateRibbonButton();
             this.sortingAbsButton = this.Factory.CreateRibbonButton();
             this.copyAsPictureButton = this.Factory.CreateRibbonButton();
-            this.separator11 = this.Factory.CreateRibbonSeparator();
             this.removeEmptyButton = this.Factory.CreateRibbonButton();
             this.removeErrSplitBtn = this.Factory.CreateRibbonSplitButton();
             this.removeNaButton = this.Factory.CreateRibbonButton();
-            this.removeDuplicatesButton = this.Factory.CreateRibbonButton();
+            this.removeFormattingButton = this.Factory.CreateRibbonButton();
             this.removeHiddenRowsSplitButton = this.Factory.CreateRibbonSplitButton();
             this.removeHiddenColumnsButton = this.Factory.CreateRibbonButton();
             this.clearRangeOutsideButton = this.Factory.CreateRibbonButton();
-            this.removeFormattingButton = this.Factory.CreateRibbonButton();
-            this.separator1 = this.Factory.CreateRibbonSeparator();
+            this.removeDuplicatesSplitButton = this.Factory.CreateRibbonSplitButton();
+            this.removeDuplicatesInColumnsButton = this.Factory.CreateRibbonButton();
             this.prependTextSplitButton = this.Factory.CreateRibbonSplitButton();
             this.appendTextButton = this.Factory.CreateRibbonButton();
             this.trimButton = this.Factory.CreateRibbonButton();
             this.formatNumberSplitButton = this.Factory.CreateRibbonSplitButton();
             this.formatStringToDateButton = this.Factory.CreateRibbonButton();
-            this.separator13 = this.Factory.CreateRibbonSeparator();
             this.selectWithoutHeadersButton = this.Factory.CreateRibbonButton();
             this.fillEmptyWithAboveValueButton = this.Factory.CreateRibbonButton();
             this.copyDelimitedValuesButton = this.Factory.CreateRibbonButton();
-            this.filterGroup = this.Factory.CreateRibbonGroup();
             this.filterColumnSplitButton = this.Factory.CreateRibbonSplitButton();
             this.filterColumnNotInRangeBtn = this.Factory.CreateRibbonButton();
             this.filterColumnFromRangeInRangeButton = this.Factory.CreateRibbonButton();
@@ -75,7 +99,6 @@
             this.hideRowsWithTextSplitButton = this.Factory.CreateRibbonSplitButton();
             this.hideColumnsWithTextButton = this.Factory.CreateRibbonButton();
             this.takeRowsWithTextButton = this.Factory.CreateRibbonButton();
-            this.validationGroup = this.Factory.CreateRibbonGroup();
             this.splitButton1 = this.Factory.CreateRibbonSplitButton();
             this.colorRowsUniqueButton = this.Factory.CreateRibbonButton();
             this.colorRowsWithTextSplitButton = this.Factory.CreateRibbonSplitButton();
@@ -83,9 +106,7 @@
             this.colorCellsWithTextButton = this.Factory.CreateRibbonButton();
             this.colorRowsButton = this.Factory.CreateRibbonButton();
             this.formatTrueFalseButton = this.Factory.CreateRibbonButton();
-            this.searchGroup = this.Factory.CreateRibbonGroup();
             this.searchDialogButton = this.Factory.CreateRibbonButton();
-            this.fileAndExportGroup = this.Factory.CreateRibbonGroup();
             this.saveSelectedWorksheetsAsXlsxSplitBtn = this.Factory.CreateRibbonSplitButton();
             this.saveAllWorksheetsAsXlsxButton = this.Factory.CreateRibbonButton();
             this.saveSelectedWorksheetsAsTxtButton = this.Factory.CreateRibbonButton();
@@ -97,15 +118,11 @@
             this.divideTableToPartsAndSaveButton = this.Factory.CreateRibbonButton();
             this.getFilePathButton = this.Factory.CreateRibbonButton();
             this.exportMacrosButton = this.Factory.CreateRibbonButton();
-            this.separator2 = this.Factory.CreateRibbonSeparator();
             this.deleteWorksheetButton = this.Factory.CreateRibbonButton();
             this.deleteOtherWorksheetsButton = this.Factory.CreateRibbonButton();
             this.deleteWorkbookButton = this.Factory.CreateRibbonButton();
-            this.macroGroup = this.Factory.CreateRibbonGroup();
             this.runMacroButton = this.Factory.CreateRibbonButton();
             this.runCustomFormButton = this.Factory.CreateRibbonButton();
-            this.pivotToolsTab = this.Factory.CreateRibbonTab();
-            this.pivotTemplatesGroup = this.Factory.CreateRibbonGroup();
             this.createPivotFromTemplateMenu = this.Factory.CreateRibbonMenu();
             this.createPvFromLoadedButton = this.Factory.CreateRibbonButton();
             this.separator3 = this.Factory.CreateRibbonSeparator();
@@ -142,36 +159,18 @@
             this.createPvFromCustom9Button = this.Factory.CreateRibbonButton();
             this.generatePivotTemlateCodeButton = this.Factory.CreateRibbonButton();
             this.runPvTemplateBtn = this.Factory.CreateRibbonButton();
-            this.pivotFormatGroup = this.Factory.CreateRibbonGroup();
             this.formatClickedPivotButton = this.Factory.CreateRibbonButton();
             this.formatAllPivotButton = this.Factory.CreateRibbonButton();
             this.grandTotalsToggleButton = this.Factory.CreateRibbonToggleButton();
             this.subtotalsToggleButton = this.Factory.CreateRibbonToggleButton();
-            this.pivotToolsGroup = this.Factory.CreateRibbonGroup();
             this.changePivotTableSourceButton = this.Factory.CreateRibbonButton();
             this.updatePivotTableSourceButton = this.Factory.CreateRibbonButton();
             this.refreshPivotsButton = this.Factory.CreateRibbonButton();
             this.combinedTableFromPvValuesButton = this.Factory.CreateRibbonButton();
-            this.dataImportTab = this.Factory.CreateRibbonTab();
-            this.sqlImportGroup = this.Factory.CreateRibbonGroup();
-            this.sqlEditorBtn = this.Factory.CreateRibbonButton();
-            this.separator12 = this.Factory.CreateRibbonSeparator();
             this.loadToDataTableButton = this.Factory.CreateRibbonButton();
-            this.sapImportGroup = this.Factory.CreateRibbonGroup();
             this.runS4ExtractButton = this.Factory.CreateRibbonButton();
-            this.sdeImportGroup = this.Factory.CreateRibbonGroup();
             this.runSdeButton = this.Factory.CreateRibbonButton();
-            this.sdeQueryComboBox = this.Factory.CreateRibbonComboBox();
-            this.sdeInstancesEditBox = this.Factory.CreateRibbonEditBox();
-            this.browserGroup = this.Factory.CreateRibbonGroup();
             this.browserButton = this.Factory.CreateRibbonButton();
-            this.browserWebsitesComboBox = this.Factory.CreateRibbonComboBox();
-            this.importFromBrowserCheckBox = this.Factory.CreateRibbonCheckBox();
-            this.goToPropertiesButton = this.Factory.CreateRibbonButton();
-            this.sqlEditorDataFolderBtn = this.Factory.CreateRibbonButton();
-            this.updateMacrosButton = this.Factory.CreateRibbonButton();
-            this.createMacroUpdateButton = this.Factory.CreateRibbonButton();
-            this.checkMacrosButton = this.Factory.CreateRibbonButton();
             this.miscTab.SuspendLayout();
             this.importGroup.SuspendLayout();
             this.modifiersGroup.SuspendLayout();
@@ -209,9 +208,245 @@
             this.importGroup.Label = "Importing";
             this.importGroup.Name = "importGroup";
             // 
+            // modifiersGroup
+            // 
+            this.modifiersGroup.Items.Add(this.changeToTextButton);
+            this.modifiersGroup.Items.Add(this.changeToValueButton);
+            this.modifiersGroup.Items.Add(this.evaluateFormulaButton);
+            this.modifiersGroup.Items.Add(this.repasteAsValuesButton);
+            this.modifiersGroup.Items.Add(this.sortingAbsButton);
+            this.modifiersGroup.Items.Add(this.copyAsPictureButton);
+            this.modifiersGroup.Items.Add(this.separator11);
+            this.modifiersGroup.Items.Add(this.removeEmptyButton);
+            this.modifiersGroup.Items.Add(this.removeErrSplitBtn);
+            this.modifiersGroup.Items.Add(this.removeFormattingButton);
+            this.modifiersGroup.Items.Add(this.removeHiddenRowsSplitButton);
+            this.modifiersGroup.Items.Add(this.clearRangeOutsideButton);
+            this.modifiersGroup.Items.Add(this.removeDuplicatesSplitButton);
+            this.modifiersGroup.Items.Add(this.separator1);
+            this.modifiersGroup.Items.Add(this.prependTextSplitButton);
+            this.modifiersGroup.Items.Add(this.trimButton);
+            this.modifiersGroup.Items.Add(this.formatNumberSplitButton);
+            this.modifiersGroup.Items.Add(this.separator13);
+            this.modifiersGroup.Items.Add(this.selectWithoutHeadersButton);
+            this.modifiersGroup.Items.Add(this.fillEmptyWithAboveValueButton);
+            this.modifiersGroup.Items.Add(this.copyDelimitedValuesButton);
+            this.modifiersGroup.Label = "Modifiers";
+            this.modifiersGroup.Name = "modifiersGroup";
+            // 
+            // separator11
+            // 
+            this.separator11.Name = "separator11";
+            // 
+            // separator1
+            // 
+            this.separator1.Name = "separator1";
+            // 
+            // separator13
+            // 
+            this.separator13.Name = "separator13";
+            // 
+            // filterGroup
+            // 
+            this.filterGroup.Items.Add(this.filterColumnSplitButton);
+            this.filterGroup.Items.Add(this.hideRowsWithTextSplitButton);
+            this.filterGroup.Items.Add(this.takeRowsWithTextButton);
+            this.filterGroup.Label = "Filtering";
+            this.filterGroup.Name = "filterGroup";
+            // 
+            // validationGroup
+            // 
+            this.validationGroup.Items.Add(this.splitButton1);
+            this.validationGroup.Items.Add(this.colorRowsWithTextSplitButton);
+            this.validationGroup.Items.Add(this.formatTrueFalseButton);
+            this.validationGroup.Label = "Validation";
+            this.validationGroup.Name = "validationGroup";
+            // 
+            // searchGroup
+            // 
+            this.searchGroup.Items.Add(this.searchDialogButton);
+            this.searchGroup.Label = "Search";
+            this.searchGroup.Name = "searchGroup";
+            // 
+            // fileAndExportGroup
+            // 
+            this.fileAndExportGroup.Items.Add(this.saveSelectedWorksheetsAsXlsxSplitBtn);
+            this.fileAndExportGroup.Items.Add(this.duplicateWorksheetsSplitBtn);
+            this.fileAndExportGroup.Items.Add(this.saveThisWorksheetAsTxt);
+            this.fileAndExportGroup.Items.Add(this.divideTableToPartsAndSaveButton);
+            this.fileAndExportGroup.Items.Add(this.getFilePathButton);
+            this.fileAndExportGroup.Items.Add(this.exportMacrosButton);
+            this.fileAndExportGroup.Items.Add(this.separator2);
+            this.fileAndExportGroup.Items.Add(this.deleteWorksheetButton);
+            this.fileAndExportGroup.Items.Add(this.deleteOtherWorksheetsButton);
+            this.fileAndExportGroup.Items.Add(this.deleteWorkbookButton);
+            this.fileAndExportGroup.Label = "File && Export";
+            this.fileAndExportGroup.Name = "fileAndExportGroup";
+            // 
+            // separator2
+            // 
+            this.separator2.Name = "separator2";
+            // 
+            // macroGroup
+            // 
+            this.macroGroup.Items.Add(this.runMacroButton);
+            this.macroGroup.Items.Add(this.runCustomFormButton);
+            this.macroGroup.Label = "Macro";
+            this.macroGroup.Name = "macroGroup";
+            // 
+            // pivotToolsTab
+            // 
+            this.pivotToolsTab.Groups.Add(this.pivotTemplatesGroup);
+            this.pivotToolsTab.Groups.Add(this.pivotFormatGroup);
+            this.pivotToolsTab.Groups.Add(this.pivotToolsGroup);
+            this.pivotToolsTab.Label = "Pivot\'s tools";
+            this.pivotToolsTab.Name = "pivotToolsTab";
+            // 
+            // pivotTemplatesGroup
+            // 
+            this.pivotTemplatesGroup.Items.Add(this.createPivotFromTemplateMenu);
+            this.pivotTemplatesGroup.Items.Add(this.generatePivotTemlateCodeButton);
+            this.pivotTemplatesGroup.Items.Add(this.runPvTemplateBtn);
+            this.pivotTemplatesGroup.Label = "Pivot templates";
+            this.pivotTemplatesGroup.Name = "pivotTemplatesGroup";
+            // 
+            // pivotFormatGroup
+            // 
+            this.pivotFormatGroup.Items.Add(this.formatClickedPivotButton);
+            this.pivotFormatGroup.Items.Add(this.formatAllPivotButton);
+            this.pivotFormatGroup.Items.Add(this.grandTotalsToggleButton);
+            this.pivotFormatGroup.Items.Add(this.subtotalsToggleButton);
+            this.pivotFormatGroup.Label = "Format pivot";
+            this.pivotFormatGroup.Name = "pivotFormatGroup";
+            // 
+            // pivotToolsGroup
+            // 
+            this.pivotToolsGroup.Items.Add(this.changePivotTableSourceButton);
+            this.pivotToolsGroup.Items.Add(this.updatePivotTableSourceButton);
+            this.pivotToolsGroup.Items.Add(this.refreshPivotsButton);
+            this.pivotToolsGroup.Items.Add(this.combinedTableFromPvValuesButton);
+            this.pivotToolsGroup.Label = "Pivot tools";
+            this.pivotToolsGroup.Name = "pivotToolsGroup";
+            // 
+            // dataImportTab
+            // 
+            this.dataImportTab.Groups.Add(this.sqlImportGroup);
+            this.dataImportTab.Groups.Add(this.sapImportGroup);
+            this.dataImportTab.Groups.Add(this.sdeImportGroup);
+            this.dataImportTab.Groups.Add(this.browserGroup);
+            this.dataImportTab.Label = "Data import";
+            this.dataImportTab.Name = "dataImportTab";
+            // 
+            // sqlImportGroup
+            // 
+            this.sqlImportGroup.Items.Add(this.loadToDataTableButton);
+            this.sqlImportGroup.Label = "SQL";
+            this.sqlImportGroup.Name = "sqlImportGroup";
+            this.sqlImportGroup.Visible = false;
+            // 
+            // sapImportGroup
+            // 
+            this.sapImportGroup.Items.Add(this.runS4ExtractButton);
+            this.sapImportGroup.Label = "SAP";
+            this.sapImportGroup.Name = "sapImportGroup";
+            // 
+            // sdeImportGroup
+            // 
+            this.sdeImportGroup.Items.Add(this.runSdeButton);
+            this.sdeImportGroup.Items.Add(this.sdeQueryComboBox);
+            this.sdeImportGroup.Items.Add(this.sdeInstancesEditBox);
+            this.sdeImportGroup.Label = "SDE";
+            this.sdeImportGroup.Name = "sdeImportGroup";
+            this.sdeImportGroup.Visible = false;
+            // 
+            // sdeQueryComboBox
+            // 
+            this.sdeQueryComboBox.Label = "Query";
+            this.sdeQueryComboBox.Name = "sdeQueryComboBox";
+            this.sdeQueryComboBox.SuperTip = "Choose SDE Lanucher available queries";
+            this.sdeQueryComboBox.Text = null;
+            // 
+            // sdeInstancesEditBox
+            // 
+            this.sdeInstancesEditBox.Label = "Instances";
+            this.sdeInstancesEditBox.MaxLength = 2;
+            this.sdeInstancesEditBox.Name = "sdeInstancesEditBox";
+            this.sdeInstancesEditBox.SuperTip = "Specify number of instances for SDE Laucher";
+            this.sdeInstancesEditBox.Text = "1";
+            this.sdeInstancesEditBox.TextChanged += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.sdeInstancesEditBox_TextChanged);
+            // 
+            // browserGroup
+            // 
+            this.browserGroup.Items.Add(this.browserButton);
+            this.browserGroup.Items.Add(this.browserWebsitesComboBox);
+            this.browserGroup.Items.Add(this.importFromBrowserCheckBox);
+            this.browserGroup.Label = "Browser";
+            this.browserGroup.Name = "browserGroup";
+            // 
+            // browserWebsitesComboBox
+            // 
+            this.browserWebsitesComboBox.Label = "Website";
+            this.browserWebsitesComboBox.Name = "browserWebsitesComboBox";
+            this.browserWebsitesComboBox.OfficeImageId = "WebBrowserControl";
+            this.browserWebsitesComboBox.ShowImage = true;
+            this.browserWebsitesComboBox.SuperTip = "Choose website that will be used when browser opens";
+            this.browserWebsitesComboBox.Text = "(blank)";
+            // 
+            // importFromBrowserCheckBox
+            // 
+            this.importFromBrowserCheckBox.Checked = true;
+            this.importFromBrowserCheckBox.Label = "Auto import";
+            this.importFromBrowserCheckBox.Name = "importFromBrowserCheckBox";
+            this.importFromBrowserCheckBox.ScreenTip = "Auto import from browser toggle";
+            this.importFromBrowserCheckBox.SuperTip = "Auto import downloaded Excel files and txt/csv files";
+            // 
+            // goToPropertiesButton
+            // 
+            this.goToPropertiesButton.Label = "Properties files";
+            this.goToPropertiesButton.Name = "goToPropertiesButton";
+            this.goToPropertiesButton.OfficeImageId = "ProjectManageDeliverables";
+            this.goToPropertiesButton.ScreenTip = "Properties files";
+            this.goToPropertiesButton.ShowImage = true;
+            this.goToPropertiesButton.SuperTip = "Will open location of properties files of ExcelEssencialsPack Add-in";
+            this.goToPropertiesButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.goToPropertiesButton_Click);
+            // 
+            // updateMacrosButton
+            // 
+            this.updateMacrosButton.Label = "Update macros";
+            this.updateMacrosButton.Name = "updateMacrosButton";
+            this.updateMacrosButton.OfficeImageId = "PublishWorkflow";
+            this.updateMacrosButton.ScreenTip = "Update macros";
+            this.updateMacrosButton.ShowImage = true;
+            this.updateMacrosButton.SuperTip = resources.GetString("updateMacrosButton.SuperTip");
+            this.updateMacrosButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.updateMacrosButton_Click);
+            // 
+            // createMacroUpdateButton
+            // 
+            this.createMacroUpdateButton.Label = "Create macro update";
+            this.createMacroUpdateButton.Name = "createMacroUpdateButton";
+            this.createMacroUpdateButton.OfficeImageId = "LogicShowDialogBoxAction";
+            this.createMacroUpdateButton.ScreenTip = "Create macro update file in Downloads";
+            this.createMacroUpdateButton.ShowImage = true;
+            this.createMacroUpdateButton.SuperTip = "Will create specific to custom ribbon Update macros file with clicked macro from " +
+    "VBA editor (has to be open and macro clicked) and it will be pasted to Downloads" +
+    " folder in macros backup folder";
+            this.createMacroUpdateButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.createMacroUpdateButton_Click);
+            // 
+            // checkMacrosButton
+            // 
+            this.checkMacrosButton.Label = "Check macros";
+            this.checkMacrosButton.Name = "checkMacrosButton";
+            this.checkMacrosButton.OfficeImageId = "MacroDefault";
+            this.checkMacrosButton.ScreenTip = "Check macros";
+            this.checkMacrosButton.ShowImage = true;
+            this.checkMacrosButton.SuperTip = "It will check if all macros that are assigned to buttons are present in specified" +
+    " workbook from Properties Files folder.";
+            this.checkMacrosButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.checkMacrosButton_Click);
+            // 
             // importSheetOrTxtFileSplitButton
             // 
             this.importSheetOrTxtFileSplitButton.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.importSheetOrTxtFileSplitButton.Items.Add(this.importSheetOrTxtFileAdvButton);
             this.importSheetOrTxtFileSplitButton.Items.Add(this.importTxtFileLegacyButton);
             this.importSheetOrTxtFileSplitButton.Label = "Import worksheet or txt file";
             this.importSheetOrTxtFileSplitButton.Name = "importSheetOrTxtFileSplitButton";
@@ -220,6 +455,17 @@
             this.importSheetOrTxtFileSplitButton.SuperTip = "Will create window that will accept txt/csv or Excel file and will import delimit" +
     "ed table or first sheet";
             this.importSheetOrTxtFileSplitButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.importSheetOrTxtFile_Click);
+            // 
+            // importSheetOrTxtFileAdvButton
+            // 
+            this.importSheetOrTxtFileAdvButton.Label = "Import worksheet or txt file advanced";
+            this.importSheetOrTxtFileAdvButton.Name = "importSheetOrTxtFileAdvButton";
+            this.importSheetOrTxtFileAdvButton.OfficeImageId = "ImportOpml";
+            this.importSheetOrTxtFileAdvButton.ScreenTip = "Advanced Import worksheet or txt file (beta)";
+            this.importSheetOrTxtFileAdvButton.ShowImage = true;
+            this.importSheetOrTxtFileAdvButton.SuperTip = "Will create window that will accept txt/csv file and will import delimited table " +
+    "to Excel and it should handle all text in \'\"\' quotes properly";
+            this.importSheetOrTxtFileAdvButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.importSheetOrTxtFileAdv_Click);
             // 
             // importTxtFileLegacyButton
             // 
@@ -232,32 +478,6 @@
     "as text";
             this.importTxtFileLegacyButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.importTxtFileLegacyButton_Click);
             // 
-            // modifiersGroup
-            // 
-            this.modifiersGroup.Items.Add(this.changeToTextButton);
-            this.modifiersGroup.Items.Add(this.changeToValueButton);
-            this.modifiersGroup.Items.Add(this.evaluateFormulaButton);
-            this.modifiersGroup.Items.Add(this.repasteAsValuesButton);
-            this.modifiersGroup.Items.Add(this.sortingAbsButton);
-            this.modifiersGroup.Items.Add(this.copyAsPictureButton);
-            this.modifiersGroup.Items.Add(this.separator11);
-            this.modifiersGroup.Items.Add(this.removeEmptyButton);
-            this.modifiersGroup.Items.Add(this.removeErrSplitBtn);
-            this.modifiersGroup.Items.Add(this.removeDuplicatesButton);
-            this.modifiersGroup.Items.Add(this.removeHiddenRowsSplitButton);
-            this.modifiersGroup.Items.Add(this.clearRangeOutsideButton);
-            this.modifiersGroup.Items.Add(this.removeFormattingButton);
-            this.modifiersGroup.Items.Add(this.separator1);
-            this.modifiersGroup.Items.Add(this.prependTextSplitButton);
-            this.modifiersGroup.Items.Add(this.trimButton);
-            this.modifiersGroup.Items.Add(this.formatNumberSplitButton);
-            this.modifiersGroup.Items.Add(this.separator13);
-            this.modifiersGroup.Items.Add(this.selectWithoutHeadersButton);
-            this.modifiersGroup.Items.Add(this.fillEmptyWithAboveValueButton);
-            this.modifiersGroup.Items.Add(this.copyDelimitedValuesButton);
-            this.modifiersGroup.Label = "Modifiers";
-            this.modifiersGroup.Name = "modifiersGroup";
-            // 
             // changeToTextButton
             // 
             this.changeToTextButton.Label = "To text";
@@ -265,7 +485,8 @@
             this.changeToTextButton.OfficeImageId = "AsianLayoutPhoneticGuide";
             this.changeToTextButton.ScreenTip = "Convert to text";
             this.changeToTextButton.ShowImage = true;
-            this.changeToTextButton.SuperTip = "Select range and it will change it to text";
+            this.changeToTextButton.SuperTip = "Select range and it will change it to text in the same way as Text to Columns doe" +
+    "s.";
             this.changeToTextButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.changeToTextButton_Click);
             // 
             // changeToValueButton
@@ -275,7 +496,8 @@
             this.changeToValueButton.OfficeImageId = "EquationMatrixGallery";
             this.changeToValueButton.ScreenTip = "Convert to value";
             this.changeToValueButton.ShowImage = true;
-            this.changeToValueButton.SuperTip = "Select range and it will make it general value type";
+            this.changeToValueButton.SuperTip = "Select range and it will make it general value type, so it will remove text forma" +
+    "t from it.";
             this.changeToValueButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.changeToValueButton_Click);
             // 
             // evaluateFormulaButton
@@ -285,8 +507,8 @@
             this.evaluateFormulaButton.OfficeImageId = "ShowFormulas";
             this.evaluateFormulaButton.ScreenTip = "Evaluate formula";
             this.evaluateFormulaButton.ShowImage = true;
-            this.evaluateFormulaButton.SuperTip = "Select square range and it should evaluate and replace formulas to value. For arr" +
-    "ays select first cell";
+            this.evaluateFormulaButton.SuperTip = "Select rectagular range and it should evaluate and replace formulas to value. For" +
+    " arrays select first cell. (May be slower than \"Repaste as values\")";
             this.evaluateFormulaButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.evaluateFormulaButton_Click);
             // 
             // repasteAsValuesButton
@@ -306,9 +528,9 @@
             this.sortingAbsButton.OfficeImageId = "Sort";
             this.sortingAbsButton.ScreenTip = "Sort by abs(values)";
             this.sortingAbsButton.ShowImage = true;
-            this.sortingAbsButton.SuperTip = "Click cell in column that have numbers and it should insert column with absolute " +
-    "values and sort from biggest to smallest and remove column (do not use for pivot" +
-    " tables)";
+            this.sortingAbsButton.SuperTip = "Click cell in column that have numbers and it should insert extra column with abs" +
+    "olute values and sort from biggest to smallest and remove column automatically (" +
+    "do not use for pivot tables)";
             this.sortingAbsButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.sortingAbsButton_Click);
             // 
             // copyAsPictureButton
@@ -318,12 +540,9 @@
             this.copyAsPictureButton.OfficeImageId = "Camera";
             this.copyAsPictureButton.ScreenTip = "Copy as picture";
             this.copyAsPictureButton.ShowImage = true;
-            this.copyAsPictureButton.SuperTip = "Copy selected square range as picture";
+            this.copyAsPictureButton.SuperTip = "Copy selected rectagle range as picture (try again in case or error as it appear " +
+    "randomly)";
             this.copyAsPictureButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.copyAsPictureButton_Click);
-            // 
-            // separator11
-            // 
-            this.separator11.Name = "separator11";
             // 
             // removeEmptyButton
             // 
@@ -353,18 +572,18 @@
             this.removeNaButton.OfficeImageId = "ConditionalFormattingClearMenu";
             this.removeNaButton.ScreenTip = "Blank #N/A cells";
             this.removeNaButton.ShowImage = true;
-            this.removeNaButton.SuperTip = "Select range and it will blank N/A values";
+            this.removeNaButton.SuperTip = "Select range and it will blank N/A values also work for text \"#N/A\"";
             this.removeNaButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.removeNaButton_Click);
             // 
-            // removeDuplicatesButton
+            // removeFormattingButton
             // 
-            this.removeDuplicatesButton.Label = "Remove duplicates";
-            this.removeDuplicatesButton.Name = "removeDuplicatesButton";
-            this.removeDuplicatesButton.OfficeImageId = "RemoveDuplicates";
-            this.removeDuplicatesButton.ScreenTip = "Remove duplicates";
-            this.removeDuplicatesButton.ShowImage = true;
-            this.removeDuplicatesButton.SuperTip = "Select range and it will remove duplicate rows from it";
-            this.removeDuplicatesButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.removeDuplicatesButton_Click);
+            this.removeFormattingButton.Label = "Remove formatting";
+            this.removeFormattingButton.Name = "removeFormattingButton";
+            this.removeFormattingButton.OfficeImageId = "HighlightClear";
+            this.removeFormattingButton.ScreenTip = "Remove formatting from cells";
+            this.removeFormattingButton.ShowImage = true;
+            this.removeFormattingButton.SuperTip = "Select range and it will remove formatting from it";
+            this.removeFormattingButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.removeFormattingButton_Click);
             // 
             // removeHiddenRowsSplitButton
             // 
@@ -373,7 +592,8 @@
             this.removeHiddenRowsSplitButton.Name = "removeHiddenRowsSplitButton";
             this.removeHiddenRowsSplitButton.OfficeImageId = "DeleteRows";
             this.removeHiddenRowsSplitButton.ScreenTip = "Remove hidden rows";
-            this.removeHiddenRowsSplitButton.SuperTip = "Remove hidden rows from selected range or region when only one cell selected";
+            this.removeHiddenRowsSplitButton.SuperTip = "Remove hidden rows from selected range (or region when only one cell selected) (c" +
+    "an be slow on large tables)";
             this.removeHiddenRowsSplitButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.removeHiddenRowsSplitButton_Click);
             // 
             // removeHiddenColumnsButton
@@ -383,7 +603,8 @@
             this.removeHiddenColumnsButton.OfficeImageId = "DeleteColumns";
             this.removeHiddenColumnsButton.ScreenTip = "Remove hidden columns";
             this.removeHiddenColumnsButton.ShowImage = true;
-            this.removeHiddenColumnsButton.SuperTip = "Remove hidden columns from selected range or region when only one cell selected";
+            this.removeHiddenColumnsButton.SuperTip = "Remove hidden columns from selected range (or region when only one cell selected)" +
+    " (can be slow on large tables)";
             this.removeHiddenColumnsButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.removeHiddenColumnsButton_Click);
             // 
             // clearRangeOutsideButton
@@ -394,22 +615,28 @@
             this.clearRangeOutsideButton.ScreenTip = "Clear outside range/region";
             this.clearRangeOutsideButton.ShowImage = true;
             this.clearRangeOutsideButton.SuperTip = "Clear everything outside region when one cell selected or outside range when sele" +
-    "cted square range";
+    "cted rectangular range";
             this.clearRangeOutsideButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.clearRangeOutsideButton_Click);
             // 
-            // removeFormattingButton
+            // removeDuplicatesSplitButton
             // 
-            this.removeFormattingButton.Label = "Remove formatting";
-            this.removeFormattingButton.Name = "removeFormattingButton";
-            this.removeFormattingButton.OfficeImageId = "HighlightClear";
-            this.removeFormattingButton.ScreenTip = "Remove formatting from cells";
-            this.removeFormattingButton.ShowImage = true;
-            this.removeFormattingButton.SuperTip = "Select range and it will remove formatting from that range";
-            this.removeFormattingButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.removeFormattingButton_Click);
+            this.removeDuplicatesSplitButton.Items.Add(this.removeDuplicatesInColumnsButton);
+            this.removeDuplicatesSplitButton.Label = "Remove duplicates";
+            this.removeDuplicatesSplitButton.Name = "removeDuplicatesSplitButton";
+            this.removeDuplicatesSplitButton.OfficeImageId = "RemoveDuplicates";
+            this.removeDuplicatesSplitButton.ScreenTip = "Remove duplicates";
+            this.removeDuplicatesSplitButton.SuperTip = "Select recatangular range and it will remove duplicate rows from it";
+            this.removeDuplicatesSplitButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.removeDuplicatesButton_Click);
             // 
-            // separator1
+            // removeDuplicatesInColumnsButton
             // 
-            this.separator1.Name = "separator1";
+            this.removeDuplicatesInColumnsButton.Label = "Remove duplicates in columns";
+            this.removeDuplicatesInColumnsButton.Name = "removeDuplicatesInColumnsButton";
+            this.removeDuplicatesInColumnsButton.OfficeImageId = "RemoveDuplicates";
+            this.removeDuplicatesInColumnsButton.ScreenTip = "Remove duplicates in each column";
+            this.removeDuplicatesInColumnsButton.ShowImage = true;
+            this.removeDuplicatesInColumnsButton.SuperTip = "Select recatangular range and it will remove duplicate cells from every column";
+            this.removeDuplicatesInColumnsButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.removeDuplicatesInColumnsButton_Click);
             // 
             // prependTextSplitButton
             // 
@@ -418,7 +645,8 @@
             this.prependTextSplitButton.Name = "prependTextSplitButton";
             this.prependTextSplitButton.OfficeImageId = "OutlineDemoteToBodyText";
             this.prependTextSplitButton.ScreenTip = "Prepend values with text";
-            this.prependTextSplitButton.SuperTip = "Select column range and it will prepend all values with given text";
+            this.prependTextSplitButton.SuperTip = "Select range and it will prepend all values with given text from form that will a" +
+    "ppear";
             this.prependTextSplitButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.prependTextSplitButton_Click);
             // 
             // appendTextButton
@@ -426,9 +654,11 @@
             this.appendTextButton.Label = "Append";
             this.appendTextButton.Name = "appendTextButton";
             this.appendTextButton.OfficeImageId = "LeftArrow2";
-            this.appendTextButton.ScreenTip = "OutlinePromoteToHeading";
+            this.appendTextButton.ScreenTip = "Append values with text";
             this.appendTextButton.ShowImage = true;
-            this.appendTextButton.SuperTip = "Select column range and it will append all values with given text";
+            this.appendTextButton.SuperTip = "Select range and it will append all values with given text from form that will ap" +
+    "pear (for numbers formatted as text it may convert back to number after appendin" +
+    "g with number)";
             this.appendTextButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.appendTextButton_Click);
             // 
             // trimButton
@@ -438,7 +668,8 @@
             this.trimButton.OfficeImageId = "TextDirectionContext";
             this.trimButton.ScreenTip = "Trim leading ant trailing spaces";
             this.trimButton.ShowImage = true;
-            this.trimButton.SuperTip = "Select range and it will remove leading and trailing spaces from values";
+            this.trimButton.SuperTip = "Select range and it will remove leading and trailing spaces, tabs and new lines f" +
+    "rom values";
             this.trimButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.trimButton_Click);
             // 
             // formatNumberSplitButton
@@ -448,8 +679,9 @@
             this.formatNumberSplitButton.Name = "formatNumberSplitButton";
             this.formatNumberSplitButton.OfficeImageId = "DollarSign";
             this.formatNumberSplitButton.ScreenTip = "Custom format";
-            this.formatNumberSplitButton.SuperTip = "Select any range and it will apply number format for numbers (does not affect tex" +
-    "t)";
+            this.formatNumberSplitButton.SuperTip = "Select any range and it will apply number format for numbers, date, if field is f" +
+    "ormatted as date, text is not affected. Apply again to change displayed precisio" +
+    "n (just format, does not modify values)";
             this.formatNumberSplitButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.formatNumberSplitButton_Click);
             // 
             // formatStringToDateButton
@@ -457,25 +689,22 @@
             this.formatStringToDateButton.Label = "Format string to date";
             this.formatStringToDateButton.Name = "formatStringToDateButton";
             this.formatStringToDateButton.OfficeImageId = "DateInsert";
-            this.formatStringToDateButton.ScreenTip = "Custom format";
+            this.formatStringToDateButton.ScreenTip = "Format date that is text or number to date value";
             this.formatStringToDateButton.ShowImage = true;
-            this.formatStringToDateButton.SuperTip = "Select column of string date values and it will show form to input format of date" +
-    " to parse the data and it will paste it into selected cell after clicking OK";
+            this.formatStringToDateButton.SuperTip = "Select single column range of string date values and it will show form to input f" +
+    "ormat of date to parse the data and it will paste it into selected cell after cl" +
+    "icking OK";
             this.formatStringToDateButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.formatStringToDateButton_Click);
-            // 
-            // separator13
-            // 
-            this.separator13.Name = "separator13";
             // 
             // selectWithoutHeadersButton
             // 
             this.selectWithoutHeadersButton.Label = "Select w/o headers";
             this.selectWithoutHeadersButton.Name = "selectWithoutHeadersButton";
             this.selectWithoutHeadersButton.OfficeImageId = "SelectWholeLayout";
-            this.selectWithoutHeadersButton.ScreenTip = "Select without headers";
+            this.selectWithoutHeadersButton.ScreenTip = "Select region without headers";
             this.selectWithoutHeadersButton.ShowImage = true;
-            this.selectWithoutHeadersButton.SuperTip = "Click on cell inside your table and click it will select square range without fir" +
-    "st row";
+            this.selectWithoutHeadersButton.SuperTip = "Click on cell inside your table and click it will select rectangular range withou" +
+    "t first row";
             this.selectWithoutHeadersButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.selectWithoutHeadersButton_Click);
             // 
             // fillEmptyWithAboveValueButton
@@ -483,9 +712,10 @@
             this.fillEmptyWithAboveValueButton.Label = "Fill with above value";
             this.fillEmptyWithAboveValueButton.Name = "fillEmptyWithAboveValueButton";
             this.fillEmptyWithAboveValueButton.OfficeImageId = "TablePropertiesHeightInfoPath";
-            this.fillEmptyWithAboveValueButton.ScreenTip = "Fill empty with above cell value";
+            this.fillEmptyWithAboveValueButton.ScreenTip = "Fill empty cells with above cell\'s content";
             this.fillEmptyWithAboveValueButton.ShowImage = true;
-            this.fillEmptyWithAboveValueButton.SuperTip = "Select square range and it will fill empty cels with above cell formula or value";
+            this.fillEmptyWithAboveValueButton.SuperTip = "Select rectangular range and it will fill empty cells with above cell\'s formula o" +
+    "r value";
             this.fillEmptyWithAboveValueButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.fillEmptyWithAboveValueButton_Click);
             // 
             // copyDelimitedValuesButton
@@ -498,14 +728,6 @@
             this.copyDelimitedValuesButton.SuperTip = "Will display form to set format to copy and will prepend and append and delimit w" +
     "ith choosen values and copy formatted string to clipboard";
             this.copyDelimitedValuesButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.copyDelimitedValuesButton_Click);
-            // 
-            // filterGroup
-            // 
-            this.filterGroup.Items.Add(this.filterColumnSplitButton);
-            this.filterGroup.Items.Add(this.hideRowsWithTextSplitButton);
-            this.filterGroup.Items.Add(this.takeRowsWithTextButton);
-            this.filterGroup.Label = "Filtering";
-            this.filterGroup.Name = "filterGroup";
             // 
             // filterColumnSplitButton
             // 
@@ -584,8 +806,8 @@
             this.hideRowsWithTextSplitButton.Name = "hideRowsWithTextSplitButton";
             this.hideRowsWithTextSplitButton.OfficeImageId = "GroupTableMerge";
             this.hideRowsWithTextSplitButton.ScreenTip = "Hide rows with text";
-            this.hideRowsWithTextSplitButton.SuperTip = "Will show dialog that will ask for text and it will hide all the entire rows from" +
-    " selected square range ";
+            this.hideRowsWithTextSplitButton.SuperTip = "Will show dialog that will ask for text and it will hide the entire rows from sel" +
+    "ected rectangular range ";
             this.hideRowsWithTextSplitButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.hideRowsWithTextSplitButton_Click);
             // 
             // hideColumnsWithTextButton
@@ -595,8 +817,8 @@
             this.hideColumnsWithTextButton.OfficeImageId = "GroupTableMerge";
             this.hideColumnsWithTextButton.ScreenTip = "Hide columns with text";
             this.hideColumnsWithTextButton.ShowImage = true;
-            this.hideColumnsWithTextButton.SuperTip = "Will show dialog that will ask for text and it will hide all the entire columns f" +
-    "rom selected square range ";
+            this.hideColumnsWithTextButton.SuperTip = "Will show dialog that will ask for text and it will hide the entire columns from " +
+    "selected rectangular range ";
             this.hideColumnsWithTextButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.hideColumnsWithTextButton_Click);
             // 
             // takeRowsWithTextButton
@@ -606,17 +828,9 @@
             this.takeRowsWithTextButton.OfficeImageId = "TableInsertRowsBelow";
             this.takeRowsWithTextButton.ScreenTip = "Take rows with text";
             this.takeRowsWithTextButton.ShowImage = true;
-            this.takeRowsWithTextButton.SuperTip = "Select square range and it will show dialog with text input that will take range " +
-    "rows that contain that text with headers to new sheet";
+            this.takeRowsWithTextButton.SuperTip = "Select rectangular range and it will show dialog with text input that will take r" +
+    "ange rows that contain that text with headers to new sheet";
             this.takeRowsWithTextButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.takeRowsWithTextButton_Click);
-            // 
-            // validationGroup
-            // 
-            this.validationGroup.Items.Add(this.splitButton1);
-            this.validationGroup.Items.Add(this.colorRowsWithTextSplitButton);
-            this.validationGroup.Items.Add(this.formatTrueFalseButton);
-            this.validationGroup.Label = "Validation";
-            this.validationGroup.Name = "validationGroup";
             // 
             // splitButton1
             // 
@@ -625,9 +839,9 @@
             this.splitButton1.Name = "splitButton1";
             this.splitButton1.OfficeImageId = "GroupResourceGraphFormat";
             this.splitButton1.ScreenTip = "Color rows unique";
-            this.splitButton1.SuperTip = "Color rows in selected square range based on first column unique values in unique" +
-    " colors (approxx 2000 colors and then thay will repeat and may end up next to ea" +
-    "ch other)";
+            this.splitButton1.SuperTip = "Color rows in selected rectangular range based on first column unique values in u" +
+    "nique colors (~2000 colors and then thay will repeat and may end up next to each" +
+    " other)";
             this.splitButton1.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.colorRowsUniqueSplitButton_Click);
             // 
             // colorRowsUniqueButton
@@ -637,8 +851,8 @@
             this.colorRowsUniqueButton.OfficeImageId = "FormatBarStylesMenu";
             this.colorRowsUniqueButton.ScreenTip = "Color cells unique";
             this.colorRowsUniqueButton.ShowImage = true;
-            this.colorRowsUniqueButton.SuperTip = "Color cells in selected range based on unique values in unique colors (approxx 20" +
-    "00 colors and then thay will repeat and may end up next to each other)";
+            this.colorRowsUniqueButton.SuperTip = "Color cells in selected range based on unique values in unique colors (~2000 colo" +
+    "rs and then thay will repeat and may end up next to each other)";
             this.colorRowsUniqueButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.colorCellsUniqueButton_Click);
             // 
             // colorRowsWithTextSplitButton
@@ -650,8 +864,8 @@
             this.colorRowsWithTextSplitButton.Name = "colorRowsWithTextSplitButton";
             this.colorRowsWithTextSplitButton.OfficeImageId = "ColorPickerTable";
             this.colorRowsWithTextSplitButton.ScreenTip = "Color rows with text";
-            this.colorRowsWithTextSplitButton.SuperTip = "Select square range and it will show text input dialog that will color rows with " +
-    "that contains it";
+            this.colorRowsWithTextSplitButton.SuperTip = "Select rectangular range and it will show text input dialog that will color rows " +
+    "with that contains it";
             this.colorRowsWithTextSplitButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.colorRowsWithTextSplitButton_Click);
             // 
             // colorColumnsWithTextButton
@@ -661,8 +875,8 @@
             this.colorColumnsWithTextButton.OfficeImageId = "ColorPickerTable";
             this.colorColumnsWithTextButton.ScreenTip = "Color columns with text";
             this.colorColumnsWithTextButton.ShowImage = true;
-            this.colorColumnsWithTextButton.SuperTip = "Select square range and it will show text input dialog that will color columns wi" +
-    "th that contains it";
+            this.colorColumnsWithTextButton.SuperTip = "Select rectangular range and it will show text input dialog that will color colum" +
+    "ns with that contains it";
             this.colorColumnsWithTextButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.colorColumnsWithTextButton_Click);
             // 
             // colorCellsWithTextButton
@@ -672,8 +886,8 @@
             this.colorCellsWithTextButton.OfficeImageId = "GroupResourceGraphFormat";
             this.colorCellsWithTextButton.ScreenTip = "Color cells with text";
             this.colorCellsWithTextButton.ShowImage = true;
-            this.colorCellsWithTextButton.SuperTip = "Select square range and it will show text input dialog that will color cells with" +
-    " that contains it";
+            this.colorCellsWithTextButton.SuperTip = "Select rectangular range and it will show text input dialog that will color cells" +
+    " with that contains it";
             this.colorCellsWithTextButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.colorCellsWithTextButton_Click);
             // 
             // colorRowsButton
@@ -683,7 +897,7 @@
             this.colorRowsButton.OfficeImageId = "GroupNetworkDiagramFormat";
             this.colorRowsButton.ScreenTip = "Color rows";
             this.colorRowsButton.ShowImage = true;
-            this.colorRowsButton.SuperTip = "Select square range and it will color rows in random colors";
+            this.colorRowsButton.SuperTip = "Select rectangular range and it will color rows in random colors";
             this.colorRowsButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.colorRowsButton_Click);
             // 
             // formatTrueFalseButton
@@ -696,12 +910,6 @@
             this.formatTrueFalseButton.SuperTip = resources.GetString("formatTrueFalseButton.SuperTip");
             this.formatTrueFalseButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.formatTrueFalseButton_Click);
             // 
-            // searchGroup
-            // 
-            this.searchGroup.Items.Add(this.searchDialogButton);
-            this.searchGroup.Label = "Search";
-            this.searchGroup.Name = "searchGroup";
-            // 
             // searchDialogButton
             // 
             this.searchDialogButton.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
@@ -711,23 +919,9 @@
             this.searchDialogButton.OfficeImageId = "DrawingExplorer";
             this.searchDialogButton.ScreenTip = "Search dialog";
             this.searchDialogButton.ShowImage = true;
-            this.searchDialogButton.SuperTip = "Will show column search form that helps find columns faster";
+            this.searchDialogButton.SuperTip = "Will show column search form that helps find columns faster, clear them and find " +
+    "columns with specific text";
             this.searchDialogButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.searchDialogButton_Click);
-            // 
-            // fileAndExportGroup
-            // 
-            this.fileAndExportGroup.Items.Add(this.saveSelectedWorksheetsAsXlsxSplitBtn);
-            this.fileAndExportGroup.Items.Add(this.duplicateWorksheetsSplitBtn);
-            this.fileAndExportGroup.Items.Add(this.saveThisWorksheetAsTxt);
-            this.fileAndExportGroup.Items.Add(this.divideTableToPartsAndSaveButton);
-            this.fileAndExportGroup.Items.Add(this.getFilePathButton);
-            this.fileAndExportGroup.Items.Add(this.exportMacrosButton);
-            this.fileAndExportGroup.Items.Add(this.separator2);
-            this.fileAndExportGroup.Items.Add(this.deleteWorksheetButton);
-            this.fileAndExportGroup.Items.Add(this.deleteOtherWorksheetsButton);
-            this.fileAndExportGroup.Items.Add(this.deleteWorkbookButton);
-            this.fileAndExportGroup.Label = "File && Export";
-            this.fileAndExportGroup.Name = "fileAndExportGroup";
             // 
             // saveSelectedWorksheetsAsXlsxSplitBtn
             // 
@@ -737,9 +931,9 @@
             this.saveSelectedWorksheetsAsXlsxSplitBtn.Label = "Save sel sheets as xlsx";
             this.saveSelectedWorksheetsAsXlsxSplitBtn.Name = "saveSelectedWorksheetsAsXlsxSplitBtn";
             this.saveSelectedWorksheetsAsXlsxSplitBtn.OfficeImageId = "OrgChartSubordinatesExpand";
-            this.saveSelectedWorksheetsAsXlsxSplitBtn.ScreenTip = "Save selected sheets as xlsx";
-            this.saveSelectedWorksheetsAsXlsxSplitBtn.SuperTip = "Saves selected sheets from workbook to separate xlsx file into folder named as wo" +
-    "rkbook and into path of that workbook";
+            this.saveSelectedWorksheetsAsXlsxSplitBtn.ScreenTip = "Save selected worksheets as xlsx";
+            this.saveSelectedWorksheetsAsXlsxSplitBtn.SuperTip = "Saves selected worksheets from workbook to separate xlsx files. It will show dial" +
+    "og where to save them.";
             this.saveSelectedWorksheetsAsXlsxSplitBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.saveSelectedWorksheetsAsXlsxSplitBtn_Click);
             // 
             // saveAllWorksheetsAsXlsxButton
@@ -747,10 +941,10 @@
             this.saveAllWorksheetsAsXlsxButton.Label = "Save all sheets as xlsx";
             this.saveAllWorksheetsAsXlsxButton.Name = "saveAllWorksheetsAsXlsxButton";
             this.saveAllWorksheetsAsXlsxButton.OfficeImageId = "OrgChartSubordinatesExpand";
-            this.saveAllWorksheetsAsXlsxButton.ScreenTip = "Save all sheets as xlsx";
+            this.saveAllWorksheetsAsXlsxButton.ScreenTip = "Save all worksheets as xlsx";
             this.saveAllWorksheetsAsXlsxButton.ShowImage = true;
-            this.saveAllWorksheetsAsXlsxButton.SuperTip = "Saves all sheets from workbook to separate txt file into folder named as workbook" +
-    " and into path of that workbook";
+            this.saveAllWorksheetsAsXlsxButton.SuperTip = "Saves all worksheets from workbook to separate txt files. It will show dialog whe" +
+    "re to save them";
             this.saveAllWorksheetsAsXlsxButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.saveAllWorksheetsAsXlsxButton_Click);
             // 
             // saveSelectedWorksheetsAsTxtButton
@@ -758,21 +952,19 @@
             this.saveSelectedWorksheetsAsTxtButton.Label = "Save selected sheets as txt";
             this.saveSelectedWorksheetsAsTxtButton.Name = "saveSelectedWorksheetsAsTxtButton";
             this.saveSelectedWorksheetsAsTxtButton.OfficeImageId = "OrgChartHorizontalGallery";
-            this.saveSelectedWorksheetsAsTxtButton.ScreenTip = "Save selected sheets as txt";
+            this.saveSelectedWorksheetsAsTxtButton.ScreenTip = "Save selected worksheets as txt";
             this.saveSelectedWorksheetsAsTxtButton.ShowImage = true;
-            this.saveSelectedWorksheetsAsTxtButton.SuperTip = "Saves selected sheets from workbook to separate txt file into folder named as wor" +
-    "kbook and into path of that workbook";
-            this.saveSelectedWorksheetsAsTxtButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.saveAllWorksheetsAsTxtButton_Click);
+            this.saveSelectedWorksheetsAsTxtButton.SuperTip = resources.GetString("saveSelectedWorksheetsAsTxtButton.SuperTip");
+            this.saveSelectedWorksheetsAsTxtButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.saveSelectedWorksheetsAsTxtButton_Click);
             // 
             // saveAllWorksheetsAsTxtButton
             // 
             this.saveAllWorksheetsAsTxtButton.Label = "Save all sheets as txt";
             this.saveAllWorksheetsAsTxtButton.Name = "saveAllWorksheetsAsTxtButton";
             this.saveAllWorksheetsAsTxtButton.OfficeImageId = "OrgChartHorizontalGallery";
-            this.saveAllWorksheetsAsTxtButton.ScreenTip = "Save all sheets as txt";
+            this.saveAllWorksheetsAsTxtButton.ScreenTip = "Save all worksheets as txt";
             this.saveAllWorksheetsAsTxtButton.ShowImage = true;
-            this.saveAllWorksheetsAsTxtButton.SuperTip = "Saves all sheets from workbook to separate txt file into folder named as workbook" +
-    " and into path of that workbook";
+            this.saveAllWorksheetsAsTxtButton.SuperTip = resources.GetString("saveAllWorksheetsAsTxtButton.SuperTip");
             this.saveAllWorksheetsAsTxtButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.saveAllWorksheetsAsTxtButton_Click);
             // 
             // duplicateWorksheetsSplitBtn
@@ -782,8 +974,8 @@
             this.duplicateWorksheetsSplitBtn.Label = "Duplicate sel sheets";
             this.duplicateWorksheetsSplitBtn.Name = "duplicateWorksheetsSplitBtn";
             this.duplicateWorksheetsSplitBtn.OfficeImageId = "DuplicateSelectedSlides";
-            this.duplicateWorksheetsSplitBtn.ScreenTip = "Duplicate selected sheets";
-            this.duplicateWorksheetsSplitBtn.SuperTip = "Will duplicate to the right selected worksheets";
+            this.duplicateWorksheetsSplitBtn.ScreenTip = "Duplicate selected worksheets";
+            this.duplicateWorksheetsSplitBtn.SuperTip = "Will duplicate selected worksheets and insert to the right";
             this.duplicateWorksheetsSplitBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.duplicateWorksheetsSplitBtn_Click);
             // 
             // duplicateWorksheetsToNewWorkbookBtn
@@ -791,7 +983,7 @@
             this.duplicateWorksheetsToNewWorkbookBtn.Label = "Duplicate sheets to new wb";
             this.duplicateWorksheetsToNewWorkbookBtn.Name = "duplicateWorksheetsToNewWorkbookBtn";
             this.duplicateWorksheetsToNewWorkbookBtn.OfficeImageId = "CopyAllRules";
-            this.duplicateWorksheetsToNewWorkbookBtn.ScreenTip = "Duplicate sheets to new wb";
+            this.duplicateWorksheetsToNewWorkbookBtn.ScreenTip = "Duplicate worksheets to new wb";
             this.duplicateWorksheetsToNewWorkbookBtn.ShowImage = true;
             this.duplicateWorksheetsToNewWorkbookBtn.SuperTip = "Will copy selected worksheets to new workbook first creating and saving that new " +
     "workbook";
@@ -814,7 +1006,9 @@
             this.saveThisWorksheetAsTxt.OfficeImageId = "ExportTextFile";
             this.saveThisWorksheetAsTxt.ScreenTip = "Save this sheet as txt";
             this.saveThisWorksheetAsTxt.ShowImage = true;
-            this.saveThisWorksheetAsTxt.SuperTip = "Saves current sheet to txt file and ask about saving";
+            this.saveThisWorksheetAsTxt.SuperTip = "Saves current sheet to tab delimited txt file and ask about saving. If any cell c" +
+    "ontains tab or new line it will warn about it and offer to remove it inserting s" +
+    "pace if between words.";
             this.saveThisWorksheetAsTxt.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.saveThisWorksheetAsTxt_Click);
             // 
             // divideTableToPartsAndSaveButton
@@ -834,7 +1028,7 @@
             this.getFilePathButton.OfficeImageId = "OpenAttach";
             this.getFilePathButton.ScreenTip = "Get file path of current workbook";
             this.getFilePathButton.ShowImage = true;
-            this.getFilePathButton.SuperTip = "Paste file path of workbook into selected cell";
+            this.getFilePathButton.SuperTip = "Displays form with path to current workbook and offers to copy path to it.";
             this.getFilePathButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.getFilePathButton_Click);
             // 
             // exportMacrosButton
@@ -842,23 +1036,19 @@
             this.exportMacrosButton.Label = "Export macros";
             this.exportMacrosButton.Name = "exportMacrosButton";
             this.exportMacrosButton.OfficeImageId = "FileMenuPublishHeader";
-            this.exportMacrosButton.ScreenTip = "It will export macros from choosen Workbook to folder in Downloads folder.";
+            this.exportMacrosButton.ScreenTip = "Export macros from choosen workbook";
             this.exportMacrosButton.ShowImage = true;
-            this.exportMacrosButton.SuperTip = "Export macros from choosen workbook";
+            this.exportMacrosButton.SuperTip = "It will export macros from choosen workbook to new folder in Downloads folder.";
             this.exportMacrosButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.exportMacrosButton_Click);
-            // 
-            // separator2
-            // 
-            this.separator2.Name = "separator2";
             // 
             // deleteWorksheetButton
             // 
             this.deleteWorksheetButton.Label = "Delete sel sheets";
             this.deleteWorksheetButton.Name = "deleteWorksheetButton";
             this.deleteWorksheetButton.OfficeImageId = "SheetDelete";
-            this.deleteWorksheetButton.ScreenTip = "Delete selected sheets";
+            this.deleteWorksheetButton.ScreenTip = "Delete selected worksheets";
             this.deleteWorksheetButton.ShowImage = true;
-            this.deleteWorksheetButton.SuperTip = "Deletes selected sheets from workbook without confirmation";
+            this.deleteWorksheetButton.SuperTip = "Deletes selected worksheets from workbook without confirmation";
             this.deleteWorksheetButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.deleteWorksheetButton_Click);
             // 
             // deleteOtherWorksheetsButton
@@ -866,9 +1056,9 @@
             this.deleteOtherWorksheetsButton.Label = "Delete other sheets";
             this.deleteOtherWorksheetsButton.Name = "deleteOtherWorksheetsButton";
             this.deleteOtherWorksheetsButton.OfficeImageId = "DeletePagePreviousVersion";
-            this.deleteOtherWorksheetsButton.ScreenTip = "Delete other sheets";
+            this.deleteOtherWorksheetsButton.ScreenTip = "Delete other worksheets";
             this.deleteOtherWorksheetsButton.ShowImage = true;
-            this.deleteOtherWorksheetsButton.SuperTip = "Deletes other sheets than selected with a warning";
+            this.deleteOtherWorksheetsButton.SuperTip = "Deletes other worksheets than selected with a warning";
             this.deleteOtherWorksheetsButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.deleteOtherWorksheetsButton_Click);
             // 
             // deleteWorkbookButton
@@ -880,13 +1070,6 @@
             this.deleteWorkbookButton.ShowImage = true;
             this.deleteWorkbookButton.SuperTip = "Deletes this workbook with warning";
             this.deleteWorkbookButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.deleteWorkbookButton_Click);
-            // 
-            // macroGroup
-            // 
-            this.macroGroup.Items.Add(this.runMacroButton);
-            this.macroGroup.Items.Add(this.runCustomFormButton);
-            this.macroGroup.Label = "Macro";
-            this.macroGroup.Name = "macroGroup";
             // 
             // runMacroButton
             // 
@@ -910,22 +1093,6 @@
             this.runCustomFormButton.SuperTip = resources.GetString("runCustomFormButton.SuperTip");
             this.runCustomFormButton.Visible = false;
             this.runCustomFormButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.runCustomFormButton_Click);
-            // 
-            // pivotToolsTab
-            // 
-            this.pivotToolsTab.Groups.Add(this.pivotTemplatesGroup);
-            this.pivotToolsTab.Groups.Add(this.pivotFormatGroup);
-            this.pivotToolsTab.Groups.Add(this.pivotToolsGroup);
-            this.pivotToolsTab.Label = "Pivot\'s tools";
-            this.pivotToolsTab.Name = "pivotToolsTab";
-            // 
-            // pivotTemplatesGroup
-            // 
-            this.pivotTemplatesGroup.Items.Add(this.createPivotFromTemplateMenu);
-            this.pivotTemplatesGroup.Items.Add(this.generatePivotTemlateCodeButton);
-            this.pivotTemplatesGroup.Items.Add(this.runPvTemplateBtn);
-            this.pivotTemplatesGroup.Label = "Pivot templates";
-            this.pivotTemplatesGroup.Name = "pivotTemplatesGroup";
             // 
             // createPivotFromTemplateMenu
             // 
@@ -1193,8 +1360,9 @@
             this.generatePivotTemlateCodeButton.OfficeImageId = "PivotTableListFormulas";
             this.generatePivotTemlateCodeButton.ScreenTip = "Generate pv template code from pv";
             this.generatePivotTemlateCodeButton.ShowImage = true;
-            this.generatePivotTemlateCodeButton.SuperTip = "First format pivot table and then you can create template from it and copy templa" +
-    "te and paste it manualy into default macro workbook";
+            this.generatePivotTemlateCodeButton.SuperTip = "First format pivot table and then you can use this to create template from it and" +
+    " copy template and paste it manualy into default macro workbook and remember to " +
+    "save it";
             this.generatePivotTemlateCodeButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.generatePivotTemlateCodeButton_Click);
             // 
             // runPvTemplateBtn
@@ -1206,15 +1374,6 @@
             this.runPvTemplateBtn.ShowImage = true;
             this.runPvTemplateBtn.SuperTip = resources.GetString("runPvTemplateBtn.SuperTip");
             this.runPvTemplateBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.runPvTemplateButton_Click);
-            // 
-            // pivotFormatGroup
-            // 
-            this.pivotFormatGroup.Items.Add(this.formatClickedPivotButton);
-            this.pivotFormatGroup.Items.Add(this.formatAllPivotButton);
-            this.pivotFormatGroup.Items.Add(this.grandTotalsToggleButton);
-            this.pivotFormatGroup.Items.Add(this.subtotalsToggleButton);
-            this.pivotFormatGroup.Label = "Format pivot";
-            this.pivotFormatGroup.Name = "pivotFormatGroup";
             // 
             // formatClickedPivotButton
             // 
@@ -1241,9 +1400,10 @@
             this.grandTotalsToggleButton.Label = "Grand Totals";
             this.grandTotalsToggleButton.Name = "grandTotalsToggleButton";
             this.grandTotalsToggleButton.OfficeImageId = "GroupCalculation";
-            this.grandTotalsToggleButton.ScreenTip = "Grand Totals switch for pv";
+            this.grandTotalsToggleButton.ScreenTip = "Grand Totals switch for pivot table";
             this.grandTotalsToggleButton.ShowImage = true;
-            this.grandTotalsToggleButton.SuperTip = "Toggle grand totals in selected pivot table";
+            this.grandTotalsToggleButton.SuperTip = "Toggle grand totals in selected pivot table (click one more time if nothing chang" +
+    "ed)";
             this.grandTotalsToggleButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.grandTotalsToggleButton_Click);
             // 
             // subtotalsToggleButton
@@ -1253,17 +1413,9 @@
             this.subtotalsToggleButton.OfficeImageId = "GroupCalculation";
             this.subtotalsToggleButton.ScreenTip = "Subtotals switch for pv";
             this.subtotalsToggleButton.ShowImage = true;
-            this.subtotalsToggleButton.SuperTip = "Toggle subtotals in selected pivot table";
+            this.subtotalsToggleButton.SuperTip = "Toggle subtotals in selected pivot table (click one more time if nothing changed)" +
+    "";
             this.subtotalsToggleButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.subtotalsToggleButton_Click);
-            // 
-            // pivotToolsGroup
-            // 
-            this.pivotToolsGroup.Items.Add(this.changePivotTableSourceButton);
-            this.pivotToolsGroup.Items.Add(this.updatePivotTableSourceButton);
-            this.pivotToolsGroup.Items.Add(this.refreshPivotsButton);
-            this.pivotToolsGroup.Items.Add(this.combinedTableFromPvValuesButton);
-            this.pivotToolsGroup.Label = "Pivot tools";
-            this.pivotToolsGroup.Name = "pivotToolsGroup";
             // 
             // changePivotTableSourceButton
             // 
@@ -1273,7 +1425,7 @@
             this.changePivotTableSourceButton.ScreenTip = "Change pivot table source";
             this.changePivotTableSourceButton.ShowImage = true;
             this.changePivotTableSourceButton.SuperTip = "Will show you range picker and select table or click on one cell in that table to" +
-    " change pivot table source of current pivot table";
+    " change pivot table source of current pivot table to choosen one";
             this.changePivotTableSourceButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.changePivotTableSourceButton_Click);
             // 
             // updatePivotTableSourceButton
@@ -1291,7 +1443,7 @@
             this.refreshPivotsButton.Label = "Refresh all pv";
             this.refreshPivotsButton.Name = "refreshPivotsButton";
             this.refreshPivotsButton.OfficeImageId = "RefreshWebView";
-            this.refreshPivotsButton.ScreenTip = "Refresh all pv";
+            this.refreshPivotsButton.ScreenTip = "Refresh all pivot tables";
             this.refreshPivotsButton.ShowImage = true;
             this.refreshPivotsButton.SuperTip = "Refresh all pivot tables in current workbook";
             this.refreshPivotsButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.refreshPivotsButton_Click);
@@ -1307,42 +1459,6 @@
     "at would be created by double click";
             this.combinedTableFromPvValuesButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.combinedTableFromPvValuesButton_Click);
             // 
-            // dataImportTab
-            // 
-            this.dataImportTab.Groups.Add(this.sqlImportGroup);
-            this.dataImportTab.Groups.Add(this.sapImportGroup);
-            this.dataImportTab.Groups.Add(this.sdeImportGroup);
-            this.dataImportTab.Groups.Add(this.browserGroup);
-            this.dataImportTab.Label = "Data import";
-            this.dataImportTab.Name = "dataImportTab";
-            // 
-            // sqlImportGroup
-            // 
-            this.sqlImportGroup.Items.Add(this.sqlEditorBtn);
-            this.sqlImportGroup.Items.Add(this.separator12);
-            this.sqlImportGroup.Items.Add(this.loadToDataTableButton);
-            this.sqlImportGroup.Label = "SQL";
-            this.sqlImportGroup.Name = "sqlImportGroup";
-            this.sqlImportGroup.Visible = false;
-            // 
-            // sqlEditorBtn
-            // 
-            this.sqlEditorBtn.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
-            this.sqlEditorBtn.Image = global::ExcelEssentials.Properties.Resources.sql;
-            this.sqlEditorBtn.Label = "SQL Editor";
-            this.sqlEditorBtn.Name = "sqlEditorBtn";
-            this.sqlEditorBtn.ScreenTip = "SQL Editor";
-            this.sqlEditorBtn.ShowImage = true;
-            this.sqlEditorBtn.SuperTip = "Display SQL editor form that let you use queries for Oracle and Microsoft SQL Ser" +
-    "ver and paste results into directly into Excel (do not close editor until desire" +
-    "d data is not pulled)";
-            this.sqlEditorBtn.Visible = false;
-            this.sqlEditorBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.sqlEditorBtn_Click);
-            // 
-            // separator12
-            // 
-            this.separator12.Name = "separator12";
-            // 
             // loadToDataTableButton
             // 
             this.loadToDataTableButton.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
@@ -1351,17 +1467,11 @@
             this.loadToDataTableButton.OfficeImageId = "AdpStoredProcedureEditSql";
             this.loadToDataTableButton.ScreenTip = "Load to DataTable";
             this.loadToDataTableButton.ShowImage = true;
-            this.loadToDataTableButton.SuperTip = "Will load selected square range to data table (do not select range if you want to" +
-    " load file or select range later) and let you SQL query it and paste to excel la" +
-    "ter";
+            this.loadToDataTableButton.SuperTip = "Will load selected rectangular range to data table (do not select range if you wa" +
+    "nt to load file or select range later) and let you SQL query it and paste to exc" +
+    "el later";
             this.loadToDataTableButton.Visible = false;
             this.loadToDataTableButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.loadToDataTableButton_Click);
-            // 
-            // sapImportGroup
-            // 
-            this.sapImportGroup.Items.Add(this.runS4ExtractButton);
-            this.sapImportGroup.Label = "SAP";
-            this.sapImportGroup.Name = "sapImportGroup";
             // 
             // runS4ExtractButton
             // 
@@ -1373,14 +1483,6 @@
             this.runS4ExtractButton.ShowImage = true;
             this.runS4ExtractButton.SuperTip = resources.GetString("runS4ExtractButton.SuperTip");
             this.runS4ExtractButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.runS4ExtractButton_Click);
-            // 
-            // sdeImportGroup
-            // 
-            this.sdeImportGroup.Items.Add(this.runSdeButton);
-            this.sdeImportGroup.Items.Add(this.sdeQueryComboBox);
-            this.sdeImportGroup.Items.Add(this.sdeInstancesEditBox);
-            this.sdeImportGroup.Label = "SDE";
-            this.sdeImportGroup.Name = "sdeImportGroup";
             // 
             // runSdeButton
             // 
@@ -1394,30 +1496,6 @@
     " v2.x need to be specified)";
             this.runSdeButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.runSdeButton_Click);
             // 
-            // sdeQueryComboBox
-            // 
-            this.sdeQueryComboBox.Label = "Query";
-            this.sdeQueryComboBox.Name = "sdeQueryComboBox";
-            this.sdeQueryComboBox.SuperTip = "Choose SDE Lanucher available queries";
-            this.sdeQueryComboBox.Text = null;
-            // 
-            // sdeInstancesEditBox
-            // 
-            this.sdeInstancesEditBox.Label = "Instances";
-            this.sdeInstancesEditBox.MaxLength = 2;
-            this.sdeInstancesEditBox.Name = "sdeInstancesEditBox";
-            this.sdeInstancesEditBox.SuperTip = "Specify number of instances for SDE Laucher";
-            this.sdeInstancesEditBox.Text = "1";
-            this.sdeInstancesEditBox.TextChanged += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.sdeInstancesEditBox_TextChanged);
-            // 
-            // browserGroup
-            // 
-            this.browserGroup.Items.Add(this.browserButton);
-            this.browserGroup.Items.Add(this.browserWebsitesComboBox);
-            this.browserGroup.Items.Add(this.importFromBrowserCheckBox);
-            this.browserGroup.Label = "Browser";
-            this.browserGroup.Name = "browserGroup";
-            // 
             // browserButton
             // 
             this.browserButton.Image = global::ExcelEssentials.Properties.Resources.Microsoft_Edge_logo__2019__svg;
@@ -1428,74 +1506,6 @@
             this.browserButton.SuperTip = resources.GetString("browserButton.SuperTip");
             this.browserButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.browserButton_Click);
             // 
-            // browserWebsitesComboBox
-            // 
-            this.browserWebsitesComboBox.Label = "Website";
-            this.browserWebsitesComboBox.Name = "browserWebsitesComboBox";
-            this.browserWebsitesComboBox.OfficeImageId = "WebBrowserControl";
-            this.browserWebsitesComboBox.ShowImage = true;
-            this.browserWebsitesComboBox.SuperTip = "Choose website that will be used when browser opens";
-            this.browserWebsitesComboBox.Text = "(blank)";
-            // 
-            // importFromBrowserCheckBox
-            // 
-            this.importFromBrowserCheckBox.Checked = true;
-            this.importFromBrowserCheckBox.Label = "Auto import";
-            this.importFromBrowserCheckBox.Name = "importFromBrowserCheckBox";
-            this.importFromBrowserCheckBox.ScreenTip = "Auto import from browser toggle";
-            this.importFromBrowserCheckBox.SuperTip = "Auto import downloaded Excel files and txt/csv files";
-            // 
-            // goToPropertiesButton
-            // 
-            this.goToPropertiesButton.Label = "Properties files";
-            this.goToPropertiesButton.Name = "goToPropertiesButton";
-            this.goToPropertiesButton.OfficeImageId = "ProjectManageDeliverables";
-            this.goToPropertiesButton.ScreenTip = "Properties files";
-            this.goToPropertiesButton.ShowImage = true;
-            this.goToPropertiesButton.SuperTip = "Will open location of properties files";
-            this.goToPropertiesButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.goToPropertiesButton_Click);
-            // 
-            // sqlEditorDataFolderBtn
-            // 
-            this.sqlEditorDataFolderBtn.Label = "SQL Editor Data";
-            this.sqlEditorDataFolderBtn.Name = "sqlEditorDataFolderBtn";
-            this.sqlEditorDataFolderBtn.OfficeImageId = "Folder";
-            this.sqlEditorDataFolderBtn.ScreenTip = "SQL Editor Data (Queries)";
-            this.sqlEditorDataFolderBtn.ShowImage = true;
-            this.sqlEditorDataFolderBtn.SuperTip = "Go to folder that SQL Editor saved databases are and SQL queries";
-            this.sqlEditorDataFolderBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.sqlEditorDataFolderBtn_Click);
-            // 
-            // updateMacrosButton
-            // 
-            this.updateMacrosButton.Label = "Update macros";
-            this.updateMacrosButton.Name = "updateMacrosButton";
-            this.updateMacrosButton.OfficeImageId = "PublishWorkflow";
-            this.updateMacrosButton.ScreenTip = "Update macros";
-            this.updateMacrosButton.ShowImage = true;
-            this.updateMacrosButton.SuperTip = resources.GetString("updateMacrosButton.SuperTip");
-            this.updateMacrosButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.updateMacrosButton_Click);
-            // 
-            // createMacroUpdateButton
-            // 
-            this.createMacroUpdateButton.Label = "Create macro update";
-            this.createMacroUpdateButton.Name = "createMacroUpdateButton";
-            this.createMacroUpdateButton.OfficeImageId = "LogicShowDialogBoxAction";
-            this.createMacroUpdateButton.ScreenTip = "Create macro update file in Downloads";
-            this.createMacroUpdateButton.ShowImage = true;
-            this.createMacroUpdateButton.SuperTip = "Will create specific to custom ribbon Update macros file with clicked macro from " +
-    "VBA editor (has to be open and macro clicked) and it will be pasted to Downloads" +
-    " folder in macros backup folder";
-            this.createMacroUpdateButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.createMacroUpdateButton_Click);
-            // 
-            // checkMacrosButton
-            // 
-            this.checkMacrosButton.Label = "Check macros";
-            this.checkMacrosButton.Name = "checkMacrosButton";
-            this.checkMacrosButton.OfficeImageId = "MacroDefault";
-            this.checkMacrosButton.ScreenTip = "Check macros";
-            this.checkMacrosButton.ShowImage = true;
-            this.checkMacrosButton.SuperTip = "It will check if all macros that are assigned to buttons are present";
-            // 
             // MiscRibbon
             // 
             this.Name = "MiscRibbon";
@@ -1503,7 +1513,6 @@
             // MiscRibbon.OfficeMenu
             // 
             this.OfficeMenu.Items.Add(this.goToPropertiesButton);
-            this.OfficeMenu.Items.Add(this.sqlEditorDataFolderBtn);
             this.OfficeMenu.Items.Add(this.updateMacrosButton);
             this.OfficeMenu.Items.Add(this.createMacroUpdateButton);
             this.OfficeMenu.Items.Add(this.checkMacrosButton);
@@ -1633,12 +1642,9 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonSplitButton duplicateWorksheetsSplitBtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton duplicateWorkbookBtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton duplicateWorksheetsToNewWorkbookBtn;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton sqlEditorBtn;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton sqlEditorDataFolderBtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonToggleButton grandTotalsToggleButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton filterColumnFromRangeNotInRangeButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton runPvTemplateBtn;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton removeDuplicatesButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton runMacroButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonSeparator separator11;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup macroGroup;
@@ -1658,7 +1664,6 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonButton importTxtFileLegacyButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonSplitButton importSheetOrTxtFileSplitButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonToggleButton subtotalsToggleButton;
-        internal Microsoft.Office.Tools.Ribbon.RibbonSeparator separator12;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton loadToDataTableButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton colorColumnsWithTextButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton colorCellsWithTextButton;
@@ -1688,6 +1693,9 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonSplitButton removeErrSplitBtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton changePivotTableSourceButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonSplitButton formatNumberSplitButton;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton importSheetOrTxtFileAdvButton;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton removeDuplicatesInColumnsButton;
+        internal Microsoft.Office.Tools.Ribbon.RibbonSplitButton removeDuplicatesSplitButton;
     }
 
     partial class ThisRibbonCollection

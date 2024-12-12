@@ -15,6 +15,7 @@ using System.Text.RegularExpressions;
 using System.Numerics;
 using System.Drawing;
 using System.Globalization;
+using Newtonsoft.Json.Linq;
 
 public static class UtilsExcel
 {
@@ -123,73 +124,92 @@ public static class UtilsExcel
         return $"\n(\n\t(\n{string.Join("\n\t)\n\tOR\n\t(\n", filterParts)}\n\t)\n)\n";
     }
 
-    public static void ColorRowsUnique(Excel.Range rng)
+    public static void ColorRowsUnique(Excel.Range rng, Dictionary<string, Color> valueColorD = null)
     {
+        Excel.Application app = rng.Application;
         bool isPivot;
         try
         {
-            if (!rng.Valid())
-                return;
-
-            isPivot = (rng.Cells[1, 1] as Excel.Range).IsPivotCell();
-
-            Excel.Range firstColRng = rng.Columns[1];
-            Dictionary<string, Color> valueColorD = new Dictionary<string, Color>();
-            List<string> values;
-            values = firstColRng.Cells.Cast<Excel.Range>().Select(p => ((object)p.Value2)?.ToString() ?? "").Distinct().ToList();
-            List<Color> colorsList = Utils.GenerateColorPalette(values.Count);
-            colorsList.Shuffle();
-            for (int i = 0; i < values.Count; i++)
-                valueColorD.Add(values[i], colorsList[i]);
-
-            try
-            { valueColorD[""] = Color.WhiteSmoke; }
-            catch (Exception) { }
-
-            using (new ExcelExecutionBlock(rng.Application))
+            if (valueColorD == null)
             {
-                if (isPivot && rng.Rows.Count > 150)
+                valueColorD = new Dictionary<string, Color>();
+                List<string> values = new List<string>();
+                foreach (var ar in rng.Areas.Cast<Excel.Range>())
                 {
-                    Excel.Worksheet ws = (rng.Worksheet.Parent as Excel.Workbook).Worksheets.Add(After: rng.Worksheet);
-                    rng.Copy();
-                    (ws.Cells[1, 1] as Excel.Range).PasteSpecial(Excel.XlPasteType.xlPasteValuesAndNumberFormats);
-                    ColorRowsUnique(ws.UsedRange);
-                    ws.UsedRange.Copy();
-                    rng.PasteSpecial(Excel.XlPasteType.xlPasteFormats);
-                    rng.Application.DisplayAlerts = false;
-                    ws.Delete();
-                    rng.Application.DisplayAlerts = true;
-                    rng.Worksheet.Activate();
-                    return;
-                }
-
-                rng.Borders.LineStyle = Excel.XlLineStyle.xlLineStyleNone;
-
-                foreach (Excel.Range r in rng.Rows.Cast<Excel.Range>())
-                    r.Interior.Color = valueColorD[((object)r.Columns[1].Value)?.ToString() ?? ""];
-
-                Excel.Range row;
-                string val = null, oldVal = null;
-                for (int i = 1; i <= rng.Rows.Count; i++)
-                {
-                    row = rng.Rows[i] as Excel.Range;
-                    oldVal = val;
-                    val = ((object)row.Columns[1].Value)?.ToString() ?? "";
-                    row.Interior.Color = valueColorD[val];
-
-                    if (i == 1)
+                    if (!ar.Valid())
                         continue;
 
-                    if (!val.Equals(oldVal, StringComparison.Ordinal))
+                    if (ar.Cells.Count == 1)
+                        values.Add(((object)ar.Cells[0].Value2)?.ToString() ?? "");
+                    else if (ar.Cells.Count > 1)
+                        values.AddRange(((object[,])ar.Columns[1].Value2).Cast<object>().Select(p => p?.ToString() ?? "").Distinct().ToList());
+                }
+                values = values.Distinct().ToList();
+
+                List<Color> colorsList = Utils.GenerateColorPalette(values.Count);
+                colorsList.Shuffle();
+                for (int i = 0; i < values.Count; i++)
+                    valueColorD.Add(values[i], colorsList[i]);
+
+                try
+                { valueColorD[""] = Color.WhiteSmoke; }
+                catch (Exception) { }
+            }
+
+            using (new ExcelExecutionBlock(app))
+            {
+                foreach (var ar in rng.Areas.Cast<Excel.Range>())
+                {
+                    if (!ar.Valid())
+                        continue;
+
+                    isPivot = (ar.Cells[1, 1] as Excel.Range).IsPivotCell();
+
+                    if (isPivot && ar.Rows.Count > 150)
                     {
-                        Excel.Border border = row.Borders[Excel.XlBordersIndex.xlEdgeTop];
-                        border.Color = ColorTranslator.FromOle((int)((double)row.Interior.Color)).DarkenColor(0.5f).ToArgb();
-                        border.Weight = Excel.XlBorderWeight.xlThin;
-                        border.LineStyle = Excel.XlLineStyle.xlContinuous;
+                        Excel.Worksheet ws = (rng.Worksheet.Parent as Excel.Workbook).Worksheets.Add(After: rng.Worksheet);
+                        ar.Copy();
+                        (ws.Cells[1, 1] as Excel.Range).PasteSpecial(Excel.XlPasteType.xlPasteValuesAndNumberFormats);
+                        ColorRowsUnique(ws.UsedRange, valueColorD);
+                        ws.UsedRange.Copy();
+                        ar.PasteSpecial(Excel.XlPasteType.xlPasteFormats);
+                        app.DisplayAlerts = false;
+                        ws.Delete();
+                        app.DisplayAlerts = true;
+                    }
+                    else
+                    {
+                        ar.Borders.LineStyle = Excel.XlLineStyle.xlLineStyleNone;
+
+                        foreach (Excel.Range r in ar.Rows.Cast<Excel.Range>())
+                            r.Interior.Color = valueColorD[((object)r.Columns[1].Value)?.ToString() ?? ""];
+
+                        Excel.Range row;
+                        string val = null, oldVal = null;
+                        for (int i = 1; i <= ar.Rows.Count; i++)
+                        {
+                            row = ar.Rows[i] as Excel.Range;
+                            oldVal = val;
+                            val = ((object)row.Columns[1].Value)?.ToString() ?? "";
+                            row.Interior.Color = valueColorD[val];
+
+                            if (i == 1)
+                                continue;
+
+                            if (!val.Equals(oldVal, StringComparison.Ordinal))
+                            {
+                                Excel.Border border = row.Borders[Excel.XlBordersIndex.xlEdgeTop];
+                                border.Color = ColorTranslator.FromOle((int)((double)row.Interior.Color)).DarkenColor(0.5f).ToArgb();
+                                border.Weight = Excel.XlBorderWeight.xlThin;
+                                border.LineStyle = Excel.XlLineStyle.xlContinuous;
+                            }
+                        }
                     }
                 }
+                rng.Worksheet.Activate();
             }
         }
+        catch (COMException) { }
         catch (Exception) { }
     }
 
@@ -1537,7 +1557,7 @@ public static class UtilsExcel
 
         // Ensure folder exists
         Directory.CreateDirectory(folderPath);
-
+        bool? replaceTabsAndNewLines = null;
         // Save each sheet as a separate Excel file
         using (new ExcelExecutionBlock(app))
         {
@@ -1561,7 +1581,10 @@ public static class UtilsExcel
                         throw new InvalidOperationException("Failed to retrieve the copied worksheet.");
 
                     // Check for new lines or tabs in the copied worksheet
-                    CheckAndAskToRemoveNewLineOrTabInCellsInWorksheet(newWs);
+                    if (replaceTabsAndNewLines == null)
+                        replaceTabsAndNewLines = CheckAndAskToRemoveNewLineOrTabInCellsInWorksheet(newWs);
+                    else if (replaceTabsAndNewLines == true)
+                        CheckAndAskToRemoveNewLineOrTabInCellsInWorksheet(newWs, true);
 
                     // Save the new workbook as a text file
                     app.DisplayAlerts = false;
@@ -1577,7 +1600,7 @@ public static class UtilsExcel
         }
     }
 
-    public static bool CheckAndAskToRemoveNewLineOrTabInCellsInWorksheet(Excel.Worksheet ws)
+    public static bool CheckAndAskToRemoveNewLineOrTabInCellsInWorksheet(Excel.Worksheet ws, bool bypassMessageBoxAndReplace = false)
     {
         if (ws == null)
             throw new ArgumentNullException(nameof(ws));
@@ -1599,7 +1622,11 @@ public static class UtilsExcel
 
         if (hasNewLineOrTabAddress != null)
         {
-            var result = MessageBox.Show($"The worksheet contains cells (like: {hasNewLineOrTabAddress}) with new lines or tab characters. Would you like to remove all of them?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            DialogResult result;
+            if (!bypassMessageBoxAndReplace)
+                result = MessageBox.Show($"The worksheet contains cells (like: {hasNewLineOrTabAddress}) with new lines or tab characters. Would you like to remove all of them or replace with space if present between words?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            else
+                result = DialogResult.Yes;
 
             if (result == DialogResult.Yes)
             {
@@ -1607,9 +1634,19 @@ public static class UtilsExcel
                 foreach (Excel.Range cell in usedRange.Cells.Cast<Excel.Range>().Where(p => p.Value2 != null && p.Value2 is string))
                 {
                     string value2 = cell.Value2.ToString();
-                    // Replace new lines and tabs
-                    if (value2.Contains("\n") || value2.Contains("\t"))
-                        cell.Value2 = value2?.Replace("\n", "")?.Replace("\t", "") ?? string.Empty;
+                    if (!string.IsNullOrEmpty(value2))
+                    {
+                        // Replace newlines/tabs between non-whitespace characters with a single space
+                        value2 = Regex.Replace(value2, @"(?<=\S)[\n\t]+(?=\S)", " ");
+
+                        // Remove leading or trailing newlines/tabs
+                        value2 = Regex.Replace(value2, @"^[\n\t]+|[\n\t]+$", "");
+
+                        // Replace remaining newlines/tabs with nothing
+                        value2 = Regex.Replace(value2, @"[\n\t]+", " ");
+
+                        cell.Value2 = value2;
+                    }
                 }
                 return true;
             }
