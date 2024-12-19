@@ -791,6 +791,10 @@ public static class UtilsExcel
         using (new ExcelExecutionBlock(rng.Application))
         {
             rng.ClearFormats();
+            rng.ClearHyperlinks();
+            rng.ClearComments();
+            rng.ClearNotes();
+            rng.ClearOutline();
         }
     }
 
@@ -848,6 +852,65 @@ public static class UtilsExcel
     }
 
     public static void DeleteOutsideRngOrRegion(Excel.Range selection)
+    {
+        if (!selection.Valid())
+            return;
+
+        Excel.Worksheet activeSheet = selection.Worksheet;
+        Excel.Range region;
+        if (selection.Cells.Count == 1)
+        {
+            if (selection.IsPivotCell())
+                region = selection.PivotCell.PivotTable.TableRange2;
+            else
+                region = selection.CurrentRegion;
+        }
+        else if (selection.Cells.Count > 1)
+            region = selection;
+        else
+            return;
+
+        using (new ExcelExecutionBlock(selection.Application))
+        {
+            // Delete columns to the left of the region.
+            if (region.Column > 1)
+            {
+                Excel.Range leftColumns = activeSheet.Range[activeSheet.Cells[1, 1], activeSheet.Cells[1, region.Column - 1]].EntireColumn;
+                leftColumns.Hidden = false;
+                leftColumns.Delete(Excel.XlDeleteShiftDirection.xlShiftToLeft);
+            }
+
+            // Delete columns to the right of the region.
+            int lastColumn = region.Column + region.Columns.Count - 1;
+            if (lastColumn < activeSheet.Columns.Count)
+            {
+                Excel.Range rightColumns = activeSheet.Range[activeSheet.Cells[1, lastColumn + 1], activeSheet.Cells[1, activeSheet.Columns.Count]].EntireColumn;
+                rightColumns.Hidden = false;
+                rightColumns.ClearFormats();
+                rightColumns.Delete(Excel.XlDeleteShiftDirection.xlShiftToLeft);
+            }
+
+            // Delete rows above the region.
+            if (region.Row > 1)
+            {
+                Excel.Range aboveRows = activeSheet.Range[activeSheet.Cells[1, 1], activeSheet.Cells[region.Row - 1, 1]].EntireRow;
+                aboveRows.Hidden = false;
+                aboveRows.Delete(Excel.XlDeleteShiftDirection.xlShiftUp);
+            }
+
+            // Delete rows below the region.
+            int lastRow = region.Row + region.Rows.Count - 1;
+            if (lastRow < activeSheet.Rows.Count)
+            {
+                Excel.Range belowRows = activeSheet.Range[activeSheet.Cells[lastRow + 1, 1], activeSheet.Cells[activeSheet.Rows.Count, 1]].EntireRow;
+                belowRows.Hidden = false;
+                belowRows.ClearFormats();
+                belowRows.Delete(Excel.XlDeleteShiftDirection.xlShiftUp);
+            }
+        }
+    }
+    
+    public static void ClearOutsideRngOrRegion(Excel.Range selection)
     {
         if (!selection.Valid())
             return;
