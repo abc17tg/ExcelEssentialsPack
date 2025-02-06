@@ -6,6 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using ExcelEssentials.Forms;
@@ -25,7 +27,6 @@ namespace ExcelEssentials
         private void MiscRibbon_Load(object sender, RibbonUIEventArgs e)
         {
             var assembly = Assembly.GetExecutingAssembly();
-
             GetMacrosWorkbooks();
 
             // add event to every pivot button
@@ -133,6 +134,8 @@ namespace ExcelEssentials
 
         private void evaluateFormulaButton_Click(object sender, RibbonControlEventArgs e)
         {
+            if (m_macroWorkbook == null)
+                GetMacrosWorkbooks();
             UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
             //UtilsExcel.RunMacro("Converting.EvaluateAndReplaceFormula");
         }
@@ -161,7 +164,7 @@ namespace ExcelEssentials
                     ar.GetUsableRange().RepasteAsValues();
 
                     if (formula != null)
-                        Clipboard.SetText(firstCell.Formula);
+                        Clipboard.SetText(formula);
                 }
             }
             //UtilsExcel.RunMacro("Converting.RepasteSelectedRangeAsValues");
@@ -169,6 +172,8 @@ namespace ExcelEssentials
 
         private void removeEmptyButton_Click(object sender, RibbonControlEventArgs e)
         {
+            if (m_macroWorkbook == null)
+                GetMacrosWorkbooks();
             UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
             //UtilsExcel.RunMacro("RemoveCells.RemoveEmptyCells");
         }
@@ -333,6 +338,8 @@ namespace ExcelEssentials
 
         private void takeRowsWithTextButton_Click(object sender, RibbonControlEventArgs e)
         {
+            if (m_macroWorkbook == null)
+                GetMacrosWorkbooks();
             UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
             //UtilsExcel.RunMacro("GetRowsThatContainTextValue.GetRowsThatContainTextValueInput");
         }
@@ -376,59 +383,94 @@ namespace ExcelEssentials
                 Dictionary<string, Color> valueColorD = new Dictionary<string, Color>();
                 List<string> values;
                 values = rngSel.Cells.Cast<Excel.Range>().Select(p => ((object)p.Value2)?.ToString() ?? "").Distinct().ToList();
-                List<Color> colorsList = Utils.GenerateColorPalette(values.Count);
-                colorsList.Shuffle();
-                for (int i = 0; i < values.Count; i++)
-                    valueColorD.Add(values[i], colorsList[i]);
-                try
-                { valueColorD[""] = Color.WhiteSmoke; }
-                catch (Exception) { }
 
-                using (new ExcelExecutionBlock(app))
+                var getUniqueColorsTaskResult = new Task<Dictionary<string, Color>>(() =>
                 {
-                    rngSel.Borders.LineStyle = Excel.XlLineStyle.xlLineStyleNone;
+                    List<Color> colorsList = Utils.GenerateColorPalette(values.Count);
+                    colorsList.Shuffle();
+                    for (int i = 0; i < values.Count; i++)
+                        valueColorD.Add(values[i], colorsList[i]);
+                    try
+                    { valueColorD[""] = Color.WhiteSmoke; }
+                    catch (Exception) { }
+                    return valueColorD;
+                });
 
-                    foreach (Excel.Range c in rngSel.Cells.Cast<Excel.Range>())
-                        c.Interior.Color = valueColorD[((object)c.Value)?.ToString() ?? ""];
+                getUniqueColorsTaskResult.GetAwaiter().OnCompleted(() =>
+                {
+                    if (app == null)
+                        return;
 
-                    Excel.Range cell;
-                    string val = null, oldVal = null;
+                    if (Globals.ThisAddIn.Dispatcher == null)
+                        return;
 
-                    foreach (Excel.Range col in rngSel.Columns.Cast<Excel.Range>())
+                    Globals.ThisAddIn.Dispatcher.Invoke(new Action(() =>
                     {
-                        for (int i = 1; i <= col.Cells.Count; i++)
+                        try
                         {
-                            cell = col.Cells[i] as Excel.Range;
-                            oldVal = val;
-                            val = ((object)cell.Value)?.ToString() ?? "";
-                            cell.Interior.Color = valueColorD[val];
-
-                            if (i == 1)
-                                continue;
-
-                            if (!val.Equals(oldVal, StringComparison.Ordinal))
+                            app.StatusBar = string.Empty;
+                            using (new ExcelExecutionBlock(app))
                             {
-                                Excel.Border border = cell.Borders[Excel.XlBordersIndex.xlEdgeTop];
-                                border.Color = ColorTranslator.FromOle((int)((double)cell.Interior.Color)).DarkenColor(0.5f).ToArgb();
-                                border.Weight = Excel.XlBorderWeight.xlThin;
-                                border.LineStyle = Excel.XlLineStyle.xlContinuous;
+                                rngSel.Borders.LineStyle = Excel.XlLineStyle.xlLineStyleNone;
+
+                                foreach (Excel.Range c in rngSel.Cells.Cast<Excel.Range>())
+                                    c.Interior.Color = valueColorD[((object)c.Value)?.ToString() ?? ""];
+
+                                Excel.Range cell;
+                                string val = null, oldVal = null;
+
+                                foreach (Excel.Range col in rngSel.Columns.Cast<Excel.Range>())
+                                {
+                                    for (int i = 1; i <= col.Cells.Count; i++)
+                                    {
+                                        cell = col.Cells[i] as Excel.Range;
+                                        oldVal = val;
+                                        val = ((object)cell.Value)?.ToString() ?? "";
+                                        cell.Interior.Color = valueColorD[val];
+
+                                        if (i == 1)
+                                            continue;
+
+                                        if (!val.Equals(oldVal, StringComparison.Ordinal))
+                                        {
+                                            Excel.Border border = cell.Borders[Excel.XlBordersIndex.xlEdgeTop];
+                                            border.Color = ColorTranslator.FromOle((int)((double)cell.Interior.Color)).DarkenColor(0.5f).ToArgb();
+                                            border.Weight = Excel.XlBorderWeight.xlThin;
+                                            border.LineStyle = Excel.XlLineStyle.xlContinuous;
+                                        }
+                                    }
+                                }
                             }
                         }
-                    }
+                        catch (COMException)
+                        {
+                            app.StatusBar = "Err";
+                        }
+                        catch (Exception)
+                        {
+                            app.StatusBar = "Err";
+                        }
+                    }));
+                });
 
-                }
+                app.StatusBar = "Getting unique colors";
+                getUniqueColorsTaskResult.Start();
             }
             catch (Exception) { }
         }
 
         private void colorRowsButton_Click(object sender, RibbonControlEventArgs e)
         {
+            if (m_macroWorkbook == null)
+                GetMacrosWorkbooks();
             UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
             //UtilsExcel.RunMacro("ColorRows.ColorSelectedRows");
         }
 
         private void formatTrueFalseButton_Click(object sender, RibbonControlEventArgs e)
         {
+            if (m_macroWorkbook == null)
+                GetMacrosWorkbooks();
             UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Id, m_macroWorkbook));
             //UtilsExcel.RunMacro("Utils.ConditionalFormattingTRUEandFALSE");
         }
@@ -946,6 +988,8 @@ namespace ExcelEssentials
 
         private void runMacroButton_Click(object sender, RibbonControlEventArgs e)
         {
+            if (m_macroWorkbook == null)
+                GetMacrosWorkbooks();
             RunMacroForm form = new RunMacroForm(m_macroWorkbook);
             form.Show();
         }
@@ -1095,6 +1139,8 @@ namespace ExcelEssentials
 
         private void runCustomFormButton_Click(object sender, RibbonControlEventArgs e)
         {
+            if (m_macroWorkbook == null)
+                GetMacrosWorkbooks();
             RunMacroWithSearchPhraseForm form = new RunMacroWithSearchPhraseForm(m_macroWorkbook, "RunCustom");
             form.Show();
         }

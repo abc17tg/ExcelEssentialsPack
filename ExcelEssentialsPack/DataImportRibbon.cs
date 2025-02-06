@@ -20,6 +20,8 @@ namespace ExcelEssentials
         private void runS4ExtractButton_Click(object sender, RibbonControlEventArgs e)
         {
             //SapS4ExtractionForm form = new SapS4ExtractionForm(m_macroWorkbook);
+            if (m_macroWorkbook == null)
+                GetMacrosWorkbooks();
             RunMacroWithSearchPhraseForm form = new RunMacroWithSearchPhraseForm(m_macroWorkbook, "SapS4ExtractionSearch");
             form.Show();
         }

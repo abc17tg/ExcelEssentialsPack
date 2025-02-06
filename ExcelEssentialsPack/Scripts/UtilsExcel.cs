@@ -15,7 +15,6 @@ using System.Text.RegularExpressions;
 using System.Numerics;
 using System.Drawing;
 using System.Globalization;
-using Newtonsoft.Json.Linq;
 
 public static class UtilsExcel
 {
@@ -909,7 +908,7 @@ public static class UtilsExcel
             }
         }
     }
-    
+
     public static void ClearOutsideRngOrRegion(Excel.Range selection)
     {
         if (!selection.Valid())
@@ -1547,13 +1546,17 @@ public static class UtilsExcel
         {
             string defaultPath = Path.GetDirectoryName(wb.FullName) ?? Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 
-            using (var folderDialog = new FolderBrowserDialog())
+            using (var saveFileDialog = new SaveFileDialog())
             {
-                folderDialog.Description = "Select folder to save sheets as Excel files";
-                folderDialog.SelectedPath = defaultPath;
+                saveFileDialog.Title = "Select folder to save worksheets as Excel files";
+                saveFileDialog.InitialDirectory = defaultPath;
+                saveFileDialog.FileName = "Select Folder"; // Fake file name, user won't actually save this
+                saveFileDialog.Filter = "Folders|*.folder"; // Dummy filter to trick the dialog into selecting a folder
+                saveFileDialog.CheckFileExists = false;
+                saveFileDialog.CheckPathExists = true;
 
-                if (folderDialog.ShowDialog() == DialogResult.OK)
-                    folderPath = folderDialog.SelectedPath;
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                    folderPath = Path.GetDirectoryName(saveFileDialog.FileName);
                 else
                     return; // Exit if no folder selected
             }
@@ -1606,13 +1609,17 @@ public static class UtilsExcel
         {
             string defaultPath = Path.GetDirectoryName(wb.FullName) ?? Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 
-            using (var folderDialog = new FolderBrowserDialog())
+            using (var saveFileDialog = new SaveFileDialog())
             {
-                folderDialog.Description = "Select folder to save sheets as Tab delimited files";
-                folderDialog.SelectedPath = defaultPath;
+                saveFileDialog.Title = "Select folder to save worksheets as Tab delimited files";
+                saveFileDialog.InitialDirectory = defaultPath;
+                saveFileDialog.FileName = "Select Folder"; // Fake file name, user won't actually save this
+                saveFileDialog.Filter = "Folders|*.folder"; // Dummy filter to trick the dialog into selecting a folder
+                saveFileDialog.CheckFileExists = false;
+                saveFileDialog.CheckPathExists = true;
 
-                if (folderDialog.ShowDialog() == DialogResult.OK)
-                    folderPath = folderDialog.SelectedPath;
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                    folderPath = Path.GetDirectoryName(saveFileDialog.FileName);
                 else
                     return; // Exit if no folder selected
             }
@@ -1724,22 +1731,28 @@ public static class UtilsExcel
     {
         try
         {
-            if (path == string.Empty || !Directory.Exists(path))
+            if (string.IsNullOrEmpty(path) || !Directory.Exists(path))
             {
-                using (var folderBrowserDialog = new FolderBrowserDialog())
+                using (var saveFileDialog = new SaveFileDialog())
                 {
-                    DialogResult result = folderBrowserDialog.ShowDialog();
+                    saveFileDialog.Title = "Select folder to create a new directory";
+                    saveFileDialog.FileName = "Select Folder"; // Fake filename to allow folder selection
+                    saveFileDialog.Filter = "Folders|*.folder"; // Dummy filter
+                    saveFileDialog.CheckFileExists = false;
+                    saveFileDialog.CheckPathExists = true;
 
-                    if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(folderBrowserDialog.SelectedPath))
+                    if (saveFileDialog.ShowDialog() == DialogResult.OK)
                     {
-                        string selectedPath = folderBrowserDialog.SelectedPath;
+                        string selectedPath = Path.GetDirectoryName(saveFileDialog.FileName) ?? Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
                         string newDirectoryName = Path.GetFileNameWithoutExtension(wb.FullName);
                         string newPath = Path.Combine(selectedPath, newDirectoryName);
                         int i = 1;
+
                         while (Directory.Exists(newPath))
                         {
-                            newPath = Path.Combine(selectedPath, newDirectoryName + $" ({i})");
+                            newPath = Path.Combine(selectedPath, $"{newDirectoryName} ({i++})");
                         }
+
                         path = Directory.CreateDirectory(newPath).FullName;
                     }
                 }

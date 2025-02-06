@@ -1,7 +1,11 @@
-﻿namespace ExcelEssentials
+﻿using System.Windows.Threading;
+
+namespace ExcelEssentials
 {
     public partial class ThisAddIn
     {
+        private Dispatcher m_dispatcher = Dispatcher.CurrentDispatcher;
+        public Dispatcher Dispatcher { get { return m_dispatcher; } }
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         { 
         }

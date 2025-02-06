@@ -33,10 +33,10 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <PublishUrl>C:\Users\olszewsm\Documents\Documents\Custom ribbon\Releses\CustomRibbon_v2.1\ExcelCustomRibbon\</PublishUrl>
+    <PublishUrl>C:\Users\olszewsm\Documents\Documents\Custom ribbon\Releses\CustomRibbon_v2.2\ExcelCustomRibbon\</PublishUrl>
     <InstallUrl />
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>2.1.0.26</ApplicationVersion>
+    <ApplicationVersion>2.1.0.27</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>7</UpdateInterval>

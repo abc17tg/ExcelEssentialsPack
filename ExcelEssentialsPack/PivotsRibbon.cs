@@ -9,24 +9,32 @@ namespace ExcelEssentials
     {
         private void generatePivotTemlateCodeButton_Click(object sender, RibbonControlEventArgs e)
         {
+            if (m_macroWorkbook == null)
+                GetMacrosWorkbooks();
             UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Name, m_macroWorkbook));
             //UtilsExcel.RunMacro("PivotTablesTemplates.GenerateCreatePivotTableCode");
         }
 
         private void formatClickedPivotButton_Click(object sender, RibbonControlEventArgs e)
         {
+            if (m_macroWorkbook == null)
+                GetMacrosWorkbooks();
             UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Name, m_macroWorkbook));
             //UtilsExcel.RunMacro("PivotTablesFormat.FormatSelectedPivotTableDesign");
         }
 
         private void formatAllPivotButton_Click(object sender, RibbonControlEventArgs e)
         {
+            if (m_macroWorkbook == null)
+                GetMacrosWorkbooks();
             UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Name, m_macroWorkbook));
             //UtilsExcel.RunMacro("PivotTablesFormat.FormatAllPivotTableDesign");
         }
 
         private void refreshPivotsButton_Click(object sender, RibbonControlEventArgs e)
         {
+            if (m_macroWorkbook == null)
+                GetMacrosWorkbooks();
             UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Name, m_macroWorkbook));
             //UtilsExcel.RunMacro("PivotTablesFormat.RefreshPivotTables");
         }
@@ -34,23 +42,31 @@ namespace ExcelEssentials
         private void runPvTemplateButton_Click(object sender, RibbonControlEventArgs e)
         {
             //PvTemplatesListForm form = new PvTemplatesListForm(m_macroWorkbook);
+            if (m_macroWorkbook == null)
+                GetMacrosWorkbooks();
             RunMacroWithSearchPhraseForm form = new RunMacroWithSearchPhraseForm(m_macroWorkbook, "PivotTableSearch", true);
             form.Show();
         }
 
         private void combinedTableFromPvValuesButton_Click(object sender, RibbonControlEventArgs e)
         {
+            if (m_macroWorkbook == null)
+                GetMacrosWorkbooks();
             UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Name, m_macroWorkbook));
             //UtilsExcel.RunMacro("PivotTablesFormat.FormatSelectedPivotTableDesign");
         }
 
         private void updatePivotTableSourceButton_Click(object sender, RibbonControlEventArgs e)
         {
+            if (m_macroWorkbook == null)
+                GetMacrosWorkbooks();
             UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Name, m_macroWorkbook));
         }
 
         private void changePivotTableSourceButton_Click(object sender, RibbonControlEventArgs e)
         {
+            if (m_macroWorkbook == null)
+                GetMacrosWorkbooks();
             UtilsExcel.RunMacro(Macro.GetMacroNameForButton((sender as RibbonButton).Name, m_macroWorkbook));
         }
 
