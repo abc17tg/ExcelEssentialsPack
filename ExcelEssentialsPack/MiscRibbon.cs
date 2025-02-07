@@ -124,6 +124,7 @@ namespace ExcelEssentials
                     if (fileExists)
                     {
                         try { return app.Workbooks.Open(fullPath); }
+                        catch (COMException) { }
                         catch (Exception) { }
                     }
                     else
