@@ -24,10 +24,13 @@ namespace ExcelEssentials
         private Excel.Workbook m_macroWorkbook;
         private Excel.Workbook m_functionsWorkbook;
 
-        private void MiscRibbon_Load(object sender, RibbonUIEventArgs e)
+        private async void MiscRibbon_Load(object sender, RibbonUIEventArgs e)
         {
-            var assembly = Assembly.GetExecutingAssembly();
-            GetMacrosWorkbooks();
+            //var assembly = Assembly.GetExecutingAssembly();
+            //GetMacrosWorkbooks();
+            FileManager.CheckForCustomMacrosWbNames();
+            m_macroWorkbook = await EnsureWorkbookIsOpenAsync(FileManager.MacrosWbName);
+            m_functionsWorkbook = await EnsureWorkbookIsOpenAsync(FileManager.FunctionsWbName);
 
             // add event to every pivot button
             List<RibbonButton> createPivotButtons = createPivotFromTemplateMenu.Items.Where(p => p.GetType().Name == "RibbonButtonImpl").Cast<RibbonButton>().ToList();
@@ -56,6 +59,111 @@ namespace ExcelEssentials
                     browserWebsitesComboBox.Items.Add(ribbonDropDownItem);
                 }
             //SQLitePCL.Batteries.Init();
+        }
+
+        public enum MissingWorkbookAction
+        {
+            Ignore,
+            TryOpen,
+            Prompt
+        }
+
+        public async Task<Excel.Workbook> EnsureWorkbookIsOpenAsync(string workbookName)
+        {
+            Excel.Application app = Globals.ThisAddIn.Application;
+            Excel.Workbook wb = GetOpenWorkbook(app, workbookName);
+            if (wb != null)
+                return wb;
+
+            await Task.Delay(5000);
+
+            wb = CheckAndOpenWorkbook(app, workbookName, MissingWorkbookAction.TryOpen);
+            if (wb != null)
+                return wb;
+
+            wb = CheckAndOpenWorkbook(app, workbookName, MissingWorkbookAction.Prompt);
+            return wb;
+        }
+
+        private Excel.Workbook GetOpenWorkbook(Excel.Application app, string workbookName)
+        {
+            try
+            {
+                var wb = Globals.ThisAddIn.Application.Workbooks[FileManager.MacrosWbName];
+                if (wb != null)
+                    return wb;
+                else
+                    return null;
+            }
+            catch (COMException)
+            {
+                return null;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        private Excel.Workbook CheckAndOpenWorkbook(Excel.Application app, string workbookName, MissingWorkbookAction action)
+        {
+            Excel.Workbook wb = GetOpenWorkbook(app, workbookName);
+            if (wb != null)
+                return wb;
+
+            string startupPath = app.StartupPath;
+            string fullPath = Path.Combine(startupPath, workbookName);
+            bool fileExists = File.Exists(fullPath);
+
+            switch (action)
+            {
+                case MissingWorkbookAction.Ignore:
+                    return null;
+
+                case MissingWorkbookAction.TryOpen:
+                    if (fileExists)
+                    {
+                        try { return app.Workbooks.Open(fullPath); }
+                        catch (Exception) { }
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                    break;
+
+                case MissingWorkbookAction.Prompt:
+                    wb = CheckAndOpenWorkbook(app, workbookName, MissingWorkbookAction.TryOpen);
+                    if (wb != null)
+                        return wb;
+                    else
+                    {
+                        DialogResult result = MessageBox.Show($"{workbookName} was not found in XLSTART foder:\n\"{startupPath}\"\nLocate manually?",
+                                                              "Workbook Not Found", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                        if (result == DialogResult.Yes)
+                        {
+                            using (OpenFileDialog ofd = new OpenFileDialog())
+                            {
+                                ofd.Filter = "Excel macros workbooks|*.xlsb;*.xlam;*.xlsm";
+                                ofd.Title = $"Locate macro workbook {workbookName}";
+                                ofd.InitialDirectory = startupPath;
+                                ofd.Multiselect = false;
+                                if (ofd.ShowDialog() == DialogResult.OK)
+                                {
+                                    try { return app.Workbooks.Open(ofd.FileName); }
+                                    catch (Exception ex)
+                                    {
+                                        MessageBox.Show($"Error opening {workbookName}:\n{ex.Message}",
+                                                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    return null;
+            }
+
+            return null;
         }
 
         private bool GetMacrosWorkbooks()
