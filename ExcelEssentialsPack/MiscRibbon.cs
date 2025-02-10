@@ -28,6 +28,7 @@ namespace ExcelEssentials
         {
             //var assembly = Assembly.GetExecutingAssembly();
             //GetMacrosWorkbooks();
+            ScintillaFix.CopyNativeFolderIfNotExistOrDifferentFixForScintillaBug();
             FileManager.CheckForCustomMacrosWbNames();
             m_macroWorkbook = await EnsureWorkbookIsOpenAsync(FileManager.MacrosWbName);
             m_functionsWorkbook = await EnsureWorkbookIsOpenAsync(FileManager.FunctionsWbName);
@@ -1099,7 +1100,8 @@ namespace ExcelEssentials
         {
             if (m_macroWorkbook == null)
                 GetMacrosWorkbooks();
-            RunMacroForm form = new RunMacroForm(m_macroWorkbook);
+            //RunMacroForm form = new RunMacroForm(m_macroWorkbook);
+            RunMacroTempForm form = new RunMacroTempForm(m_macroWorkbook);
             form.Show();
         }
 

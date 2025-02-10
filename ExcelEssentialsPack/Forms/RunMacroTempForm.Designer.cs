@@ -1,6 +1,6 @@
 ﻿namespace ExcelEssentials.Forms
 {
-    partial class RunMacroForm
+    partial class RunMacroTempForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,26 +28,13 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.vbaEditorScintilla = new ScintillaNET.Scintilla();
             this.refreshBtn = new System.Windows.Forms.Button();
             this.searchTextBox = new System.Windows.Forms.TextBox();
             this.macrosListView = new System.Windows.Forms.ListView();
             this.closeBtn = new System.Windows.Forms.Button();
             this.workbookPickComboBox = new System.Windows.Forms.ComboBox();
+            this.richTextBox = new System.Windows.Forms.RichTextBox();
             this.SuspendLayout();
-            // 
-            // vbaEditorScintilla
-            // 
-            this.vbaEditorScintilla.BorderStyle = ScintillaNET.BorderStyle.FixedSingle;
-            this.vbaEditorScintilla.CaretForeColor = System.Drawing.Color.White;
-            this.vbaEditorScintilla.LexerName = "vb";
-            this.vbaEditorScintilla.Location = new System.Drawing.Point(396, 29);
-            this.vbaEditorScintilla.Name = "vbaEditorScintilla";
-            this.vbaEditorScintilla.Size = new System.Drawing.Size(434, 560);
-            this.vbaEditorScintilla.TabIndex = 10;
-            this.vbaEditorScintilla.TabStop = false;
-            this.vbaEditorScintilla.UseTabs = true;
-            this.vbaEditorScintilla.WrapIndentMode = ScintillaNET.WrapIndentMode.Indent;
             // 
             // refreshBtn
             // 
@@ -132,22 +119,36 @@
             this.workbookPickComboBox.TabIndex = 15;
             this.workbookPickComboBox.TabStop = false;
             // 
-            // RunMacroForm
+            // richTextBox
+            // 
+            this.richTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(44)))), ((int)(((byte)(50)))), ((int)(((byte)(54)))));
+            this.richTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.richTextBox.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.richTextBox.ForeColor = System.Drawing.SystemColors.InactiveCaption;
+            this.richTextBox.Location = new System.Drawing.Point(396, 29);
+            this.richTextBox.Name = "richTextBox";
+            this.richTextBox.ReadOnly = true;
+            this.richTextBox.Size = new System.Drawing.Size(434, 560);
+            this.richTextBox.TabIndex = 16;
+            this.richTextBox.TabStop = false;
+            this.richTextBox.Text = "";
+            // 
+            // RunMacroTempForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.MediumSpringGreen;
             this.ClientSize = new System.Drawing.Size(836, 601);
+            this.Controls.Add(this.richTextBox);
             this.Controls.Add(this.workbookPickComboBox);
             this.Controls.Add(this.closeBtn);
             this.Controls.Add(this.refreshBtn);
             this.Controls.Add(this.searchTextBox);
             this.Controls.Add(this.macrosListView);
-            this.Controls.Add(this.vbaEditorScintilla);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "RunMacroForm";
+            this.Name = "RunMacroTempForm";
             this.Opacity = 0.95D;
             this.ShowIcon = false;
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
@@ -160,12 +161,11 @@
         }
 
         #endregion
-
-        private ScintillaNET.Scintilla vbaEditorScintilla;
         private System.Windows.Forms.Button refreshBtn;
         private System.Windows.Forms.TextBox searchTextBox;
         private System.Windows.Forms.ListView macrosListView;
         private System.Windows.Forms.Button closeBtn;
         private System.Windows.Forms.ComboBox workbookPickComboBox;
+        private System.Windows.Forms.RichTextBox richTextBox;
     }
 }

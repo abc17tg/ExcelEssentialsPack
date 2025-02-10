@@ -33,10 +33,10 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <PublishUrl>C:\Users\olszewsm\Documents\Documents\Custom ribbon\Releses\CustomRibbon_v2.2\ExcelCustomRibbon\</PublishUrl>
+    <PublishUrl>C:\Users\olszewsm\Documents\Documents\Custom ribbon\Releases\CustomRibbon_v2.4\ExcelCustomRibbon\</PublishUrl>
     <InstallUrl />
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>2.1.0.27</ApplicationVersion>
+    <ApplicationVersion>2.4.0.1</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>7</UpdateInterval>
@@ -228,8 +228,8 @@
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <Reference Include="ScintillaNET, Version=3.6.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\jacobslusser.ScintillaNET.3.6.3\lib\net40\ScintillaNET.dll</HintPath>
+    <Reference Include="Scintilla.NET, Version=5.6.6.0, Culture=neutral, PublicKeyToken=0221e70ba618311e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Scintilla5.NET.5.6.6\lib\net462\Scintilla.NET.dll</HintPath>
     </Reference>
     <Reference Include="SQLite-net, Version=1.9.172.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\sqlite-net-pcl.1.9.172\lib\netstandard2.0\SQLite-net.dll</HintPath>
@@ -263,6 +263,7 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Data.OracleClient" />
+    <Reference Include="System.Design" />
     <Reference Include="System.Diagnostics.DiagnosticSource, Version=9.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Diagnostics.DiagnosticSource.9.0.1\lib\net462\System.Diagnostics.DiagnosticSource.dll</HintPath>
     </Reference>
@@ -278,6 +279,7 @@
     <Reference Include="System.IdentityModel.Tokens.Jwt, Version=8.4.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\System.IdentityModel.Tokens.Jwt.8.4.0\lib\net472\System.IdentityModel.Tokens.Jwt.dll</HintPath>
     </Reference>
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.FileSystem.AccessControl, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.IO.FileSystem.AccessControl.5.0.0\lib\net461\System.IO.FileSystem.AccessControl.dll</HintPath>
     </Reference>
@@ -458,6 +460,12 @@
     <Compile Include="Forms\RunMacroForm.Designer.cs">
       <DependentUpon>RunMacroForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\RunMacroTempForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\RunMacroTempForm.Designer.cs">
+      <DependentUpon>RunMacroTempForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\RunMacroWithSearchPhraseForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -493,6 +501,7 @@
     </Compile>
     <Compile Include="Scripts\DateFormatDetector.cs" />
     <Compile Include="Scripts\ExcelExecutionBlock.cs" />
+    <Compile Include="Scripts\ScintillaFix.cs" />
     <Compile Include="Scripts\SqlElement.cs" />
     <Compile Include="Scripts\UtilsExcel.cs" />
     <Compile Include="Scripts\FileManager.cs" />
@@ -551,6 +560,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\RunMacroForm.resx">
       <DependentUpon>RunMacroForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\RunMacroTempForm.resx">
+      <DependentUpon>RunMacroTempForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\SearchColumnsForm.resx">
       <DependentUpon>SearchColumnsForm.cs</DependentUpon>
@@ -730,7 +742,9 @@
     <Error Condition="!Exists('..\packages\Microsoft.SqlServer.Types.160.1000.6\build\net462\Microsoft.SqlServer.Types.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.SqlServer.Types.160.1000.6\build\net462\Microsoft.SqlServer.Types.props'))" />
     <Error Condition="!Exists('..\packages\Microsoft.Data.SqlClient.SNI.6.0.2\build\net462\Microsoft.Data.SqlClient.SNI.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Data.SqlClient.SNI.6.0.2\build\net462\Microsoft.Data.SqlClient.SNI.targets'))" />
     <Error Condition="!Exists('..\packages\Microsoft.Web.WebView2.1.0.2957.106\build\Microsoft.Web.WebView2.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Web.WebView2.1.0.2957.106\build\Microsoft.Web.WebView2.targets'))" />
+    <Error Condition="!Exists('..\packages\Scintilla5.NET.5.6.6\build\scintilla5.net.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Scintilla5.NET.5.6.6\build\scintilla5.net.targets'))" />
   </Target>
   <Import Project="..\packages\Microsoft.Data.SqlClient.SNI.6.0.2\build\net462\Microsoft.Data.SqlClient.SNI.targets" Condition="Exists('..\packages\Microsoft.Data.SqlClient.SNI.6.0.2\build\net462\Microsoft.Data.SqlClient.SNI.targets')" />
   <Import Project="..\packages\Microsoft.Web.WebView2.1.0.2957.106\build\Microsoft.Web.WebView2.targets" Condition="Exists('..\packages\Microsoft.Web.WebView2.1.0.2957.106\build\Microsoft.Web.WebView2.targets')" />
+  <Import Project="..\packages\Scintilla5.NET.5.6.6\build\scintilla5.net.targets" Condition="Exists('..\packages\Scintilla5.NET.5.6.6\build\scintilla5.net.targets')" />
 </Project>

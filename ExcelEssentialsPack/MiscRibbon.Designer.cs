@@ -304,7 +304,7 @@
             // 
             // repasteAsValuesButton
             // 
-            this.repasteAsValuesButton.Label = "Repaste as values";
+            this.repasteAsValuesButton.Label = "Repaste as val";
             this.repasteAsValuesButton.Name = "repasteAsValuesButton";
             this.repasteAsValuesButton.OfficeImageId = "PasteValuesAndNumberFormatting";
             this.repasteAsValuesButton.ScreenTip = "Repaste as values";
@@ -314,7 +314,7 @@
             // 
             // sortingAbsButton
             // 
-            this.sortingAbsButton.Label = "Sort by abs(values)";
+            this.sortingAbsButton.Label = "Sort by abs(val)";
             this.sortingAbsButton.Name = "sortingAbsButton";
             this.sortingAbsButton.OfficeImageId = "Sort";
             this.sortingAbsButton.ScreenTip = "Sort by abs(values)";
@@ -372,7 +372,7 @@
             // 
             // removeFormattingButton
             // 
-            this.removeFormattingButton.Label = "Remove formatting";
+            this.removeFormattingButton.Label = "Remove format";
             this.removeFormattingButton.Name = "removeFormattingButton";
             this.removeFormattingButton.OfficeImageId = "HighlightClear";
             this.removeFormattingButton.ScreenTip = "Remove formatting from cells";

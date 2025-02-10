@@ -43,6 +43,7 @@ namespace ExcelEssentials.Forms
 
         public SqlExcelTableForm(Excel.Application application)
         {
+            ScintillaFix.CopyNativeFolderIfNotExistOrDifferentFixForScintillaBug();
             InitializeComponent();
             UtilsScintilla.SetupSqlEditor(sqlEditorScintilla);
             ContextMenu cm = new ContextMenu();

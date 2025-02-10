@@ -10,7 +10,7 @@ using ExcelEssentials.Scripts;
 
 namespace ExcelEssentials.Forms
 {
-    public partial class RunMacroForm : Form
+    public partial class RunMacroTempForm : Form
     {
         private Excel.Workbook m_macroWorkbook;
         private List<Excel.Workbook> m_macroWorkbookList;
@@ -19,9 +19,8 @@ namespace ExcelEssentials.Forms
         private bool m_mouseDown;
         private Point m_lastLocation;
 
-        public RunMacroForm(Excel.Workbook macroWb)
+        public RunMacroTempForm(Excel.Workbook macroWb)
         {
-            ScintillaFix.CopyNativeFolderIfNotExistOrDifferentFixForScintillaBug();
             InitializeComponent();
 
             m_macroWorkbook = macroWb;
@@ -38,10 +37,10 @@ namespace ExcelEssentials.Forms
             this.MouseDown += new MouseEventHandler(RunMacroForm_MouseDown);
             this.MouseMove += new MouseEventHandler(RunMacroForm_MouseMove);
             this.MouseUp += new MouseEventHandler(RunMacroForm_MouseUp);
-            foreach (var control in this.Controls.Cast<Control>().Where(p => p != searchTextBox || p != vbaEditorScintilla))
+            foreach (var control in this.Controls.Cast<Control>().Where(p => p != searchTextBox || p != richTextBox))
                 control.MouseClick += RunMacroForm_MouseClick;
 
-            UtilsScintilla.SetupVbaEditor(vbaEditorScintilla);
+            //UtilsScintilla.SetupVbaEditor(vbaEditorScintilla);
         }
 
         private void RunMacroForm_MouseDown(object sender, MouseEventArgs e)
@@ -195,9 +194,9 @@ namespace ExcelEssentials.Forms
 
         private void macrosListView_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
         {
-            vbaEditorScintilla.ReadOnly = false;
-            vbaEditorScintilla.Text = m_macrosList.FirstOrDefault(p => p.FullName == e.Item.ToolTipText)?.Code ?? "";
-            vbaEditorScintilla.ReadOnly = true;
+            richTextBox.ReadOnly = false;
+            richTextBox.Text = m_macrosList.FirstOrDefault(p => p.FullName == e.Item.ToolTipText)?.Code ?? "";
+            richTextBox.ReadOnly = true;
         }
 
         private void closeBtn_Click(object sender, EventArgs e)

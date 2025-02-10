@@ -54,10 +54,10 @@
             // sqlEditorScintilla
             // 
             this.sqlEditorScintilla.AllowDrop = true;
-            this.sqlEditorScintilla.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.sqlEditorScintilla.BorderStyle = ScintillaNET.BorderStyle.FixedSingle;
             this.sqlEditorScintilla.CaretForeColor = System.Drawing.Color.White;
             this.sqlEditorScintilla.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.sqlEditorScintilla.Lexer = ScintillaNET.Lexer.Sql;
+            this.sqlEditorScintilla.LexerName = "sql";
             this.sqlEditorScintilla.Location = new System.Drawing.Point(3, 304);
             this.sqlEditorScintilla.Name = "sqlEditorScintilla";
             this.sqlEditorScintilla.Size = new System.Drawing.Size(857, 478);

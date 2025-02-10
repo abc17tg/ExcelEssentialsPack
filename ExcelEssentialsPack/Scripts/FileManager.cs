@@ -98,6 +98,38 @@ namespace ExcelEssentials.Scripts
             return false;
         }
 
+        public static void CopyDirectory(string sourceDir, string targetDir)
+        {
+            // Copy each file in the directory.
+            foreach (string filePath in Directory.GetFiles(sourceDir))
+            {
+                string fileName = Path.GetFileName(filePath);
+                string targetFilePath = Path.Combine(targetDir, fileName);
+                File.Copy(filePath, targetFilePath, overwrite: true);
+            }
+
+            // Recursively copy each subdirectory.
+            foreach (string directoryPath in Directory.GetDirectories(sourceDir))
+            {
+                string directoryName = Path.GetFileName(directoryPath);
+                string targetSubDir = Path.Combine(targetDir, directoryName);
+                Directory.CreateDirectory(targetSubDir);
+                CopyDirectory(directoryPath, targetSubDir);
+            }
+        }
+
+        public static long GetDirectorySize(string directoryPath)
+        {
+            long totalSize = 0;
+            // Get all files in the directory and subdirectories.
+            foreach (string filePath in Directory.GetFiles(directoryPath, "*", SearchOption.AllDirectories))
+            {
+                FileInfo fi = new FileInfo(filePath);
+                totalSize += fi.Length;
+            }
+            return totalSize;
+        }
+
         public static Dictionary<string, string> GetOracleQueries()
         {
             Dictionary<string, string> queries = new Dictionary<string, string>();

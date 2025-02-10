@@ -156,11 +156,11 @@ namespace ExcelEssentials.Scripts
 
         public static void SetupVbaEditor(Scintilla editor)
         {
-            editor.Lexer = Lexer.Vb;
+            editor.LexerName = "vb";
             editor.ReadOnly = true;
 
             editor.StyleClearAll();
-            editor.CaretLineVisible = false;
+            editor.CaretLineBackColor = Color.FromArgb(0, 255, 255, 255);
             editor.Styles[Style.Default].BackColor = Color.FromArgb(30, 30, 30);
             editor.Styles[Style.Default].Font = "Consolas";
             editor.Styles[Style.Default].Size = 9;
@@ -205,10 +205,10 @@ namespace ExcelEssentials.Scripts
             editor.DragEnter += Editor_DragEnter;
             editor.DragDrop += Editor_DragDrop;
             editor.DragOver += Editor_DragOver;
-            editor.Lexer = Lexer.Sql;
+            editor.LexerName = "sql";
 
             editor.StyleClearAll();
-            editor.CaretLineVisible = false;
+            editor.CaretLineBackColor = Color.FromArgb(0, 255, 255, 255);
             editor.Styles[Style.Default].BackColor = Color.FromArgb(30, 30, 30);
             editor.Styles[Style.Default].Font = "Consolas";
             editor.Styles[Style.Default].Size = 10;
