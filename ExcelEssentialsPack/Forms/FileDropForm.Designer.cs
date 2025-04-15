@@ -111,7 +111,6 @@
             this.pathTextBox.Size = new System.Drawing.Size(377, 21);
             this.pathTextBox.TabIndex = 0;
             this.pathTextBox.WordWrap = false;
-            this.pathTextBox.TextChanged += new System.EventHandler(this.pathTextBox_TextChanged);
             // 
             // FileDropForm
             // 

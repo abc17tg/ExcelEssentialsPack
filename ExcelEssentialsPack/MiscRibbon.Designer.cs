@@ -171,6 +171,7 @@
             this.updateMacrosButton = this.Factory.CreateRibbonButton();
             this.createMacroUpdateButton = this.Factory.CreateRibbonButton();
             this.checkMacrosButton = this.Factory.CreateRibbonButton();
+            this.excelEssentialsPackInfoBtn = this.Factory.CreateRibbonButton();
             this.miscTab.SuspendLayout();
             this.importGroup.SuspendLayout();
             this.modifiersGroup.SuspendLayout();
@@ -218,7 +219,7 @@
             this.importSheetOrTxtFileSplitButton.OfficeImageId = "ImportOpml";
             this.importSheetOrTxtFileSplitButton.ScreenTip = "Import worksheet or txt file";
             this.importSheetOrTxtFileSplitButton.SuperTip = "Will create window that will accept txt/csv or Excel file and will import delimit" +
-    "ed table or first sheet";
+    "ed table or sheet/sheets";
             this.importSheetOrTxtFileSplitButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.importSheetOrTxtFile_Click);
             // 
             // importSheetOrTxtFileAdvButton
@@ -1506,6 +1507,13 @@
     " workbook from Properties Files folder.";
             this.checkMacrosButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.checkMacrosButton_Click);
             // 
+            // excelEssentialsPackInfoBtn
+            // 
+            this.excelEssentialsPackInfoBtn.Label = "ExcelEssentialsPack info";
+            this.excelEssentialsPackInfoBtn.Name = "excelEssentialsPackInfoBtn";
+            this.excelEssentialsPackInfoBtn.ShowImage = true;
+            this.excelEssentialsPackInfoBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.excelEssentialsPackInfoBtn_Click);
+            // 
             // MiscRibbon
             // 
             this.Name = "MiscRibbon";
@@ -1516,6 +1524,7 @@
             this.OfficeMenu.Items.Add(this.updateMacrosButton);
             this.OfficeMenu.Items.Add(this.createMacroUpdateButton);
             this.OfficeMenu.Items.Add(this.checkMacrosButton);
+            this.OfficeMenu.Items.Add(this.excelEssentialsPackInfoBtn);
             this.RibbonType = "Microsoft.Excel.Workbook";
             this.Tabs.Add(this.miscTab);
             this.Tabs.Add(this.pivotToolsTab);
@@ -1696,6 +1705,7 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonButton importSheetOrTxtFileAdvButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton removeDuplicatesInColumnsButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonSplitButton removeDuplicatesSplitButton;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton excelEssentialsPackInfoBtn;
     }
 
     partial class ThisRibbonCollection

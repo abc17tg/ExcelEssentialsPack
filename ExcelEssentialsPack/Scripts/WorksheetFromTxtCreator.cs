@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Excel = Microsoft.Office.Interop.Excel;
@@ -46,27 +45,19 @@ namespace ImportTableToExcel
             }
         }
 
-        public static void ImportTextFileToExcel(Excel.Worksheet worksheet, string filePath, char delimiter)
+        public static async void ImportTextFileToExcel(Excel.Worksheet worksheet, string filePath, char delimiter)
         {
-            Task<DataTable> taskReadFile = Task.Run(() => ReadFileIntoDataTable(filePath, delimiter));
-            taskReadFile.ContinueWith(t =>
-            {
-                DataTable dataTable = t.Result;
-                UtilsExcel.PasteDataTableToRange(dataTable, worksheet.Cells[1, 1]);
-            });
+            DataTable dataTable = await ReadFileIntoDataTable(filePath, delimiter);
+            UtilsExcel.PasteDataTableToRange(dataTable, worksheet.Cells[1, 1]);
         }
         
-        public static void ImportTextFileToExcelAdv(Excel.Worksheet worksheet, string filePath, char delimiter)
+        public static async void ImportTextFileToExcelAdv(Excel.Worksheet worksheet, string filePath, char delimiter)
         {
-            Task<DataTable> taskReadFile = Task.Run(() => ReadFileIntoDataTableAdv(filePath, delimiter.ToString()));
-            taskReadFile.ContinueWith(t =>
-            {
-                DataTable dataTable = t.Result;
-                UtilsExcel.PasteDataTableToRange(dataTable, worksheet.Cells[1, 1]);
-            });
+            DataTable dataTable = await ReadFileIntoDataTableAdv(filePath, delimiter.ToString());
+            UtilsExcel.PasteDataTableToRange(dataTable, worksheet.Cells[1, 1]);
         }
 
-        public static DataTable ReadFileIntoDataTable(string filePath, char delimiter)
+        public static async Task<DataTable> ReadFileIntoDataTable(string filePath, char delimiter)
         {
             DataTable dataTable = new DataTable();
             List<object[]> allData = new List<object[]>();
@@ -203,7 +194,7 @@ namespace ImportTableToExcel
             return dataTable;
         }
 
-        public static DataTable ReadFileIntoDataTableAdv(string filePath, string delimiter)
+        public static async Task<DataTable> ReadFileIntoDataTableAdv(string filePath, string delimiter)
         {
             DataTable dataTable = new DataTable();
             List<object[]> allData = new List<object[]>();
@@ -239,8 +230,6 @@ namespace ImportTableToExcel
                     string line = sr.ReadLine();
                     List<string> fields = new List<string>();
 
-                    // Regex to match quoted and unquoted fields
-/*                    matches = Regex.Matches(line, $@"""([^""]*(?:""""[^""]*)*)""|([^{Regex.Escape(delimiter)}""]+)|(?<={Regex.Escape(delimiter)})$|(?<={Regex.Escape(delimiter)})(?={Regex.Escape(delimiter)})|^{Regex.Escape(delimiter)}|{Regex.Escape(delimiter)}$");*/
                     matches = Regex.Matches(line, $@"""([^""]*(?:""""[^""]*)*)""|([^{Regex.Escape(delimiter)}""]+)|(?<={Regex.Escape(delimiter)})$|(?<={Regex.Escape(delimiter)})(?={Regex.Escape(delimiter)})");
 
                     foreach (Match match in matches)
@@ -268,21 +257,6 @@ namespace ImportTableToExcel
 
                     // Add the parsed fields to allData
                     allData.Add(fields.ToArray());
-
-                    /*foreach (Match match in matches)
-                    {
-                        string field = match.Value;
-
-                        if (field.StartsWith("\"") && field.EndsWith("\""))
-                        {
-                            // Remove surrounding quotes and replace doubled quotes
-                            field = field.Substring(1, field.Length - 2).Replace("\"\"", "\"");
-                        }
-
-                        fields.Add(field);
-                    }
-
-                    allData.Add(fields.ToArray());*/
                 }
             }
 

@@ -45,7 +45,7 @@ namespace ExcelEssentials.Forms
         {
             ScintillaFix.CopyNativeFolderIfNotExistOrDifferentFixForScintillaBug();
             InitializeComponent();
-            UtilsScintilla.SetupSqlEditor(sqlEditorScintilla);
+            //UtilsScintilla.SetupSqlEditor(sqlEditorScintilla);
             ContextMenu cm = new ContextMenu();
 
             MenuItem copyCMI = new MenuItem("Copy", (o, e) => { (o as Scintilla).Copy(); });
@@ -73,7 +73,7 @@ namespace ExcelEssentials.Forms
         {
             InitializeComponent();
 
-            UtilsScintilla.SetupSqlEditor(sqlEditorScintilla);
+            //UtilsScintilla.SetupSqlEditor(sqlEditorScintilla);
             ContextMenu cm = new ContextMenu();
 
             MenuItem copyCMI = new MenuItem("Copy", (o, e) => { (o as Scintilla).Copy(); });
@@ -185,26 +185,26 @@ namespace ExcelEssentials.Forms
         {
             /*List<string> errors = new List<string>();
             if (!Utils.IsSQLQueryValid(sqlEditorScintilla.SelectedText, out errors))
-                MessageBox.Show(string.Join(Environment.NewLine, errors))*/;
+                MessageBox.Show(string.Join(Environment.NewLine, errors))*/
+            ;
         }
 
         private void loadFromFilebutton_Click(object sender, EventArgs e)
         {
-            string filePath = string.Empty;
-            FileDropForm form = new FileDropForm(Utils.TextExt.Concat(Utils.ExcelExt).ToList());
+            FileDropForm form = new FileDropForm(Utils.TextExt.ToList());
             form.Show();
-            form.FormClosed += (s, _) =>
+            form.FormClosed += async (s, _) =>
             {
-                filePath = form.FilePath;
-                if (Utils.TextExt.Contains(Path.GetExtension(filePath), StringComparer.OrdinalIgnoreCase))
-                {
-                    char delimiter = Utils.DetermineTableDelimiter(filePath);
-                    DataTable dt = WTC.ReadFileIntoDataTable(filePath, delimiter);
-                    if (dt != null)
-                        Table = dt;
-                    else
-                        MessageBox.Show("Error when loading a file to data table", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                foreach (var filePath in form.FilesPaths)
+                    if (Utils.TextExt.Contains(Path.GetExtension(filePath), StringComparer.OrdinalIgnoreCase))
+                    {
+                        char delimiter = Utils.DetermineTableDelimiter(filePath);
+                        DataTable dt = await WTC.ReadFileIntoDataTable(filePath, delimiter);
+                        if (dt != null)
+                            Table = dt;
+                        else
+                            MessageBox.Show("Error when loading a file to data table", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
             };
         }
 

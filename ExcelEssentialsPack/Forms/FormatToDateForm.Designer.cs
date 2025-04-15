@@ -31,6 +31,7 @@
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+            this.inputFormatButton = new System.Windows.Forms.Button();
             this.rngDataGridView = new System.Windows.Forms.DataGridView();
             this.fetchButton = new System.Windows.Forms.Button();
             this.cancelButton = new System.Windows.Forms.Button();
@@ -41,7 +42,6 @@
             this.countLabel = new System.Windows.Forms.Label();
             this.choosePredefinedLabel = new System.Windows.Forms.Label();
             this.parsedDateLabel = new System.Windows.Forms.Label();
-            this.inputFormatButton = new System.Windows.Forms.Button();
             this.tableLayoutPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.rngDataGridView)).BeginInit();
             this.SuspendLayout();
@@ -73,6 +73,17 @@
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel.Size = new System.Drawing.Size(495, 242);
             this.tableLayoutPanel.TabIndex = 0;
+            // 
+            // inputFormatButton
+            // 
+            this.inputFormatButton.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.inputFormatButton.Location = new System.Drawing.Point(202, 3);
+            this.inputFormatButton.Name = "inputFormatButton";
+            this.inputFormatButton.Size = new System.Drawing.Size(141, 24);
+            this.inputFormatButton.TabIndex = 11;
+            this.inputFormatButton.Text = "Input format of date cells";
+            this.inputFormatButton.UseVisualStyleBackColor = true;
+            this.inputFormatButton.Click += new System.EventHandler(this.inputFormatButton_Click);
             // 
             // rngDataGridView
             // 
@@ -199,17 +210,6 @@
             this.parsedDateLabel.Text = "Parsed date";
             this.parsedDateLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // inputFormatButton
-            // 
-            this.inputFormatButton.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.inputFormatButton.Location = new System.Drawing.Point(202, 3);
-            this.inputFormatButton.Name = "inputFormatButton";
-            this.inputFormatButton.Size = new System.Drawing.Size(141, 24);
-            this.inputFormatButton.TabIndex = 11;
-            this.inputFormatButton.Text = "Input format of date cells";
-            this.inputFormatButton.UseVisualStyleBackColor = true;
-            this.inputFormatButton.Click += new System.EventHandler(this.inputFormatButton_Click);
-            // 
             // FormatToDateForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -218,6 +218,7 @@
             this.Controls.Add(this.tableLayoutPanel);
             this.Name = "FormatToDateForm";
             this.Text = "String to date";
+            this.Load += new System.EventHandler(this.Form_Load);
             this.tableLayoutPanel.ResumeLayout(false);
             this.tableLayoutPanel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.rngDataGridView)).EndInit();

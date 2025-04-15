@@ -44,6 +44,7 @@ namespace ExcelEssentials.Forms
         }
         private void BrowserViewForm_Load(object sender, EventArgs e)
         {
+            this.CenterToParent();
             IntPtr MenuHandle = GetSystemMenu(this.Handle, false);
             InsertMenu(MenuHandle, 5, MF_BYPOSITION, ToggleTopMostMenuItem, "Pin/Unpin this window");
             InsertMenu(MenuHandle, 6, MF_BYPOSITION, CenterFormMenuItem, "Center window");

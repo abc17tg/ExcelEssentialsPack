@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Excel = Microsoft.Office.Interop.Excel;
 
@@ -29,6 +25,11 @@ namespace ExcelEssentials.Forms
             m_macroWorkbookList.AddRange(addInsList);
             workbookPickerComboBox.Items.AddRange(m_macroWorkbookList.Select(p => p.Name).ToArray());
             workbookPickerComboBox.SelectedIndex = workbookPickerComboBox.Items.IndexOf(Workbook.Name);
+        }
+
+        private void Form_Load(object sender, EventArgs e)
+        {
+            this.CenterToParent();
         }
 
         private void okButton_Click(object sender, EventArgs e)

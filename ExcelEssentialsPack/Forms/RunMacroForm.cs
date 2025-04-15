@@ -21,7 +21,7 @@ namespace ExcelEssentials.Forms
 
         public RunMacroForm(Excel.Workbook macroWb)
         {
-            ScintillaFix.CopyNativeFolderIfNotExistOrDifferentFixForScintillaBug();
+            //ScintillaFix.CopyNativeFolderIfNotExistOrDifferentFixForScintillaBug();
             InitializeComponent();
 
             m_macroWorkbook = macroWb;

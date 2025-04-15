@@ -25,6 +25,11 @@ namespace ExcelEssentials.Forms
             m_app.SheetActivate += (o) => SelectionChanged(o, m_app.ActiveWindow.RangeSelection);
         }
 
+        private void Form_Load(object sender, EventArgs e)
+        {
+            Utils.MoveFormToCursor(this);
+        }
+
         public void SelectionChanged(object sender, Excel.Range rng)
         {
             if (!m_modify)

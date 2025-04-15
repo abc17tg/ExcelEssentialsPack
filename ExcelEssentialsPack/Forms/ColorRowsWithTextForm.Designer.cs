@@ -165,7 +165,7 @@
             this.invertFontColorCheckBox.Text = "Invert font color";
             this.invertFontColorCheckBox.UseVisualStyleBackColor = true;
             // 
-            // ColorRowsWithTextForm
+            // ColorCellsWithTextForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -185,10 +185,11 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "ColorRowsWithTextForm";
+            this.Name = "ColorCellsWithTextForm";
             this.ShowIcon = false;
             this.Text = "Pick color of rows and text";
             this.TopMost = true;
+            this.Load += new System.EventHandler(this.Form_Load);
             ((System.ComponentModel.ISupportInitialize)(this.colorPictureBox)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

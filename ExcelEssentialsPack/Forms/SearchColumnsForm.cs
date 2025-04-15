@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ExcelEssentials.Scripts;
-using ScintillaNET;
 using Excel = Microsoft.Office.Interop.Excel;
 
 namespace ExcelEssentials.Forms
@@ -48,6 +47,12 @@ namespace ExcelEssentials.Forms
                 ClearCells(headerCell.Column - m_rng.Column + 1);
             }
             this.Cursor = Cursors.Default;
+        }
+
+
+        private void Form_Load(object sender, EventArgs e)
+        {
+            Utils.MoveFormToCursor(this);
         }
 
         private void ClearCells(int column)

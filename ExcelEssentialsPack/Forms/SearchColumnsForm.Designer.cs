@@ -34,6 +34,10 @@
             this.searchTextBox = new System.Windows.Forms.TextBox();
             this.searchContentsCheckBox = new System.Windows.Forms.CheckBox();
             this.dataGridView = new System.Windows.Forms.DataGridView();
+            this.ResultColumn = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.CountColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Select = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.Clear = new System.Windows.Forms.DataGridViewButtonColumn();
             this.cancelBtn = new System.Windows.Forms.Button();
             this.okBtn = new System.Windows.Forms.Button();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
@@ -42,10 +46,6 @@
             this.searchBtn = new System.Windows.Forms.Button();
             this.fetchBtn = new System.Windows.Forms.Button();
             this.useDataTableToolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.ResultColumn = new System.Windows.Forms.DataGridViewButtonColumn();
-            this.CountColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.SelectCol = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.ClearCol = new System.Windows.Forms.DataGridViewButtonColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).BeginInit();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
@@ -85,8 +85,8 @@
             this.dataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.ResultColumn,
             this.CountColumn,
-            this.SelectCol,
-            this.ClearCol});
+            this.Select,
+            this.Clear});
             this.tableLayoutPanel1.SetColumnSpan(this.dataGridView, 5);
             this.dataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridView.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
@@ -101,6 +101,36 @@
             this.dataGridView.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView_CellClick);
             this.dataGridView.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView_OnCellValueChanged);
             this.dataGridView.CurrentCellDirtyStateChanged += new System.EventHandler(this.dataGridView_CurrentCellDirtyStateChanged);
+            // 
+            // ResultColumn
+            // 
+            this.ResultColumn.FillWeight = 60F;
+            this.ResultColumn.HeaderText = "ID";
+            this.ResultColumn.MinimumWidth = 100;
+            this.ResultColumn.Name = "ResultColumn";
+            this.ResultColumn.ReadOnly = true;
+            // 
+            // CountColumn
+            // 
+            dataGridViewCellStyle1.Format = "N0";
+            dataGridViewCellStyle1.NullValue = null;
+            this.CountColumn.DefaultCellStyle = dataGridViewCellStyle1;
+            this.CountColumn.FillWeight = 10F;
+            this.CountColumn.HeaderText = "Count";
+            this.CountColumn.Name = "CountColumn";
+            this.CountColumn.ReadOnly = true;
+            // 
+            // Select
+            // 
+            this.Select.FillWeight = 10F;
+            this.Select.HeaderText = "Select with color";
+            this.Select.Name = "Select";
+            // 
+            // Clear
+            // 
+            this.Clear.FillWeight = 15F;
+            this.Clear.HeaderText = "Clear contents";
+            this.Clear.Name = "Clear";
             // 
             // cancelBtn
             // 
@@ -203,36 +233,6 @@
             // 
             this.useDataTableToolTip.BackColor = System.Drawing.SystemColors.InactiveBorder;
             // 
-            // ResultColumn
-            // 
-            this.ResultColumn.FillWeight = 60F;
-            this.ResultColumn.HeaderText = "ID";
-            this.ResultColumn.MinimumWidth = 100;
-            this.ResultColumn.Name = "ResultColumn";
-            this.ResultColumn.ReadOnly = true;
-            // 
-            // CountColumn
-            // 
-            dataGridViewCellStyle1.Format = "N0";
-            dataGridViewCellStyle1.NullValue = null;
-            this.CountColumn.DefaultCellStyle = dataGridViewCellStyle1;
-            this.CountColumn.FillWeight = 10F;
-            this.CountColumn.HeaderText = "Count";
-            this.CountColumn.Name = "CountColumn";
-            this.CountColumn.ReadOnly = true;
-            // 
-            // Select
-            // 
-            this.SelectCol.FillWeight = 10F;
-            this.SelectCol.HeaderText = "Select with color";
-            this.SelectCol.Name = "Select";
-            // 
-            // Clear
-            // 
-            this.ClearCol.FillWeight = 15F;
-            this.ClearCol.HeaderText = "Clear contents";
-            this.ClearCol.Name = "Clear";
-            // 
             // SearchColumnsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -244,6 +244,7 @@
             this.Opacity = 0.95D;
             this.Text = "Search Columns Form";
             this.TopMost = true;
+            this.Load += new System.EventHandler(this.Form_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).EndInit();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
@@ -269,5 +270,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn CountColumn;
         private System.Windows.Forms.DataGridViewCheckBoxColumn SelectCol;
         private System.Windows.Forms.DataGridViewButtonColumn ClearCol;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn Select;
+        private System.Windows.Forms.DataGridViewButtonColumn Clear;
     }
 }

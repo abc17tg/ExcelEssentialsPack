@@ -11,8 +11,10 @@ namespace ExcelEssentials.Scripts
         private bool m_screenUpdating;
         private bool m_events;
         private bool m_interactive;
-        public ExcelExecutionBlock(Excel.Application app)
+        private bool m_turnOnUpdatesOnDispose;
+        public ExcelExecutionBlock(Excel.Application app, bool turnOnUpdatesOnDispose = false)
         {
+            m_turnOnUpdatesOnDispose = turnOnUpdatesOnDispose;
             m_app = app;
             m_screenUpdating = app.ScreenUpdating;
             m_events = app.EnableEvents;
@@ -32,9 +34,9 @@ namespace ExcelEssentials.Scripts
 
         public void Dispose()
         {
-            m_app.ScreenUpdating = m_screenUpdating;
-            m_app.EnableEvents = m_events;
-            m_app.Calculation = m_xlCalculation;
+            m_app.ScreenUpdating = m_turnOnUpdatesOnDispose ? true : m_screenUpdating;
+            m_app.EnableEvents = m_turnOnUpdatesOnDispose ? true : m_events;
+            m_app.Calculation = m_turnOnUpdatesOnDispose ? Excel.XlCalculation.xlCalculationAutomatic : m_xlCalculation;
             try
             {
                 if (!m_app.Interactive)

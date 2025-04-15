@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.IO;
@@ -22,6 +21,11 @@ namespace ExcelEssentials.Forms
             m_app = app;
             predefinedFormatsComboBox.Items.AddRange(DateFormatDetector.DateFormats.ToArray());
             checkButton.Enabled = Fetch();
+        }
+
+        private void Form_Load(object sender, EventArgs e)
+        {
+            Utils.MoveFormToCursor(this);
         }
 
         private void fetchButton_Click(object sender, EventArgs e)

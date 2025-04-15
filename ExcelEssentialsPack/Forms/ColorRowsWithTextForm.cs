@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Drawing;
-using System.Linq;
 using System.Windows.Forms;
-using ExcelEssentials.Scripts;
 using Excel = Microsoft.Office.Interop.Excel;
 
 namespace ExcelEssentials.Forms
@@ -38,6 +35,11 @@ namespace ExcelEssentials.Forms
                 greenTextBox.Text = colorDialog.Color.G.ToString();
                 blueTextBox.Text = colorDialog.Color.B.ToString();
             }
+        }
+
+        private void Form_Load(object sender, EventArgs e)
+        {
+            Utils.MoveFormToCursor(this);
         }
 
         private void colorTextBox_KeyPress(object sender, KeyPressEventArgs e)

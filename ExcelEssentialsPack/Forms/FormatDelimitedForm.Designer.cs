@@ -334,6 +334,7 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Format text delimited";
             this.TopMost = true;
+            this.Load += new System.EventHandler(this.Form_Load);
             this.tableLayoutPanel.ResumeLayout(false);
             this.tableLayoutPanel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dividerNumericUpDown)).EndInit();

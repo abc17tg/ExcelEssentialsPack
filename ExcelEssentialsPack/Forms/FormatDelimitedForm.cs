@@ -41,6 +41,11 @@ namespace ExcelEssentials.Forms
             }
         }
 
+        private void Form_Load(object sender, EventArgs e)
+        {
+            Utils.MoveFormToCursor(this);
+        }
+
         public void SelectionChanged(object sender, Excel.Range rng)
         {
             if (!m_updates || !rng.Valid())

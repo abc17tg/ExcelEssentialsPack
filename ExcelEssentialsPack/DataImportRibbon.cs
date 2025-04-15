@@ -6,7 +6,6 @@ using Excel = Microsoft.Office.Interop.Excel;
 using System.Diagnostics;
 using ExcelEssentials.Forms;
 using ExcelEssentials.Scripts;
-using ScintillaNET;
 
 namespace ExcelEssentials
 {
