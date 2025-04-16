@@ -1342,7 +1342,7 @@ public static class UtilsExcel
             // If no exception is thrown, then the worksheet is still valid.
             return true;
         }
-        catch (System.Runtime.InteropServices.COMException)
+        catch (COMException)
         {
             // If a COMException is caught, it's likely because the worksheet no longer exists.
             return false;
@@ -1350,6 +1350,23 @@ public static class UtilsExcel
         catch (Exception)
         {
             return false;
+        }
+    }
+
+    public static bool IsEmpty<T>(this T worksheet) where T : Excel.Worksheet
+    {
+        try
+        {
+            Excel.Range usedRange = worksheet.UsedRange;
+            return usedRange == null || (usedRange.Cells.Count == 1 && (usedRange.Cells[1, 1].Value2 == null || usedRange.Cells[1, 1].Value2 == string.Empty));
+        }
+        catch (COMException)
+        {
+            return true;
+        }
+        catch (Exception)
+        {
+            return true;
         }
     }
 
@@ -1364,7 +1381,7 @@ public static class UtilsExcel
             // If no exception is thrown, then the range is still valid.
             return true;
         }
-        catch (System.Runtime.InteropServices.COMException)
+        catch (COMException)
         {
             // If a COMException is caught, it's likely because the range no longer exists.
             return false;

@@ -9,6 +9,7 @@ using ExcelEssentials.Scripts;
 using System.Windows.Forms;
 using Excel = Microsoft.Office.Interop.Excel;
 using WTC = ImportTableToExcel.WorksheetFromTxtCreator;
+using System.Text.RegularExpressions;
 
 namespace ExcelEssentials.Forms
 {
@@ -94,12 +95,16 @@ namespace ExcelEssentials.Forms
                         char delimiter = Utils.DetermineTableDelimiter(DownloadedFilePath);
                         if (delimiter == default(char))
                         {
-                            string choosenDelimiter = Microsoft.VisualBasic.Interaction.InputBox("Can not determine delimiter, write one in ' characters:", "Write delimiter in ''", "", 0, 0);
+                            string choosenDelimiter = Microsoft.VisualBasic.Interaction.InputBox("Can not determine delimiter, write it below (write \\t for tab character):", "Write delimiter in ''", "", 0, 0);
+                            choosenDelimiter = choosenDelimiter.Replace("\\t", "\t");
+                            if (choosenDelimiter.Length > 1)
+                                choosenDelimiter.Trim();
 
                             if (choosenDelimiter.Length != 1)
                             {
                                 MessageBox.Show("Delimiter too long or missing!", "Delimiter too long or missing!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                Process.Start("explorer.exe", Path.GetDirectoryName(DownloadedFilePath));
+                                if(!FileManager.IsExplorerPathOpen(DownloadedFilePath))
+                                    Process.Start("explorer.exe", Path.GetDirectoryName(DownloadedFilePath));
                                 result = MessageBox.Show("Close browser?", "Close browser", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                                 if (result == DialogResult.Yes)
                                     this.Close();
@@ -124,9 +129,6 @@ namespace ExcelEssentials.Forms
                             result = MessageBox.Show("Delete file after import?", "Delete file", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                             if (result == DialogResult.Yes)
                                 File.Delete(this.DownloadedFilePath);
-                            //result = MessageBox.Show("Close browser?", "Close browser", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                            //if (result == DialogResult.Yes)
-                            //    this.Close();
                             return;
                         }
                         else
@@ -136,30 +138,74 @@ namespace ExcelEssentials.Forms
                         result = MessageBox.Show("Delete file after import?", "Delete file", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                         if (result == DialogResult.Yes)
                             File.Delete(this.DownloadedFilePath);
-                        //result = MessageBox.Show("Close browser?", "Close browser", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                        //if (result == DialogResult.Yes)
-                        //    this.Close();
                         return;
                     }
                     else if (Utils.ExcelExt.Contains(Path.GetExtension(this.DownloadedFilePath), StringComparer.OrdinalIgnoreCase))
                     {
-                        Excel.Workbook wb = Microsoft.VisualBasic.Interaction.GetObject(this.DownloadedFilePath) as Excel.Workbook;
                         Excel.Application app = Globals.ThisAddIn.Application;
                         Excel.Worksheet aWs = app.ActiveSheet;
-                        wb.Worksheets.Item[1].Copy(aWs);
-                        if ((wb.Worksheets.Item[1].Name as string).StartsWith("Sheet"))
-                            (app.ActiveSheet as Excel.Worksheet).Rename(Path.GetFileNameWithoutExtension(wb.FullName));
-                        //Utils.RunMacro("RenameSheet", new object[] { Path.GetFileNameWithoutExtension(wb.FullName) });
+                        Excel.Workbook wb = Microsoft.VisualBasic.Interaction.GetObject(this.DownloadedFilePath) as Excel.Workbook;
+
+                        int sheetCount = wb.Worksheets.Count;
+                        bool addAll = false;
+
+                        // Check if there are multiple worksheets and prompt the user
+                        if (sheetCount > 1)
+                        {
+                            result = MessageBox.Show(
+                                $"The workbook {wb.Name} contains multiple worksheets. Do you want to add all worksheets? (Yes = Add All, No = Add First Only)", "Multiple Worksheets",
+                                MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
+                            addAll = (result == DialogResult.Yes);
+                        }
+
+                        if (addAll)
+                        {
+                            // Add all worksheets
+                            Excel.Worksheet lastSheet = aWs;
+                            foreach (Excel.Worksheet ws in wb.Worksheets)
+                            {
+                                if (ws.IsEmpty())
+                                    continue;
+
+                                if (aWs == lastSheet)
+                                    ws.Copy(Before: aWs);
+                                else
+                                    ws.Copy(After: lastSheet);
+
+                                Excel.Worksheet newSheet = app.ActiveSheet as Excel.Worksheet;
+                                if (Regex.Match(ws.Name, @"^Sheet[1-9][0-9]*$").Success)
+                                {
+                                    newSheet.Rename(Path.GetFileNameWithoutExtension(wb.FullName), ws.Name);
+                                }
+                                lastSheet = newSheet;
+                            }
+                        }
+                        else
+                        {
+                            // Add only the first not empty worksheet
+                            Excel.Worksheet ws = wb.Worksheets.Cast<Excel.Worksheet>().FirstOrDefault(p => !p.IsEmpty());
+
+                            if (ws != null)
+                            {
+                                ws.Copy(Before: aWs);
+                                Excel.Worksheet newSheet = app.ActiveSheet as Excel.Worksheet;
+                                if (Regex.Match(ws.Name, @"^Sheet[1-9][0-9]*$").Success)
+                                {
+                                    newSheet.Rename(Path.GetFileNameWithoutExtension(wb.FullName));
+                                }
+                            }
+                        }
+
                         wb.Close();
-                        result = MessageBox.Show("Delete file after import?", "Delete file", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                        result = MessageBox.Show("Delete file after import?", "Delete file", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+
                         if (result == DialogResult.Yes)
                             File.Delete(this.DownloadedFilePath);
-                        //result = MessageBox.Show("Close browser?", "Close browser", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                        //if (result == DialogResult.Yes)
-                        //    this.Close();
+
                         return;
                     }
-                    Process.Start("explorer.exe", Path.GetDirectoryName(DownloadedFilePath));
+                    if (!FileManager.IsExplorerPathOpen(DownloadedFilePath))
+                        Process.Start("explorer.exe", Path.GetDirectoryName(DownloadedFilePath));
                     //result = MessageBox.Show("Close browser?", "Close browser", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     //if (result == DialogResult.Yes)
                     //    this.Close();
@@ -167,14 +213,15 @@ namespace ExcelEssentials.Forms
                 }
                 catch
                 {
-                    Process.Start("explorer.exe", Path.GetDirectoryName(DownloadedFilePath));
+                    if (!FileManager.IsExplorerPathOpen(DownloadedFilePath))
+                        Process.Start("explorer.exe", Path.GetDirectoryName(DownloadedFilePath));
                     result = MessageBox.Show("Close browser?", "Close browser", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     if (result == DialogResult.Yes)
                         this.Close();
                 }
             }
-            else if ((sender as Microsoft.Web.WebView2.Core.CoreWebView2DownloadOperation).State == Microsoft.Web.WebView2.Core.CoreWebView2DownloadState.Completed)
-                Process.Start("explorer.exe", Path.GetDirectoryName(DownloadedFilePath));
+            else if ((sender as Microsoft.Web.WebView2.Core.CoreWebView2DownloadOperation).State == Microsoft.Web.WebView2.Core.CoreWebView2DownloadState.Completed && !FileManager.IsExplorerPathOpen(DownloadedFilePath))
+                    Process.Start("explorer.exe", Path.GetDirectoryName(DownloadedFilePath));
         }
 
         private async void Reload()

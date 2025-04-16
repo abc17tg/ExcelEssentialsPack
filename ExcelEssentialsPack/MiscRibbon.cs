@@ -876,10 +876,15 @@ namespace ExcelEssentials
                     {
                         if (Utils.TextExt.Contains(Path.GetExtension(filePath), StringComparer.OrdinalIgnoreCase))
                         {
+                            if (new FileInfo(filePath).Length < 1)
+                                continue;
                             char delimiter = Utils.DetermineTableDelimiter(filePath);
                             if (delimiter == default(char))
                             {
-                                string choosenDelimiter = Microsoft.VisualBasic.Interaction.InputBox("Can not determine delimiter, write one in ' characters:", "Write delimiter in ''", "", 0, 0);
+                                string choosenDelimiter = Microsoft.VisualBasic.Interaction.InputBox("Can not determine delimiter, write it below (write \\t for tab character):", "Write delimiter in ''", "", 0, 0);
+                                choosenDelimiter = choosenDelimiter.Replace("\\t", "\t");
+                                if (choosenDelimiter.Length > 1)
+                                    choosenDelimiter.Trim();
 
                                 if (choosenDelimiter.Length != 1)
                                 {
@@ -930,35 +935,35 @@ namespace ExcelEssentials
                                 Excel.Worksheet lastSheet = aWs;
                                 foreach (Excel.Worksheet ws in wb.Worksheets)
                                 {
+                                    if (ws.IsEmpty())
+                                        continue;
+
                                     if (aWs == lastSheet)
                                         ws.Copy(Before: aWs);
                                     else
                                         ws.Copy(After: lastSheet);
+
                                     Excel.Worksheet newSheet = app.ActiveSheet as Excel.Worksheet;
                                     if (Regex.Match(ws.Name, @"^Sheet[1-9][0-9]*$").Success)
                                     {
-                                        try
-                                        {
-                                            newSheet.Rename(Path.GetFileNameWithoutExtension(wb.FullName), ws.Name);
-                                        }
-                                        catch { }
+                                        newSheet.Rename(Path.GetFileNameWithoutExtension(wb.FullName), ws.Name);
                                     }
                                     lastSheet = newSheet;
                                 }
                             }
                             else
                             {
-                                // Add only the first worksheet
-                                Excel.Worksheet ws = wb.Worksheets.Item[1];
+                                // Add only the first not empty worksheet
+                                Excel.Worksheet ws = wb.Worksheets.Cast<Excel.Worksheet>().FirstOrDefault(p => !p.IsEmpty());
+
+                                if (ws == null)
+                                    continue;
+
                                 ws.Copy(Before: aWs);
                                 Excel.Worksheet newSheet = app.ActiveSheet as Excel.Worksheet;
                                 if (Regex.Match(ws.Name, @"^Sheet[1-9][0-9]*$").Success)
                                 {
-                                    try
-                                    {
-                                        newSheet.Rename(Path.GetFileNameWithoutExtension(wb.FullName));
-                                    }
-                                    catch { }
+                                    newSheet.Rename(Path.GetFileNameWithoutExtension(wb.FullName));
                                 }
                             }
 
