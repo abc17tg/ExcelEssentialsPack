@@ -850,8 +850,9 @@ namespace ExcelEssentials
             Excel.Application app = Globals.ThisAddIn.Application;
             Excel.Workbook wb = app.ActiveWorkbook;
             string filePath = wb.FullName;
+            string wbPath = wb.Path;
             wb.Close();
-            if (!string.IsNullOrEmpty(wb.Path) && File.Exists(filePath))
+            if (!string.IsNullOrEmpty(wbPath) && File.Exists(filePath))
                 File.Delete(filePath);
         }
 
