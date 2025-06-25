@@ -132,6 +132,9 @@
   <data name="filterColumnNotInRegexButton.SuperTip" xml:space="preserve">
     <value>Click below the header you want to filter. An input box will appear. Enter the Regular Expression (Regex) pattern you want to use for filtering, it will exclude matching values from filter, and click OK. (Works for tables and pivots, but it may be slower for pivots. Avoid applying many filters to large data pivots or save open workbooks before use.)</value>
   </data>
+  <data name="filterColumnFlipFilterBtn.SuperTip" xml:space="preserve">
+    <value>Click below the header you want to flip the filter and click the button (Works for tables and pivots, but it may be slower for pivots. Avoid applying many filters to large data pivots or save open workbooks before use.)</value>
+  </data>
   <data name="filterColumnSplitButton.SuperTip" xml:space="preserve">
     <value>Click below the header you want to filter. A range picker will appear. Select the range you want to use for filtering, and click OK (Works for tables and pivots, but it may be slower for pivots. Avoid applying many filters to large data pivots or save open workbooks before use.)</value>
   </data>

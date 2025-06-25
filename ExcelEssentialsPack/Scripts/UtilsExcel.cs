@@ -229,11 +229,11 @@ public static class UtilsExcel
         ws.Name = newName;
     }
 
-    public static void FilterByRange(Excel.Range selection, bool notInMode = false, bool chooseRangeByForm = false)
+    public static void FilterByRange(Excel.Range selectedCell, bool notInMode = false, bool chooseRangeByForm = false)
     {
         bool isSelectionRange, isPivotTable;
-        isSelectionRange = selection is Excel.Range;
-        isPivotTable = selection.IsPivotCell() && selection.PivotCell.PivotTable != null;
+        isSelectionRange = selectedCell is Excel.Range;
+        isPivotTable = selectedCell.IsPivotCell() && selectedCell.PivotCell.PivotTable != null;
         if (!(isSelectionRange || isPivotTable) || (isPivotTable && chooseRangeByForm))
             return;
 
@@ -243,18 +243,28 @@ public static class UtilsExcel
 
         try
         {
-            InputRangeForm getRangeToUseAsFilterForm = new InputRangeForm(selection.Application, "Select range as filter", "Select range as filter");
+            if (isPivotTable)
+            {
+                var pcType = selectedCell.PivotCell.PivotCellType;
+                if ((pcType != Excel.XlPivotCellType.xlPivotCellPivotItem && pcType != Excel.XlPivotCellType.xlPivotCellPageFieldItem) || pcType == Excel.XlPivotCellType.xlPivotCellValue)
+                {
+                    MessageBox.Show($"You can not filter this part of the pivot table.");
+                    return;
+                }
+            }
+
+            InputRangeForm getRangeToUseAsFilterForm = new InputRangeForm(selectedCell.Application, "Select range as filter", "Select range as filter");
 
             if (chooseRangeByForm)
             {
-                InputRangeForm getRangeToUseTableToFilterForm = new InputRangeForm(selection.Application, "Select range as area to filter", "Select range as area to filter");
+                InputRangeForm getRangeToUseTableToFilterForm = new InputRangeForm(selectedCell.Application, "Select range as area to filter", "Select range as area to filter");
                 getRangeToUseTableToFilterForm.Show();
                 getRangeToUseTableToFilterForm.FormClosed += (s, _) =>
                 {
                     if (getRangeToUseTableToFilterForm.DialogResult != DialogResult.OK)
                         return;
 
-                    rng = selection.CurrentRegion;
+                    rng = selectedCell.CurrentRegion;
 
                     rng = getRangeToUseTableToFilterForm.Range;
                     getRangeToUseAsFilterForm.Show();
@@ -269,14 +279,14 @@ public static class UtilsExcel
                 if (getRangeToUseAsFilterForm.DialogResult != DialogResult.OK)
                     return;
 
-                selection.Application.Updating(false);
+                selectedCell.Application.Updating(false);
                 if (isPivotTable)
                 {
-                    pivotTable = selection.PivotCell.PivotTable;
-                    pivotField = selection.PivotCell.PivotField;
+                    pivotTable = selectedCell.PivotCell.PivotTable;
+                    pivotField = selectedCell.PivotCell.PivotField;
                 }
                 else if (!chooseRangeByForm)
-                    rng = selection.CurrentRegion;
+                    rng = selectedCell.CurrentRegion;
 
                 var valuesToFilter = getRangeToUseAsFilterForm.Range.Cells.Cast<Excel.Range>().Select(p => ((object)p.Value2)?.ToString() ?? "").Distinct().ToList();
                 if (notInMode)
@@ -290,7 +300,7 @@ public static class UtilsExcel
                     }
                     else
                     {
-                        column = rng.Columns[selection.Column - rng.Column + 1];
+                        column = rng.Columns[selectedCell.Column - rng.Column + 1];
                         values = column.Cells.Cast<Excel.Range>().Select(p => ((object)p.Value2)?.ToString() ?? "").Skip(1).ToList();
                     }
 
@@ -299,23 +309,112 @@ public static class UtilsExcel
                 if (isPivotTable)
                     FilterPivotItems(pivotField, valuesToFilter);
                 else
-                    rng.AutoFilter(selection.Column - rng.Column + 1, valuesToFilter.ToArray(), Excel.XlAutoFilterOperator.xlFilterValues);
+                    rng.AutoFilter(selectedCell.Column - rng.Column + 1, valuesToFilter.ToArray(), Excel.XlAutoFilterOperator.xlFilterValues);
 
-                selection.Application.Updating(true);
+                selectedCell.Application.Updating(true);
             };
         }
         catch (Exception ex)
         {
-            selection.Application.Updating(true);
+            selectedCell.Application.Updating(true);
             MessageBox.Show($"There was a problem with filtering{(isPivotTable ? " pivot" : "")} table {ex.Message}");
         }
     }
 
-    public static void FilterByRegex(Excel.Range selection, bool notInMode = false, string regexString = "")
+    public static void FlipFilter(Excel.Range selectedCell)
     {
         bool isSelectionRange, isPivotTable;
-        isSelectionRange = selection is Excel.Range;
-        isPivotTable = selection.IsPivotCell() && selection.PivotCell.PivotTable != null;
+        isSelectionRange = selectedCell is Excel.Range;
+        isPivotTable = selectedCell.IsPivotCell() && selectedCell.PivotCell.PivotTable != null;
+        if (!(isSelectionRange || isPivotTable))
+            return;
+        Excel.PivotTable pivotTable = null;
+        Excel.PivotField pivotField = null;
+        Excel.Range rng = null;
+
+        try
+        {
+            if (isPivotTable)
+            {
+                var pcType = selectedCell.PivotCell.PivotCellType;
+                if ((pcType != Excel.XlPivotCellType.xlPivotCellPivotItem && pcType != Excel.XlPivotCellType.xlPivotCellPageFieldItem) || pcType == Excel.XlPivotCellType.xlPivotCellValue)
+                {
+                    MessageBox.Show($"You can not filter this part of the pivot table.");
+                    return;
+                }
+            }
+
+            selectedCell.Application.Updating(false);
+            if (isPivotTable)
+            {
+                pivotTable = selectedCell.PivotCell.PivotTable;
+                pivotField = selectedCell.PivotCell.PivotField;
+            }
+            else
+                rng = selectedCell.CurrentRegion;
+
+            List<string> values = new List<string>();
+            List<string> filteredValues = new List<string>();
+            Excel.Range column;
+            if (isPivotTable)
+            {
+                foreach (Excel.PivotItem item in pivotField.PivotItems())
+                {
+                    values.Add(item.Value.ToString());
+                    if (item.Visible)
+                        filteredValues.Add(item.Value.ToString());
+                }
+            }
+            else
+            {
+                column = rng.Columns[selectedCell.Column - rng.Column + 1];
+                /*                values = column.Cells.Cast<Excel.Range>().Select(p => ((object)p.Value2)?.ToString() ?? "").Skip(1).ToList();
+                                filteredValues = column.Cells.Cast<Excel.Range>().Where(p => p.Hidden == false).Select(p => ((object)p.Value2)?.ToString() ?? "").Skip(1).ToList();*/
+
+                (values, filteredValues) = column.Cells
+                    .Cast<Excel.Range>()
+                    .Skip(1)  // drop header
+                    .Aggregate(
+                        (values: new List<string>(), filtered: new List<string>()),
+                        (acc, cell) =>
+                        {
+                            var text = ((object)cell.Value2)?.ToString() ?? "";
+                            acc.values.Add(text);
+                            if (!cell.EntireRow.Hidden)
+                                acc.filtered.Add(text);
+                            return acc;
+                        }
+                    );
+            }
+
+            if (values.Count == filteredValues.Count)
+            {
+                MessageBox.Show($"Nothing filtered to flip filtering.");
+                selectedCell.Application.Updating(true);
+                return;
+            }
+
+            var valuesToFilter = values.Distinct().Except(filteredValues.Distinct()).ToList();
+
+            if (isPivotTable)
+                FilterPivotItems(pivotField, valuesToFilter);
+            else
+                rng.AutoFilter(selectedCell.Column - rng.Column + 1, valuesToFilter.ToArray(), Excel.XlAutoFilterOperator.xlFilterValues);
+
+            selectedCell.Application.Updating(true);
+        }
+        catch (Exception ex)
+        {
+            selectedCell.Application.Updating(true);
+            MessageBox.Show($"There was a problem with filtering{(isPivotTable ? " pivot" : "")} table {ex.Message}");
+        }
+    }
+
+    public static void FilterByRegex(Excel.Range selectedCell, bool notInMode = false, string regexString = "")
+    {
+        bool isSelectionRange, isPivotTable;
+        isSelectionRange = selectedCell is Excel.Range;
+        isPivotTable = selectedCell.IsPivotCell() && selectedCell.PivotCell.PivotTable != null;
         if (!(isSelectionRange || isPivotTable))
             return;
 
@@ -325,20 +424,30 @@ public static class UtilsExcel
 
         try
         {
+            if (isPivotTable)
+            {
+                var pcType = selectedCell.PivotCell.PivotCellType;
+                if ((pcType != Excel.XlPivotCellType.xlPivotCellPivotItem && pcType != Excel.XlPivotCellType.xlPivotCellPageFieldItem) || pcType == Excel.XlPivotCellType.xlPivotCellValue)
+                {
+                    MessageBox.Show($"You can not filter this part of the pivot table.");
+                    return;
+                }
+            }
+
             if (string.IsNullOrWhiteSpace(regexString))
                 regexString = Microsoft.VisualBasic.Interaction.InputBox("Paste Regular Expresions (Regex) pattern", "Regex pattern", string.Empty);
 
             if (string.IsNullOrWhiteSpace(regexString))
                 return;
 
-            selection.Application.Updating(false);
+            selectedCell.Application.Updating(false);
             if (isPivotTable)
             {
-                pivotTable = selection.PivotCell.PivotTable;
-                pivotField = selection.PivotCell.PivotField;
+                pivotTable = selectedCell.PivotCell.PivotTable;
+                pivotField = selectedCell.PivotCell.PivotField;
             }
 
-            rng = selection.CurrentRegion;
+            rng = selectedCell.CurrentRegion;
 
             List<string> values = new List<string>();
             Excel.Range column;
@@ -349,7 +458,7 @@ public static class UtilsExcel
             }
             else
             {
-                column = rng.Columns[selection.Column - rng.Column + 1];
+                column = rng.Columns[selectedCell.Column - rng.Column + 1];
                 values = column.Cells.Cast<Excel.Range>().Select(p => ((object)p.Value2)?.ToString() ?? "").Skip(1).ToList();
             }
 
@@ -364,13 +473,13 @@ public static class UtilsExcel
             if (isPivotTable)
                 FilterPivotItems(pivotField, valuesToFilter);
             else
-                rng.AutoFilter(selection.Column - rng.Column + 1, valuesToFilter.ToArray(), Excel.XlAutoFilterOperator.xlFilterValues);
+                rng.AutoFilter(selectedCell.Column - rng.Column + 1, valuesToFilter.ToArray(), Excel.XlAutoFilterOperator.xlFilterValues);
 
-            selection.Application.Updating(true);
+            selectedCell.Application.Updating(true);
         }
         catch (Exception ex)
         {
-            selection.Application.Updating(true);
+            selectedCell.Application.Updating(true);
             MessageBox.Show($"There was a problem with filtering{(isPivotTable ? " pivot" : "")} table {ex.Message}");
         }
     }
@@ -533,6 +642,10 @@ public static class UtilsExcel
                 if (dateTime.TimeOfDay.TotalSeconds > 0)
                 {
                     return "yyyy-mm-dd hh:mm:ss"; // Long date format
+                }
+                else if (dateTime.TimeOfDay.TotalMinutes > 0 || dateTime.TimeOfDay.TotalHours > 0)
+                {
+                    return "yyyy-mm-dd hh:mm"; // Long date format
                 }
             }
         }
@@ -803,37 +916,81 @@ public static class UtilsExcel
         string thousandsSeparator;
         string sWRS;
         string format;
+        string formatDouble;
+        string formatInt;
+        string formatDate = "[Color49]yyyy-mm-dd;@";
+        string formatDateTime = "[Color49]yyyy-mm-dd hh:mm;@";
+        string formatDateTimeSeconds = "[Color49]yyyy-mm-dd hh:mm:ss;@";
         List<Excel.Range> dateColumns;
         CultureInfo culture = new CultureInfo(CultureInfo.CurrentCulture.Name, true);
-        string pattern = "(?=.*d)(?=.*m)(?=.*y)";
+        string pattern = "^(?=.*d)(?=.*m)(?=.*y).+$";
         sWRS = string.Format(culture, "{0:#,##0.00}", 1000);
         thousandsSeparator = sWRS.Substring(1, 1).Replace((char)160, ' ');
         decimalSeparator = sWRS.Substring(5, 1);
 
         sWRS = string.Format(culture, "{0:#,##0.00}", -1);
+        if (!sWRS.StartsWith("("))
+        {
+            formatDouble = "[Color49]#" + thousandsSeparator + "##0" + decimalSeparator + "00;[Color9]-#" + thousandsSeparator + "##0" + decimalSeparator + "00;[Color16]0;@";
+            formatInt = "[Color49]#" + thousandsSeparator + "##0;[Color9]-#" + thousandsSeparator + "##0;[Color16]0;@";
+        }
+        else
+        {
+            formatDouble = "[Color49]#" + thousandsSeparator + "##0" + decimalSeparator + "00;[Color9](#" + thousandsSeparator + "##0" + decimalSeparator + "00);[Color16]0;@";
+            formatInt = "[Color49]#" + thousandsSeparator + "##0;[Color9](#" + thousandsSeparator + "##0);[Color16]0;@";
+        }
+
         using (new ExcelExecutionBlock(rng.Application))
         {
-            dateColumns = rng.Columns.Cast<Excel.Range>().Where(p => (p.Cells.SpecialCellsOrDefault(Excel.XlCellType.xlCellTypeConstants) ?? p).Cast<Excel.Range>()
-            .Take(5)
-            .Any(c => Regex.IsMatch(((c.NumberFormatLocal is string ? c.NumberFormatLocal : string.Empty) as string), pattern))).ToList();
-
-            if (!sWRS.StartsWith("("))
+            if ((rng.NumberFormatLocal is string ? rng.NumberFormatLocal : string.Empty) == formatDouble)
             {
-                format = "[Color49]#" + thousandsSeparator + "##0" + decimalSeparator + "00;[Color9]-#" + thousandsSeparator + "##0" + decimalSeparator + "00;[Color16]0;@";
-                if ((rng.NumberFormatLocal is string ? rng.NumberFormatLocal : string.Empty) == format)
-                    format = "[Color49]#" + thousandsSeparator + "##0;[Color9]-#" + thousandsSeparator + "##0;[Color16]0;@";
-                rng.NumberFormatLocal = format;
+                format = formatInt;
+            }
+            else if ((rng.NumberFormatLocal is string ? rng.NumberFormatLocal : string.Empty) == formatInt)
+            {
+                rng.NumberFormatLocal = formatDouble;
+                dateColumns = rng.Columns.Cast<Excel.Range>().Where(p => (p.Cells.SpecialCellsOrDefault(Excel.XlCellType.xlCellTypeConstants) ?? p).Cast<Excel.Range>()
+                .Take(10)
+                .Any(c => c.Value2 is double v && v >= 0.0 && v <= 2958464.99999999)).ToList();
                 if (dateColumns != null && dateColumns.Count > 0)
-                    dateColumns.ForEach(p => p.NumberFormatLocal = "[Color47]yyyy-mm-dd;@");
+                {
+                    foreach (var col in dateColumns)
+                    {
+                        var dateCells = (col.Cells.SpecialCellsOrDefault(Excel.XlCellType.xlCellTypeConstants) ?? col).Cast<Excel.Range>().Take(10);
+
+                        bool hasPreciseTime = dateCells.Any(c => c.Value2 is double v && v >= 0.0 && v <= 2958464.99999999 && DateTime.FromOADate(v).Second > 0);
+
+                        bool hasAnyTime = hasPreciseTime;
+                        if (!hasPreciseTime)
+                            hasAnyTime = dateCells.Any(c => c.Value2 is double v && v >= 0.0 && v <= 2958464.99999999 && (DateTime.FromOADate(v).Minute > 0 || DateTime.FromOADate(v).Hour > 0));
+
+                        col.NumberFormatLocal = hasAnyTime ? (hasPreciseTime ? formatDateTimeSeconds : formatDateTime) : formatDate;
+                    }
+                }
+                return;
             }
             else
+                format = formatDouble;
+
+            dateColumns = rng.Columns.Cast<Excel.Range>().Where(p => (p.Cells.SpecialCellsOrDefault(Excel.XlCellType.xlCellTypeConstants) ?? p).Cast<Excel.Range>()
+                .Take(10)
+                .All(c => c.Value2 is double v && v >= 0.0 && v <= 2958464.99999999 && Regex.IsMatch(((c.NumberFormatLocal is string ? c.NumberFormatLocal : string.Empty) as string), pattern, RegexOptions.IgnoreCase) && !(new string[3] { formatDate, formatDateTime, formatDateTimeSeconds }).Contains((c.NumberFormatLocal is string ? c.NumberFormatLocal : string.Empty) as string))).ToList();
+
+            rng.NumberFormatLocal = format;
+            if (dateColumns != null && dateColumns.Count > 0)
             {
-                format = "[Color49]#" + thousandsSeparator + "##0" + decimalSeparator + "00;[Color9](#" + thousandsSeparator + "##0" + decimalSeparator + "00);[Color16]0;@";
-                if ((rng.NumberFormatLocal is string ? rng.NumberFormatLocal : string.Empty) == format)
-                    format = "[Color49]#" + thousandsSeparator + "##0;[Color9](#" + thousandsSeparator + "##0);[Color16]0;@";
-                rng.NumberFormatLocal = format;
-                if (dateColumns != null && dateColumns.Count > 0)
-                    dateColumns.ForEach(p => p.NumberFormatLocal = "[Color47]yyyy-mm-dd;@");
+                foreach (var col in dateColumns)
+                {
+                    var dateCells = (col.Cells.SpecialCellsOrDefault(Excel.XlCellType.xlCellTypeConstants) ?? col).Cast<Excel.Range>().Take(10);
+
+                    bool hasPreciseTime = dateCells.Any(c => c.Value2 is double v && v >= 0.0 && v <= 2958464.99999999 && DateTime.FromOADate(v).Second > 0);
+
+                    bool hasAnyTime = hasPreciseTime;
+                    if (!hasPreciseTime)
+                        hasAnyTime = dateCells.Any(c => c.Value2 is double v && v >= 0.0 && v <= 2958464.99999999 && (DateTime.FromOADate(v).Minute > 0 || DateTime.FromOADate(v).Hour > 0));
+
+                    col.NumberFormatLocal = hasAnyTime ? (hasPreciseTime ? formatDateTimeSeconds : formatDateTime) : formatDate;
+                }
             }
         }
     }
@@ -842,7 +999,7 @@ public static class UtilsExcel
     {
         try
         {
-            return rng.SpecialCells(cellType);
+            return rng.Application.Intersect(rng, rng.SpecialCells(cellType));
         }
         catch (COMException)
         {
@@ -965,6 +1122,8 @@ public static class UtilsExcel
                 belowRows.ClearFormats();
                 belowRows.Delete(Excel.XlDeleteShiftDirection.xlShiftUp);
             }
+
+            activeSheet.UsedRange.Select();
         }
     }
 

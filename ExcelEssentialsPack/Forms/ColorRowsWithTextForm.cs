@@ -147,6 +147,14 @@ namespace ExcelEssentials.Forms
                 okBtn.PerformClick();
         }
 
-        
+        private void exactCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void extStringCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

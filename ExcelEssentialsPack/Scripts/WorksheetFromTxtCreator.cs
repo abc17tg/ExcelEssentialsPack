@@ -79,6 +79,10 @@ namespace ImportTableToExcel
                 }
             }
 
+            int? colCount = allData.FirstOrDefault()?.Length;
+            if (colCount == null || colCount != dataTable.Columns.Count || !allData.All(p => p.Length == colCount))
+                return null;
+
             Dictionary<int, Type> columnTypes = new Dictionary<int, Type>();
             // Determine the most appropriate data type for each column
             columnTypes = Enumerable.Range(0, dataTable.Columns.Count).AsParallel().WithDegreeOfParallelism(dataTable.Columns.Count).Select(colIndex =>
@@ -259,6 +263,10 @@ namespace ImportTableToExcel
                     allData.Add(fields.ToArray());
                 }
             }
+
+            int? colCount = allData.FirstOrDefault()?.Length;
+            if (colCount == null || colCount != dataTable.Columns.Count || !allData.All(p => p.Length == colCount))
+                return null;
 
             Dictionary<int, Type> columnTypes = new Dictionary<int, Type>();
             // Determine the most appropriate data type for each column

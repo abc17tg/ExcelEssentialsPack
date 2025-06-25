@@ -422,7 +422,21 @@ namespace ExcelEssentials
         private void formatNumberSplitButton_Click(object sender, RibbonControlEventArgs e)
         {
             Excel.Application app = Globals.ThisAddIn.Application;
-            UtilsExcel.ApplyCustomNumberFormat(app.ActiveWindow.RangeSelection);
+            //UtilsExcel.ApplyCustomNumberFormat(app.ActiveWindow.RangeSelection);
+            Excel.Range rng = app.ActiveWindow.RangeSelection;
+
+            if (!rng.Valid())
+                return;
+
+            using (new ExcelExecutionBlock(app))
+            {
+                foreach (var ar in rng.Areas.Cast<Excel.Range>())
+                {
+                    if (!ar.Valid())
+                        continue;
+                    UtilsExcel.ApplyCustomNumberFormat(ar);
+                }
+            }
         }
 
         private void formatStringToDateButton_Click(object sender, RibbonControlEventArgs e)
@@ -618,6 +632,12 @@ namespace ExcelEssentials
         {
             Excel.Application app = Globals.ThisAddIn.Application;
             UtilsExcel.FilterByRegex(app.ActiveWindow.RangeSelection, true);
+        }
+
+        private void filterColumnFlipFilterBtn_Click(object sender, RibbonControlEventArgs e)
+        {
+            Excel.Application app = Globals.ThisAddIn.Application;
+            UtilsExcel.FlipFilter(app.ActiveWindow.RangeSelection);
         }
 
         private void sortingAbsButton_Click(object sender, RibbonControlEventArgs e)

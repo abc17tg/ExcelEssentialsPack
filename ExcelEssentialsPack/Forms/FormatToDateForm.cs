@@ -46,7 +46,7 @@ namespace ExcelEssentials.Forms
                 return false;
             }
 
-            m_dataTable = m_rng.GetDataTable2(false);
+            m_dataTable = m_rng.GetDataTable(false);
             if (m_dataTable != null && m_dataTable.Rows.Count > 0)
             {
                 m_dataTable.Columns[0].ColumnName = "Input value";
@@ -170,7 +170,7 @@ namespace ExcelEssentials.Forms
 
         private void predefinedFormatsComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            formatTextBox.Text = predefinedFormatsComboBox?.SelectedText ?? string.Empty;
+            formatTextBox.Text = (predefinedFormatsComboBox?.SelectedValue as string) ?? string.Empty;
             if (!string.IsNullOrWhiteSpace(formatTextBox.Text))
                 ParseDates();
         }

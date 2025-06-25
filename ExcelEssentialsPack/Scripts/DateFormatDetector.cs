@@ -9,6 +9,7 @@ namespace ExcelEssentials.Scripts
     {
         public static readonly List<string> DateFormats = new List<string>
         {
+            "yyyyMM",              // 202411
             "yyyyMMdd",            // 20241113
             "ddMMyyyy",            // 13112024
             "MMddyyyy",            // 11132024
@@ -24,17 +25,26 @@ namespace ExcelEssentials.Scripts
             "MMM dd, yyyy",        // Nov 13, 2024
 
             // Date and time formats with 24-hour time
+            "yyyyMMddHHmm",        // 202411131530
             "yyyyMMddHHmmss",      // 20241113153045
+            "yyyy-MM-dd HH:mm",    // 2024-11-13 15:30
             "yyyy-MM-dd HH:mm:ss", // 2024-11-13 15:30:45
+            "dd-MM-yyyy HH:mm",    // 13-11-2024 15:30
             "dd-MM-yyyy HH:mm:ss", // 13-11-2024 15:30:45
+            "MM-dd-yyyy HH:mm",    // 11-13-2024 15:30
             "MM-dd-yyyy HH:mm:ss", // 11-13-2024 15:30:45
 
             // Date and time formats with 12-hour time (AM/PM)
+            "yyyy-MM-dd hh:mm tt",    // 2024-11-13 03:30 PM
             "yyyy-MM-dd hh:mm:ss tt", // 2024-11-13 03:30:45 PM
+            "dd-MM-yyyy hh:mm tt",    // 13-11-2024 03:30 PM
             "dd-MM-yyyy hh:mm:ss tt", // 13-11-2024 03:30:45 PM
+            "MM-dd-yyyy hh:mm tt",    // 11-13-2024 03:30 PM
             "MM-dd-yyyy hh:mm:ss tt", // 11-13-2024 03:30:45 PM
             "MM/dd/yyyy hh:mm tt",    // 11/13/2024 03:30 PM
-            "dd/MM/yyyy hh:mm tt"     // 13/11/2024 03:30 PM
+            "MM/dd/yyyy hh:mm:ss tt", // 11/13/2024 03:30:45 PM
+            "dd/MM/yyyy hh:mm tt",    // 13/11/2024 03:30 PM
+            "dd/MM/yyyy hh:mm:ss tt"  // 13/11/2024 03:30:45 PM
         };
 
         public static string DetectDateFormat(string dateString)

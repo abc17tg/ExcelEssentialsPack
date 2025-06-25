@@ -74,6 +74,7 @@
             this.filterColumnFromRangeNotInRangeButton = this.Factory.CreateRibbonButton();
             this.filterColumnInRegexButton = this.Factory.CreateRibbonButton();
             this.filterColumnNotInRegexButton = this.Factory.CreateRibbonButton();
+            this.filterColumnFlipFilterBtn = this.Factory.CreateRibbonButton();
             this.hideRowsWithTextSplitButton = this.Factory.CreateRibbonSplitButton();
             this.hideColumnsWithTextButton = this.Factory.CreateRibbonButton();
             this.takeRowsWithTextButton = this.Factory.CreateRibbonButton();
@@ -294,6 +295,7 @@
             // 
             // evaluateFormulaButton
             // 
+            this.evaluateFormulaButton.Enabled = false;
             this.evaluateFormulaButton.Label = "Ev formula";
             this.evaluateFormulaButton.Name = "evaluateFormulaButton";
             this.evaluateFormulaButton.OfficeImageId = "ShowFormulas";
@@ -548,6 +550,7 @@
             this.filterColumnSplitButton.Items.Add(this.filterColumnFromRangeNotInRangeButton);
             this.filterColumnSplitButton.Items.Add(this.filterColumnInRegexButton);
             this.filterColumnSplitButton.Items.Add(this.filterColumnNotInRegexButton);
+            this.filterColumnSplitButton.Items.Add(this.filterColumnFlipFilterBtn);
             this.filterColumnSplitButton.ItemSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
             this.filterColumnSplitButton.Label = "Filter column";
             this.filterColumnSplitButton.Name = "filterColumnSplitButton";
@@ -610,6 +613,17 @@
             this.filterColumnNotInRegexButton.ShowImage = true;
             this.filterColumnNotInRegexButton.SuperTip = resources.GetString("filterColumnNotInRegexButton.SuperTip");
             this.filterColumnNotInRegexButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.filterColumnNotInRegexButton_Click);
+            // 
+            // filterColumnFlipFilterBtn
+            // 
+            this.filterColumnFlipFilterBtn.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.filterColumnFlipFilterBtn.Label = "Flip filter in column";
+            this.filterColumnFlipFilterBtn.Name = "filterColumnFlipFilterBtn";
+            this.filterColumnFlipFilterBtn.OfficeImageId = "FilterReapply";
+            this.filterColumnFlipFilterBtn.ScreenTip = "Flip filter in column";
+            this.filterColumnFlipFilterBtn.ShowImage = true;
+            this.filterColumnFlipFilterBtn.SuperTip = resources.GetString("filterColumnFlipFilterBtn.SuperTip");
+            this.filterColumnFlipFilterBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.filterColumnFlipFilterBtn_Click);
             // 
             // hideRowsWithTextSplitButton
             // 
@@ -1706,6 +1720,7 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonButton removeDuplicatesInColumnsButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonSplitButton removeDuplicatesSplitButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton excelEssentialsPackInfoBtn;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton filterColumnFlipFilterBtn;
     }
 
     partial class ThisRibbonCollection
