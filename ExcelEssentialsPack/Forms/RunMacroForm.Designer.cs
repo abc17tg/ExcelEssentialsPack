@@ -151,7 +151,7 @@
             this.Opacity = 0.95D;
             this.ShowIcon = false;
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
-            this.Text = "RunMacroForm";
+            this.Text = "Run macro form";
             this.Load += new System.EventHandler(this.RunMacroForm_Load);
             this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.RunMacroForm_MouseClick);
             this.ResumeLayout(false);

@@ -116,6 +116,8 @@ namespace ExcelEssentials.Forms
                         Excel.Application app = Globals.ThisAddIn.Application;
                         Excel.Worksheet aWs = app.ActiveSheet;
                         Excel.Worksheet ws = (aWs.Parent as Excel.Workbook).Worksheets.Add(aWs);
+                        ws.Activate();
+                        Globals.ThisAddIn.SetDefaultZoom();
 
                         if (File.ReadLines(DownloadedFilePath).LongCount() > ws.Rows.Count)
                         {

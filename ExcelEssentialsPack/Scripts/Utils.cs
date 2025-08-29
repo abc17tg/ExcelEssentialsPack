@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Windows.Forms;
 using System.Runtime.InteropServices;
-using System.Data;
 using System.Security.Cryptography;
-using ColorMine.ColorSpaces;
-using System.Drawing;
 using System.Text;
-using Microsoft.Data.Sqlite;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using ColorMine.ColorSpaces;
 using ExcelEssentials.Forms;
+using Microsoft.Data.Sqlite;
 
 public static class Utils
 {
@@ -108,6 +109,62 @@ public static class Utils
 
         return newString;
     }
+
+    public static string ReplaceEscapes(string input)
+    {
+        if (string.IsNullOrEmpty(input))
+            return input;
+
+        var sb = new StringBuilder(input.Length);
+        int i = 0;
+        while (i < input.Length)
+        {
+            char c = input[i];
+
+            if (c == '\\' && i + 1 < input.Length)
+            {
+                char next = input[i + 1];
+                switch (next)
+                {
+                    case '\\':
+                        // \\ -> literal backslash
+                        sb.Append('\\');
+                        i += 2;
+                        break;
+                    case 't':
+                        // \t -> tab
+                        sb.Append('\t');
+                        i += 2;
+                        break;
+                    case 'n':
+                        // \n -> newline
+                        sb.Append(Environment.NewLine);
+                        i += 2;
+                        break;
+                    default:
+                        // Unknown escape: keep backslash and the char as-is
+                        sb.Append('\\');
+                        sb.Append(next);
+                        i += 2;
+                        break;
+                }
+            }
+            else
+            {
+                sb.Append(c);
+                i++;
+            }
+        }
+
+        return sb.ToString();
+    }
+
+    public static string NormalizeNewlines(string s)
+    {
+        if (s == null) return string.Empty;
+        return s.Replace("\r\n", "\n").Replace("\r", "\n");
+    }
+
 
     public static SortedDictionary<string, long> GetCounts(DataTable dt, string searchWord = "")
     {

@@ -93,36 +93,6 @@ public static class UtilsExcel
         return $"('{string.Join("', '", values.Distinct())}')";
     }
 
-    public static string GenerateSqlFilterFromExcelSelection(Excel.Range rng)
-    {
-        if (!rng.Valid() || rng.Rows.Count < 2)
-            return string.Empty;
-
-        var filterParts = new List<string>();
-
-        int columnCount = rng.Columns.Count;
-        int rowCount = rng.Rows.Count;
-
-        for (int row = 2; row <= rowCount; row++) // Start from 2 to skip header row
-        {
-            var rowFilterParts = new List<string>();
-
-            for (int column = 1; column <= columnCount; column++)
-            {
-                string fieldName = Convert.ToString(rng.Cells[1, column].Value); // Get field name from first row
-                if (fieldName.Contains(" "))
-                    fieldName = $"[{fieldName}]";
-                string fieldValue = Convert.ToString(rng.Cells[row, column].Value); // Get field value from current row
-
-                rowFilterParts.Add($"{fieldName} IN ('{fieldValue}')");
-            }
-
-            filterParts.Add($"\t\t{string.Join("\n\t\tAND\n\t\t", rowFilterParts)}");
-        }
-
-        return $"\n(\n\t(\n{string.Join("\n\t)\n\tOR\n\t(\n", filterParts)}\n\t)\n)\n";
-    }
-
     public static void ColorRowsUnique(Excel.Range rng, Dictionary<string, Color> valueColorD = null)
     {
         Excel.Application app = rng.Application;
@@ -1984,10 +1954,12 @@ public static class UtilsExcel
             MessageBox.Show("VBA Editor is not open or no code pane is active.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
-    public static void ColorRange(Excel.Range rng, RangeType type, Color color, string searchWord = "", bool invertFontColor = false)
+
+    public static void ColorRange(Excel.Range rng, RangeType type, Color color, string searchWord = "", bool invertFontColor = false, bool exactMatch = false)
     {
         if (!rng.Valid())
             return;
+        searchWord = Utils.NormalizeNewlines(searchWord);
         using (new ExcelExecutionBlock(rng.Application))
         {
             switch (type)
@@ -1995,7 +1967,22 @@ public static class UtilsExcel
                 case RangeType.Rows:
                     foreach (var row in rng.Rows.Cast<Excel.Range>())
                     {
-                        if (row.Cells.Cast<Excel.Range>().Any(p => p.Value2 != null && (p.Value2.ToString().Contains(searchWord) || p.Text.ToString().Contains(searchWord))))
+                        if (row.Cells.Cast<Excel.Range>().Any(p =>
+                        {
+                            string valueStr = p.Value2?.ToString() ?? string.Empty;
+                            string textStr = p.Text?.ToString() ?? string.Empty;
+                            valueStr = Utils.NormalizeNewlines(valueStr);
+                            textStr = Utils.NormalizeNewlines(textStr);
+
+                            if (exactMatch)
+                            {
+                                return valueStr == searchWord || textStr == searchWord;
+                            }
+                            else
+                            {
+                                return valueStr.Contains(searchWord, StringComparison.OrdinalIgnoreCase) || textStr.Contains(searchWord, StringComparison.OrdinalIgnoreCase);
+                            }
+                        }))
                         {
                             if (color != Color.Transparent)
                                 row.Interior.Color = color;
@@ -2007,10 +1994,25 @@ public static class UtilsExcel
                         }
                     }
                     break;
-                case RangeType.Colums:
+                case RangeType.Columns:
                     foreach (var col in rng.Columns.Cast<Excel.Range>())
                     {
-                        if (col.Cells.Cast<Excel.Range>().Any(p => p.Value2 != null && (p.Value2.ToString().Contains(searchWord) || p.Text.ToString().Contains(searchWord))))
+                        if (col.Cells.Cast<Excel.Range>().Any(p =>
+                        {
+                            string valueStr = p.Value2?.ToString() ?? string.Empty;
+                            string textStr = p.Text?.ToString() ?? string.Empty;
+                            valueStr = Utils.NormalizeNewlines(valueStr);
+                            textStr = Utils.NormalizeNewlines(textStr);
+
+                            if (exactMatch)
+                            {
+                                return valueStr == searchWord || textStr == searchWord;
+                            }
+                            else
+                            {
+                                return valueStr.Contains(searchWord, StringComparison.OrdinalIgnoreCase) || textStr.Contains(searchWord, StringComparison.OrdinalIgnoreCase);
+                            }
+                        }))
                         {
                             if (color != Color.Transparent)
                                 col.Interior.Color = color;
@@ -2025,7 +2027,21 @@ public static class UtilsExcel
                 case RangeType.Cells:
                     foreach (var cell in rng.Cells.Cast<Excel.Range>())
                     {
-                        if (cell.Value2 != null && (cell.Value2.ToString().Contains(searchWord) || cell.Text.ToString().Contains(searchWord)))
+                        string valueStr = cell.Value2?.ToString() ?? string.Empty;
+                        string textStr = cell.Text?.ToString() ?? string.Empty;
+                        valueStr = Utils.NormalizeNewlines(valueStr);
+                        textStr = Utils.NormalizeNewlines(textStr);
+
+                        bool matches;
+                        if (exactMatch)
+                        {
+                            matches = valueStr == searchWord || textStr == searchWord;
+                        }
+                        else
+                        {
+                            matches = valueStr.Contains(searchWord, StringComparison.OrdinalIgnoreCase) || textStr.Contains(searchWord, StringComparison.OrdinalIgnoreCase);
+                        }
+                        if (matches)
                         {
                             if (color != Color.Transparent)
                                 cell.Interior.Color = color;
@@ -2033,7 +2049,7 @@ public static class UtilsExcel
                                 cell.Interior.ColorIndex = 0;
 
                             if (invertFontColor)
-                                cell.Font.Color = ColorTranslator.FromOle((int)(cell.Cells[1, 1] as Excel.Range).Font.Color).Invert();
+                                cell.Font.Color = ColorTranslator.FromOle((int)(cell.Font.Color)).Invert();
                         }
                     }
                     break;
@@ -2042,11 +2058,10 @@ public static class UtilsExcel
             }
         }
     }
-
     public enum RangeType
     {
         Cells,
-        Colums,
+        Columns,
         Rows
     }
 }

@@ -33,10 +33,10 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <PublishUrl>C:\Users\olszewsm\Documents\Documents\Custom ribbon\Releases\CustomRibbon_v2.4\ExcelCustomRibbon\</PublishUrl>
+    <PublishUrl>C:\Users\olszewsm\Documents\Documents\Custom ribbon\Releases\CustomRibbon_v2.6r\ExcelCustomRibbon\</PublishUrl>
     <InstallUrl />
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>2.5.0.1</ApplicationVersion>
+    <ApplicationVersion>2.6.0.3</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>7</UpdateInterval>
@@ -548,6 +548,9 @@
     <EmbeddedResource Include="Forms\RunMacroTempForm.resx">
       <DependentUpon>RunMacroTempForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\RunMacroWithSearchPhraseForm.resx">
+      <DependentUpon>RunMacroWithSearchPhraseForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\SearchColumnsForm.resx">
       <DependentUpon>SearchColumnsForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -592,6 +595,9 @@
     <None Include="Resources\sql.png" />
     <Content Include="ILLink\ILLink.Descriptors.LibraryBuild.xml" />
     <Content Include="Properties Files\ButtonSubroutineMapping.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Properties Files\DefaultZoom.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Properties Files\FormsMacrosSearchKeys.xml">

@@ -142,7 +142,7 @@ namespace ExcelEssentials.Forms
             if (!string.IsNullOrEmpty(FormattedTexts.FirstOrDefault()))
             {
                 DialogResult = DialogResult.OK;
-                Clipboard.SetText(FormattedText);
+                Clipboard.SetText(Utils.ReplaceEscapes(FormattedText));
             }
             else
                 DialogResult = DialogResult.Abort;

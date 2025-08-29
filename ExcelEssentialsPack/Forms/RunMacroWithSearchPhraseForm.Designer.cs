@@ -33,7 +33,7 @@
             this.refreshBtn = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // pvTemplatesListView
+            // templatesListView
             // 
             this.templatesListView.Activation = System.Windows.Forms.ItemActivation.OneClick;
             this.templatesListView.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(44)))), ((int)(((byte)(50)))), ((int)(((byte)(54)))));
@@ -46,7 +46,7 @@
             this.templatesListView.LabelWrap = false;
             this.templatesListView.Location = new System.Drawing.Point(4, 33);
             this.templatesListView.MultiSelect = false;
-            this.templatesListView.Name = "pvTemplatesListView";
+            this.templatesListView.Name = "templatesListView";
             this.templatesListView.ShowItemToolTips = true;
             this.templatesListView.Size = new System.Drawing.Size(290, 520);
             this.templatesListView.Sorting = System.Windows.Forms.SortOrder.Ascending;
@@ -89,7 +89,7 @@
             this.refreshBtn.UseVisualStyleBackColor = true;
             this.refreshBtn.Click += new System.EventHandler(this.refreshBtn_Click);
             // 
-            // PvTemplatesListForm
+            // RunMacroWithSearchPhraseForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -103,12 +103,12 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "PvTemplatesListForm";
+            this.Name = "RunMacroWithSearchPhraseForm";
             this.Opacity = 0.95D;
             this.ShowIcon = false;
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "PvTemplatesListForm";
+            this.Text = "Run macro form";
             this.Load += new System.EventHandler(this.RunMacroWithSearchPhraseForm_Load);
             this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.RunMacroWithSearchPhraseForm_MouseClick);
             this.ResumeLayout(false);

@@ -46,6 +46,10 @@ namespace ExcelEssentials
                 GetMacrosWorkbooks();
             RunMacroWithSearchPhraseForm form = new RunMacroWithSearchPhraseForm(m_macroWorkbook, "PivotTableSearch", true);
             form.Show();
+            form.FormClosing += (o, ea) =>
+            {
+                if (form.WasRun) Globals.ThisAddIn.SetDefaultZoom();
+            };
         }
 
         private void combinedTableFromPvValuesButton_Click(object sender, RibbonControlEventArgs e)

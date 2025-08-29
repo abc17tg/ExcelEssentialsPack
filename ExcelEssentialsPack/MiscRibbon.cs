@@ -917,6 +917,8 @@ namespace ExcelEssentials
                             }
 
                             Excel.Worksheet ws = (aWs.Parent as Excel.Workbook).Worksheets.Add(aWs);
+                            ws.Activate();
+                            Globals.ThisAddIn.SetDefaultZoom();
 
                             if (File.ReadLines(filePath).LongCount() > ws.Rows.Count)
                             {
@@ -1085,7 +1087,7 @@ namespace ExcelEssentials
 
         private void colorColumnsWithTextButton_Click(object sender, RibbonControlEventArgs e)
         {
-            ColorCellsWithTextForm form = new ColorCellsWithTextForm(Globals.ThisAddIn.Application, UtilsExcel.RangeType.Colums);
+            ColorCellsWithTextForm form = new ColorCellsWithTextForm(Globals.ThisAddIn.Application, UtilsExcel.RangeType.Columns);
             form.Show();
         }
 

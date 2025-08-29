@@ -54,7 +54,7 @@
             this.cancelBtn.Dock = System.Windows.Forms.DockStyle.Fill;
             this.cancelBtn.Location = new System.Drawing.Point(3, 119);
             this.cancelBtn.Name = "cancelBtn";
-            this.cancelBtn.Size = new System.Drawing.Size(161, 29);
+            this.cancelBtn.Size = new System.Drawing.Size(162, 29);
             this.cancelBtn.TabIndex = 2;
             this.cancelBtn.Text = "Cancel";
             this.cancelBtn.UseVisualStyleBackColor = true;
@@ -65,9 +65,9 @@
             this.tableLayoutPanel1.SetColumnSpan(this.okBtn, 2);
             this.okBtn.Dock = System.Windows.Forms.DockStyle.Fill;
             this.okBtn.Enabled = false;
-            this.okBtn.Location = new System.Drawing.Point(170, 119);
+            this.okBtn.Location = new System.Drawing.Point(171, 119);
             this.okBtn.Name = "okBtn";
-            this.okBtn.Size = new System.Drawing.Size(151, 29);
+            this.okBtn.Size = new System.Drawing.Size(150, 29);
             this.okBtn.TabIndex = 1;
             this.okBtn.Text = "Accept";
             this.okBtn.UseVisualStyleBackColor = true;
@@ -81,7 +81,7 @@
             this.redLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
             this.redLabel.Location = new System.Drawing.Point(93, 0);
             this.redLabel.Name = "redLabel";
-            this.redLabel.Size = new System.Drawing.Size(71, 30);
+            this.redLabel.Size = new System.Drawing.Size(72, 30);
             this.redLabel.TabIndex = 4;
             this.redLabel.Text = "Red";
             this.redLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -92,9 +92,9 @@
             this.greenLabel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.greenLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.greenLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
-            this.greenLabel.Location = new System.Drawing.Point(170, 0);
+            this.greenLabel.Location = new System.Drawing.Point(171, 0);
             this.greenLabel.Name = "greenLabel";
-            this.greenLabel.Size = new System.Drawing.Size(71, 30);
+            this.greenLabel.Size = new System.Drawing.Size(72, 30);
             this.greenLabel.TabIndex = 5;
             this.greenLabel.Text = "Green";
             this.greenLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -105,9 +105,9 @@
             this.blueLabel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.blueLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.blueLabel.ForeColor = System.Drawing.SystemColors.MenuHighlight;
-            this.blueLabel.Location = new System.Drawing.Point(247, 0);
+            this.blueLabel.Location = new System.Drawing.Point(249, 0);
             this.blueLabel.Name = "blueLabel";
-            this.blueLabel.Size = new System.Drawing.Size(74, 30);
+            this.blueLabel.Size = new System.Drawing.Size(72, 30);
             this.blueLabel.TabIndex = 6;
             this.blueLabel.Text = "Blue";
             this.blueLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -117,7 +117,7 @@
             this.redTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.redTextBox.Location = new System.Drawing.Point(93, 33);
             this.redTextBox.Name = "redTextBox";
-            this.redTextBox.Size = new System.Drawing.Size(71, 20);
+            this.redTextBox.Size = new System.Drawing.Size(72, 20);
             this.redTextBox.TabIndex = 5;
             this.redTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.redTextBox.TextChanged += new System.EventHandler(this.redTextBox_TextChanged);
@@ -125,9 +125,9 @@
             // greenTextBox
             // 
             this.greenTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.greenTextBox.Location = new System.Drawing.Point(170, 33);
+            this.greenTextBox.Location = new System.Drawing.Point(171, 33);
             this.greenTextBox.Name = "greenTextBox";
-            this.greenTextBox.Size = new System.Drawing.Size(71, 20);
+            this.greenTextBox.Size = new System.Drawing.Size(72, 20);
             this.greenTextBox.TabIndex = 6;
             this.greenTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.greenTextBox.TextChanged += new System.EventHandler(this.greenTextBox_TextChanged);
@@ -135,9 +135,9 @@
             // blueTextBox
             // 
             this.blueTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.blueTextBox.Location = new System.Drawing.Point(247, 33);
+            this.blueTextBox.Location = new System.Drawing.Point(249, 33);
             this.blueTextBox.Name = "blueTextBox";
-            this.blueTextBox.Size = new System.Drawing.Size(74, 20);
+            this.blueTextBox.Size = new System.Drawing.Size(72, 20);
             this.blueTextBox.TabIndex = 7;
             this.blueTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.blueTextBox.TextChanged += new System.EventHandler(this.blueTextBox_TextChanged);
@@ -159,7 +159,7 @@
             this.searchWordTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.searchWordTextBox.Location = new System.Drawing.Point(3, 93);
             this.searchWordTextBox.Name = "searchWordTextBox";
-            this.searchWordTextBox.Size = new System.Drawing.Size(238, 20);
+            this.searchWordTextBox.Size = new System.Drawing.Size(240, 20);
             this.searchWordTextBox.TabIndex = 0;
             this.searchWordTextBox.Text = "Search word";
             this.searchWordTextBox.TextChanged += new System.EventHandler(this.searchWordTextBox_TextChanged);
@@ -180,7 +180,7 @@
             this.invertFontColorCheckBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.invertFontColorCheckBox.Location = new System.Drawing.Point(93, 63);
             this.invertFontColorCheckBox.Name = "invertFontColorCheckBox";
-            this.invertFontColorCheckBox.Size = new System.Drawing.Size(148, 24);
+            this.invertFontColorCheckBox.Size = new System.Drawing.Size(150, 24);
             this.invertFontColorCheckBox.TabIndex = 3;
             this.invertFontColorCheckBox.Text = "Invert font color";
             this.invertFontColorCheckBox.UseVisualStyleBackColor = true;
@@ -221,9 +221,9 @@
             // 
             this.exactCheckBox.AutoSize = true;
             this.exactCheckBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.exactCheckBox.Location = new System.Drawing.Point(247, 63);
+            this.exactCheckBox.Location = new System.Drawing.Point(249, 63);
             this.exactCheckBox.Name = "exactCheckBox";
-            this.exactCheckBox.Size = new System.Drawing.Size(74, 24);
+            this.exactCheckBox.Size = new System.Drawing.Size(72, 24);
             this.exactCheckBox.TabIndex = 4;
             this.exactCheckBox.Text = "Exact";
             this.exactCheckBox.UseVisualStyleBackColor = true;
@@ -236,9 +236,9 @@
             this.extStringCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
             this.extStringCheckBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.extStringCheckBox.Font = new System.Drawing.Font("Consolas", 9F);
-            this.extStringCheckBox.Location = new System.Drawing.Point(247, 93);
+            this.extStringCheckBox.Location = new System.Drawing.Point(249, 93);
             this.extStringCheckBox.Name = "extStringCheckBox";
-            this.extStringCheckBox.Size = new System.Drawing.Size(74, 20);
+            this.extStringCheckBox.Size = new System.Drawing.Size(72, 20);
             this.extStringCheckBox.TabIndex = 11;
             this.extStringCheckBox.Text = "\\t\\n";
             this.extStringCheckBox.UseVisualStyleBackColor = true;

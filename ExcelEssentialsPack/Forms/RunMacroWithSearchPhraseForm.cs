@@ -15,6 +15,8 @@ namespace ExcelEssentials.Forms
 {
     public partial class RunMacroWithSearchPhraseForm : Form
     {
+        public bool WasRun = false;
+
         private Excel.Workbook m_macroWorkbook;
         private List<ListViewItem> m_itemList = new List<ListViewItem>();
         Dictionary<string, bool?> m_searchPhrasesDic = new Dictionary<string, bool?>();
@@ -233,6 +235,7 @@ namespace ExcelEssentials.Forms
             if (templatesListView.SelectedItems.Count > 0)
             {
                 UtilsExcel.RunMacro(templatesListView.SelectedItems[templatesListView.SelectedItems.Count - 1].ToolTipText);
+                WasRun = true;
                 this.Close();
             }
         }
@@ -260,6 +263,7 @@ namespace ExcelEssentials.Forms
                 if (templatesListView.SelectedItems.Count > 0)
                 {
                     UtilsExcel.RunMacro(templatesListView.SelectedItems[templatesListView.SelectedItems.Count - 1].ToolTipText);
+                    WasRun = true;
                     this.Close();
                 }
             }

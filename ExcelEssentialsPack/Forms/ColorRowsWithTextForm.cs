@@ -119,9 +119,17 @@ namespace ExcelEssentials.Forms
 
         private void okBtn_Click(object sender, EventArgs e)
         {
-            Excel.Range rng = m_app.ActiveWindow.RangeSelection.GetUsableRange();
-            UtilsExcel.ColorRange(rng, RangeType, Color, searchWordTextBox.Text, invertFontColorCheckBox.Checked);
+            SearchAndColor();
             this.Close();
+        }
+
+        private void SearchAndColor()
+        {
+            Excel.Range rng = m_app.ActiveWindow.RangeSelection.GetUsableRange();
+            string searchWord = searchWordTextBox.Text;
+            if (extStringCheckBox.Checked)
+                searchWord = Utils.ReplaceEscapes(searchWord);
+            UtilsExcel.ColorRange(rng, RangeType, Color, searchWord, invertFontColorCheckBox.Checked, exactCheckBox.Checked);
         }
 
         private void cancelBtn_Click(object sender, EventArgs e)

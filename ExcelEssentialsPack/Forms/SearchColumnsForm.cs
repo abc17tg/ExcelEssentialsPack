@@ -294,9 +294,9 @@ namespace ExcelEssentials.Forms
                 else
                 {
                     if ((bool)dataGridView[e.ColumnIndex, e.RowIndex].Value)
-                        UtilsExcel.ColorRange(col, UtilsExcel.RangeType.Colums, Color.Yellow, string.Empty);
+                        UtilsExcel.ColorRange(col, UtilsExcel.RangeType.Columns, Color.Yellow, string.Empty);
                     else
-                        UtilsExcel.ColorRange(col, UtilsExcel.RangeType.Colums, Color.Transparent, string.Empty);
+                        UtilsExcel.ColorRange(col, UtilsExcel.RangeType.Columns, Color.Transparent, string.Empty);
                 }
             }
         }
