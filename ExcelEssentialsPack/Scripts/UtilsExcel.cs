@@ -260,76 +260,59 @@ public static class UtilsExcel
                     rng = selectedCell.CurrentRegion;
 
                 List<string> values = new List<string>();
+                List<string> filteredValues = new List<string>();
                 Excel.Range column;
-                column = rng.Columns[selectedCell.Column - rng.Column + 1];
                 if (isPivotTable)
                 {
                     foreach (Excel.PivotItem item in pivotField.PivotItems())
+                    {
                         values.Add(item.Value.ToString());
+                        if (item.Visible)
+                            filteredValues.Add(item.Value.ToString());
+                    }
                 }
                 else
                 {
-                    values = column.Cells.Cast<Excel.Range>().Select(p => ((object)p.Value2)?.ToString() ?? "").Skip(1).ToList();
+                    column = rng.Columns[selectedCell.Column - rng.Column + 1];
+
+                    (values, filteredValues) = column.Cells
+                        .Cast<Excel.Range>()
+                        .Skip(1)  // drop header
+                        .Aggregate(
+                            (values: new List<string>(), filtered: new List<string>()),
+                            (acc, cell) =>
+                            {
+                                var text = ((object)cell.Value2)?.ToString() ?? "";
+                                acc.values.Add(text);
+                                if (!cell.EntireRow.Hidden)
+                                    acc.filtered.Add(text);
+                                return acc;
+                            }
+                        );
                 }
 
                 var valuesToFilter = getRangeToUseAsFilterForm.Range.Cells.Cast<Excel.Range>().Select(p => ((object)p.Value2)?.ToString() ?? "").Distinct().ToList();
 
-                List<string> currentFilterValues = new List<string>();
-                if (addMode)
-                {
-
-                    if (isPivotTable)
-                    {
-                        // pivot: collect pivot items currently visible (these are the values currently "in the filter")
-                        foreach (Excel.PivotItem item in pivotField.PivotItems())
-                        {
-                            try
-                            {
-                                if (item.Visible)
-                                    currentFilterValues.Add(item.Value.ToString());
-                            }
-                            catch (COMException) { }
-                            catch { }
-                        }
-                    }
-                    else
-                    {
-                        var cells = column.Cells.Cast<Excel.Range>().Skip(1); // skip header
-                        foreach (var cell in cells)
-                        {
-                            try
-                            {
-                                // EntireRow.Hidden indicates if row is hidden by filter
-                                if (!(cell.EntireRow.Hidden))
-                                {
-                                    currentFilterValues.Add(((object)cell.Value2)?.ToString() ?? "");
-                                }
-                            }
-                            catch (COMException) { }
-                            catch { }
-                        }
-                    }
-
-                    currentFilterValues = currentFilterValues.Where(v => !string.IsNullOrEmpty(v)).Distinct().ToList();
-                }
-
                 if (addMode && !notInMode)
                 {
-                    valuesToFilter = currentFilterValues.Concat(valuesToFilter).Where(v => !string.IsNullOrEmpty(v)).Distinct().ToList();
+                    valuesToFilter = filteredValues.Concat(valuesToFilter).Where(v => !string.IsNullOrEmpty(v)).Distinct().ToList();
                 }
                 else if (addMode && notInMode)
                 {
-                    valuesToFilter = currentFilterValues.Except(valuesToFilter).ToList();
+                    valuesToFilter = filteredValues.Except(valuesToFilter).ToList();
                 }
                 else if (notInMode)
                 {
                     valuesToFilter = values.Distinct().Except(valuesToFilter).ToList();
                 }
 
-                if (isPivotTable)
-                    FilterPivotItems(pivotField, valuesToFilter);
-                else
-                    rng.AutoFilter(selectedCell.Column - rng.Column + 1, valuesToFilter.ToArray(), Excel.XlAutoFilterOperator.xlFilterValues);
+                if (valuesToFilter != null && valuesToFilter.Count > 0)
+                {
+                    if (isPivotTable)
+                        FilterPivotItems(pivotField, valuesToFilter);
+                    else
+                        rng.AutoFilter(selectedCell.Column - rng.Column + 1, valuesToFilter.ToArray(), Excel.XlAutoFilterOperator.xlFilterValues);
+                }
 
                 selectedCell.Application.Updating(true);
             };
@@ -421,11 +404,14 @@ public static class UtilsExcel
             }
 
             var valuesToFilter = values.Distinct().Except(filteredValues.Distinct()).ToList();
-
-            if (isPivotTable)
-                FilterPivotItems(pivotField, valuesToFilter);
-            else
-                rng.AutoFilter(selectedCell.Column - rng.Column + 1, valuesToFilter.ToArray(), Excel.XlAutoFilterOperator.xlFilterValues);
+            
+            if (valuesToFilter != null && valuesToFilter.Count > 0)
+            {
+                if (isPivotTable)
+                    FilterPivotItems(pivotField, valuesToFilter);
+                else
+                    rng.AutoFilter(selectedCell.Column - rng.Column + 1, valuesToFilter.ToArray(), Excel.XlAutoFilterOperator.xlFilterValues);
+            }
 
             selectedCell.Application.Updating(true);
         }
@@ -481,77 +467,60 @@ public static class UtilsExcel
             rng = selectedCell.CurrentRegion;
 
             List<string> values = new List<string>();
+            List<string> filteredValues = new List<string>();
             Excel.Range column;
             if (isPivotTable)
             {
                 foreach (Excel.PivotItem item in pivotField.PivotItems())
+                {
                     values.Add(item.Value.ToString());
+                    if (item.Visible)
+                        filteredValues.Add(item.Value.ToString());
+                }
             }
             else
             {
                 column = rng.Columns[selectedCell.Column - rng.Column + 1];
-                values = column.Cells.Cast<Excel.Range>().Select(p => ((object)p.Value2)?.ToString() ?? "").Skip(1).ToList();
+
+                (values, filteredValues) = column.Cells
+                    .Cast<Excel.Range>()
+                    .Skip(1)  // drop header
+                    .Aggregate(
+                        (values: new List<string>(), filtered: new List<string>()),
+                        (acc, cell) =>
+                        {
+                            var text = ((object)cell.Value2)?.ToString() ?? "";
+                            acc.values.Add(text);
+                            if (!cell.EntireRow.Hidden)
+                                acc.filtered.Add(text);
+                            return acc;
+                        }
+                    );
             }
 
             Regex regex = new Regex(regexString);
             var valuesToFilter = values.FindAll(p => regex.IsMatch(p));
 
-            List<string> currentFilterValues = new List<string>();
-            if (addMode)
-            {
-
-                if (isPivotTable)
-                {
-                    foreach (Excel.PivotItem item in pivotField.PivotItems())
-                    {
-                        try
-                        {
-                            if (item.Visible)
-                                currentFilterValues.Add(item.Value.ToString());
-                        }
-                        catch (COMException) { }
-                        catch { }
-                    }
-                }
-                else
-                {
-                    column = rng.Columns[selectedCell.Column - rng.Column + 1];
-                    var cells = column.Cells.Cast<Excel.Range>().Skip(1); // skip header
-                    foreach (var cell in cells)
-                    {
-                        try
-                        {
-                            if (!(cell.EntireRow.Hidden))
-                            {
-                                currentFilterValues.Add(((object)cell.Value2)?.ToString() ?? "");
-                            }
-                        }
-                        catch (COMException) { }
-                        catch { }
-                    }
-                }
-
-                currentFilterValues = currentFilterValues.Where(v => !string.IsNullOrEmpty(v)).Distinct().ToList();
-            }
-
             if (addMode && !notInMode)
             {
-                valuesToFilter = currentFilterValues.Concat(valuesToFilter).Where(v => !string.IsNullOrEmpty(v)).Distinct().ToList();
+                valuesToFilter = filteredValues.Concat(valuesToFilter).Where(v => !string.IsNullOrEmpty(v)).Distinct().ToList();
             }
             else if (addMode && notInMode)
             {
-                valuesToFilter = currentFilterValues.Except(valuesToFilter).ToList();
+                valuesToFilter = filteredValues.Except(valuesToFilter).ToList();
             }
             else if (notInMode)
             {
                 valuesToFilter = values.Distinct().Except(valuesToFilter).ToList();
             }
 
-
-            if (isPivotTable)
-                FilterPivotItems(pivotField, valuesToFilter);
-            else
-                rng.AutoFilter(selectedCell.Column - rng.Column + 1, valuesToFilter.ToArray(), Excel.XlAutoFilterOperator.xlFilterValues);
+            if (valuesToFilter != null && valuesToFilter.Count > 0)
+            {
+                if (isPivotTable)
+                    FilterPivotItems(pivotField, valuesToFilter);
+                else
+                    rng.AutoFilter(selectedCell.Column - rng.Column + 1, valuesToFilter.ToArray(), Excel.XlAutoFilterOperator.xlFilterValues);
+            }
 
             selectedCell.Application.Updating(true);
         }
