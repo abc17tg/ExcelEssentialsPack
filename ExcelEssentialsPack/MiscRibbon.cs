@@ -604,34 +604,58 @@ namespace ExcelEssentials
             UtilsExcel.FilterByRange(app.ActiveWindow.RangeSelection);
         }
 
-        private void filterColumnNotInRangeButton_Click(object sender, RibbonControlEventArgs e)
+
+        private void filterColumnInRangeAddBtn_Click(object sender, RibbonControlEventArgs e)
         {
             Excel.Application app = Globals.ThisAddIn.Application;
             UtilsExcel.FilterByRange(app.ActiveWindow.RangeSelection, true);
         }
 
-        private void filterColumnFromRangeInRangeButton_Click(object sender, RibbonControlEventArgs e)
+        private void filterColumnNotInRangeButton_Click(object sender, RibbonControlEventArgs e)
         {
             Excel.Application app = Globals.ThisAddIn.Application;
             UtilsExcel.FilterByRange(app.ActiveWindow.RangeSelection, false, true);
         }
 
-        private void filterColumnFromRangeNotInRangeButton_Click(object sender, RibbonControlEventArgs e)
+        private void filterColumnNotInRangeAddBtn_Click(object sender, RibbonControlEventArgs e)
         {
             Excel.Application app = Globals.ThisAddIn.Application;
             UtilsExcel.FilterByRange(app.ActiveWindow.RangeSelection, true, true);
         }
 
+        private void filterColumnFromRangeInRangeButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            Excel.Application app = Globals.ThisAddIn.Application;
+            UtilsExcel.FilterByRange(app.ActiveWindow.RangeSelection, false, false, true);
+        }
+
+        private void filterColumnFromRangeNotInRangeButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            Excel.Application app = Globals.ThisAddIn.Application;
+            UtilsExcel.FilterByRange(app.ActiveWindow.RangeSelection, false, true, true);
+        }
+
         private void filterColumnInRegexButton_Click(object sender, RibbonControlEventArgs e)
         {
             Excel.Application app = Globals.ThisAddIn.Application;
-            UtilsExcel.FilterByRegex(app.ActiveWindow.RangeSelection, false);
+            UtilsExcel.FilterByRegex(app.ActiveWindow.RangeSelection, false, false);
+        }
+
+        private void filterColumnInRegexAddButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            Excel.Application app = Globals.ThisAddIn.Application;
+            UtilsExcel.FilterByRegex(app.ActiveWindow.RangeSelection, true, false);
         }
 
         private void filterColumnNotInRegexButton_Click(object sender, RibbonControlEventArgs e)
         {
             Excel.Application app = Globals.ThisAddIn.Application;
-            UtilsExcel.FilterByRegex(app.ActiveWindow.RangeSelection, true);
+            UtilsExcel.FilterByRegex(app.ActiveWindow.RangeSelection, false, true);
+        }
+        private void filterColumnNotInRegexAddButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            Excel.Application app = Globals.ThisAddIn.Application;
+            UtilsExcel.FilterByRegex(app.ActiveWindow.RangeSelection, true, true);
         }
 
         private void filterColumnFlipFilterBtn_Click(object sender, RibbonControlEventArgs e)

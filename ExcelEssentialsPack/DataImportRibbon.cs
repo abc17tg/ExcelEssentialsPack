@@ -11,11 +11,6 @@ namespace ExcelEssentials
 {
     public partial class MiscRibbon
     {
-        private void sqlEditorDataFolderBtn_Click(object sender, RibbonControlEventArgs e)
-        {
-            Process.Start("explorer.exe", FileManager.SqlQueriesPath);
-        }
-
         private void runS4ExtractButton_Click(object sender, RibbonControlEventArgs e)
         {
             //SapS4ExtractionForm form = new SapS4ExtractionForm(m_macroWorkbook);

@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using ExcelEssentials;
-using System.Windows.Forms;
-using Excel = Microsoft.Office.Interop.Excel;
-using ExcelVB = Microsoft.Vbe.Interop;
-using System.Runtime.InteropServices;
-using ExcelEssentials.Forms;
 using System.Data;
-using ExcelEssentials.Scripts;
-using System.Threading.Tasks;
-using System.Text.RegularExpressions;
-using System.Numerics;
 using System.Drawing;
 using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Numerics;
+using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using ExcelEssentials;
+using ExcelEssentials.Forms;
+using ExcelEssentials.Scripts;
+using Newtonsoft.Json.Linq;
+using Excel = Microsoft.Office.Interop.Excel;
+using ExcelVB = Microsoft.Vbe.Interop;
 
 public static class UtilsExcel
 {
@@ -199,7 +200,7 @@ public static class UtilsExcel
         ws.Name = newName;
     }
 
-    public static void FilterByRange(Excel.Range selectedCell, bool notInMode = false, bool chooseRangeByForm = false)
+    public static void FilterByRange(Excel.Range selectedCell, bool addMode = false, bool notInMode = false, bool chooseRangeByForm = false)
     {
         bool isSelectionRange, isPivotTable;
         isSelectionRange = selectedCell is Excel.Range;
@@ -258,24 +259,73 @@ public static class UtilsExcel
                 else if (!chooseRangeByForm)
                     rng = selectedCell.CurrentRegion;
 
-                var valuesToFilter = getRangeToUseAsFilterForm.Range.Cells.Cast<Excel.Range>().Select(p => ((object)p.Value2)?.ToString() ?? "").Distinct().ToList();
-                if (notInMode)
+                List<string> values = new List<string>();
+                Excel.Range column;
+                column = rng.Columns[selectedCell.Column - rng.Column + 1];
+                if (isPivotTable)
                 {
-                    List<string> values = new List<string>();
-                    Excel.Range column;
+                    foreach (Excel.PivotItem item in pivotField.PivotItems())
+                        values.Add(item.Value.ToString());
+                }
+                else
+                {
+                    values = column.Cells.Cast<Excel.Range>().Select(p => ((object)p.Value2)?.ToString() ?? "").Skip(1).ToList();
+                }
+
+                var valuesToFilter = getRangeToUseAsFilterForm.Range.Cells.Cast<Excel.Range>().Select(p => ((object)p.Value2)?.ToString() ?? "").Distinct().ToList();
+
+                List<string> currentFilterValues = new List<string>();
+                if (addMode)
+                {
+
                     if (isPivotTable)
                     {
+                        // pivot: collect pivot items currently visible (these are the values currently "in the filter")
                         foreach (Excel.PivotItem item in pivotField.PivotItems())
-                            values.Add(item.Value.ToString());
+                        {
+                            try
+                            {
+                                if (item.Visible)
+                                    currentFilterValues.Add(item.Value.ToString());
+                            }
+                            catch (COMException) { }
+                            catch { }
+                        }
                     }
                     else
                     {
-                        column = rng.Columns[selectedCell.Column - rng.Column + 1];
-                        values = column.Cells.Cast<Excel.Range>().Select(p => ((object)p.Value2)?.ToString() ?? "").Skip(1).ToList();
+                        var cells = column.Cells.Cast<Excel.Range>().Skip(1); // skip header
+                        foreach (var cell in cells)
+                        {
+                            try
+                            {
+                                // EntireRow.Hidden indicates if row is hidden by filter
+                                if (!(cell.EntireRow.Hidden))
+                                {
+                                    currentFilterValues.Add(((object)cell.Value2)?.ToString() ?? "");
+                                }
+                            }
+                            catch (COMException) { }
+                            catch { }
+                        }
                     }
 
+                    currentFilterValues = currentFilterValues.Where(v => !string.IsNullOrEmpty(v)).Distinct().ToList();
+                }
+
+                if (addMode && !notInMode)
+                {
+                    valuesToFilter = currentFilterValues.Concat(valuesToFilter).Where(v => !string.IsNullOrEmpty(v)).Distinct().ToList();
+                }
+                else if (addMode && notInMode)
+                {
+                    valuesToFilter = currentFilterValues.Except(valuesToFilter).ToList();
+                }
+                else if (notInMode)
+                {
                     valuesToFilter = values.Distinct().Except(valuesToFilter).ToList();
                 }
+
                 if (isPivotTable)
                     FilterPivotItems(pivotField, valuesToFilter);
                 else
@@ -284,12 +334,18 @@ public static class UtilsExcel
                 selectedCell.Application.Updating(true);
             };
         }
+        catch (COMException ex)
+        {
+            selectedCell.Application.Updating(true);
+            MessageBox.Show($"There was a problem with filtering{(isPivotTable ? " pivot" : "")} table {ex.Message}");
+        }
         catch (Exception ex)
         {
             selectedCell.Application.Updating(true);
             MessageBox.Show($"There was a problem with filtering{(isPivotTable ? " pivot" : "")} table {ex.Message}");
         }
     }
+
 
     public static void FlipFilter(Excel.Range selectedCell)
     {
@@ -373,6 +429,11 @@ public static class UtilsExcel
 
             selectedCell.Application.Updating(true);
         }
+        catch (COMException ex)
+        {
+            selectedCell.Application.Updating(true);
+            MessageBox.Show($"There was a problem with filtering{(isPivotTable ? " pivot" : "")} table {ex.Message}");
+        }
         catch (Exception ex)
         {
             selectedCell.Application.Updating(true);
@@ -380,7 +441,7 @@ public static class UtilsExcel
         }
     }
 
-    public static void FilterByRegex(Excel.Range selectedCell, bool notInMode = false, string regexString = "")
+    public static void FilterByRegex(Excel.Range selectedCell, bool addMode = false, bool notInMode = false, string regexString = "")
     {
         bool isSelectionRange, isPivotTable;
         isSelectionRange = selectedCell is Excel.Range;
@@ -435,10 +496,57 @@ public static class UtilsExcel
             Regex regex = new Regex(regexString);
             var valuesToFilter = values.FindAll(p => regex.IsMatch(p));
 
-            if (notInMode)
+            List<string> currentFilterValues = new List<string>();
+            if (addMode)
+            {
+
+                if (isPivotTable)
+                {
+                    foreach (Excel.PivotItem item in pivotField.PivotItems())
+                    {
+                        try
+                        {
+                            if (item.Visible)
+                                currentFilterValues.Add(item.Value.ToString());
+                        }
+                        catch (COMException) { }
+                        catch { }
+                    }
+                }
+                else
+                {
+                    column = rng.Columns[selectedCell.Column - rng.Column + 1];
+                    var cells = column.Cells.Cast<Excel.Range>().Skip(1); // skip header
+                    foreach (var cell in cells)
+                    {
+                        try
+                        {
+                            if (!(cell.EntireRow.Hidden))
+                            {
+                                currentFilterValues.Add(((object)cell.Value2)?.ToString() ?? "");
+                            }
+                        }
+                        catch (COMException) { }
+                        catch { }
+                    }
+                }
+
+                currentFilterValues = currentFilterValues.Where(v => !string.IsNullOrEmpty(v)).Distinct().ToList();
+            }
+
+            if (addMode && !notInMode)
+            {
+                valuesToFilter = currentFilterValues.Concat(valuesToFilter).Where(v => !string.IsNullOrEmpty(v)).Distinct().ToList();
+            }
+            else if (addMode && notInMode)
+            {
+                valuesToFilter = currentFilterValues.Except(valuesToFilter).ToList();
+            }
+            else if (notInMode)
             {
                 valuesToFilter = values.Distinct().Except(valuesToFilter).ToList();
             }
+
 
             if (isPivotTable)
                 FilterPivotItems(pivotField, valuesToFilter);
@@ -446,6 +554,11 @@ public static class UtilsExcel
                 rng.AutoFilter(selectedCell.Column - rng.Column + 1, valuesToFilter.ToArray(), Excel.XlAutoFilterOperator.xlFilterValues);
 
             selectedCell.Application.Updating(true);
+        }
+        catch (COMException ex)
+        {
+            selectedCell.Application.Updating(true);
+            MessageBox.Show($"There was a problem with filtering{(isPivotTable ? " pivot" : "")} table {ex.Message}");
         }
         catch (Exception ex)
         {

@@ -36,7 +36,7 @@
     <PublishUrl>C:\Users\olszewsm\Documents\Documents\Custom ribbon\Releases\CustomRibbon_v2.6r\ExcelCustomRibbon\</PublishUrl>
     <InstallUrl />
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>2.6.0.3</ApplicationVersion>
+    <ApplicationVersion>2.6.0.4</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>7</UpdateInterval>
@@ -616,9 +616,6 @@
     </Content>
     <Content Include="Properties Files\SdePath.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Properties Files\SqlKeywords.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Properties Files\WebsitesListMap.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

@@ -11,7 +11,6 @@ namespace ExcelEssentials.Scripts
     internal class FileManager
     {
         public static string BasePath => AppDomain.CurrentDomain.BaseDirectory;
-        public static string SqlQueriesPath => Path.Combine(BasePath, "SQL Queries");
         public static string PropertiesFilesPath => Path.Combine(BasePath, "Properties Files");
         public static string ResourcesPath => Path.Combine(BasePath, "Resources");
         public static string DownloadsPath => Microsoft.Win32.Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders", "{374DE290-123F-4565-9164-39C4925E467B}", String.Empty).ToString();
@@ -59,23 +58,6 @@ namespace ExcelEssentials.Scripts
                 }
             }
             catch { }
-        }
-
-        private static string GetSqlKeywords()
-        {
-            try
-            {
-                string filePath = Path.Combine(PropertiesFilesPath, "SqlKeywords.txt");
-                return File.ReadAllText(filePath);
-            }
-            catch (IOException)
-            {
-                return "select from where group by in not is sum count null";
-            }
-            catch (Exception)
-            {
-                return "select from where group by in not is sum count null";
-            }
         }
 
         public static bool IsExplorerPathOpen(string path)
