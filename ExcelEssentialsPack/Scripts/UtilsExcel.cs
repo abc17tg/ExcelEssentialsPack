@@ -4,6 +4,7 @@ using System.Data;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
@@ -13,6 +14,7 @@ using System.Windows.Forms;
 using ExcelEssentials;
 using ExcelEssentials.Forms;
 using ExcelEssentials.Scripts;
+using ImportTableToExcel;
 using Newtonsoft.Json.Linq;
 using Excel = Microsoft.Office.Interop.Excel;
 using ExcelVB = Microsoft.Vbe.Interop;
@@ -198,6 +200,49 @@ public static class UtilsExcel
             i++;
         }
         ws.Name = newName;
+    }
+
+    /// <summary>
+    /// Orchestrates the renaming of multiple Excel worksheets using a dialog form.
+    /// </summary>
+    /// <param name="selectedWorksheets">An enumerable collection of the Excel worksheets to rename.</param>
+    public static void RenameSelectedWorksheets(IEnumerable<Excel.Worksheet> selectedWorksheets)
+    {
+        // 1. Ensure there are worksheets to rename before showing the form.
+        if (selectedWorksheets == null || !selectedWorksheets.Any())
+        {
+            MessageBox.Show("No worksheets are selected to rename.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
+        // 2. Get the original names to pass to the form's preview.
+        var originalNames = selectedWorksheets.Select(ws => ws.Name).ToList();
+
+        // 3. Create and show the form as a modal dialog.
+        // The 'using' block ensures the form is properly disposed of.
+        using (var renameForm = new RenameForm(originalNames))
+        {
+            // ShowDialog() pauses execution here until the user closes the form.
+            if (renameForm.ShowDialog() == DialogResult.OK)
+            {
+                // 4. If the user clicked "OK", get the dictionary of renamed values.
+                // The dictionary maps the original name to the new name.
+                Dictionary<string, string> renamedValues = renameForm.RenamedValues;
+
+                // 5. Iterate through the selected worksheets and apply the new names.
+                foreach (var worksheet in selectedWorksheets)
+                {
+                    // Find the new name from the dictionary using the worksheet's original name as the key.
+                    if (renamedValues.TryGetValue(worksheet.Name, out string newName))
+                    {
+                        // Call your extension method to perform the rename.
+                        // Your method handles any potential naming conflicts or length issues.
+                        worksheet.Rename(newName);
+                    }
+                }
+            }
+            // If the user clicked "Cancel" or closed the form, the method simply ends.
+        }
     }
 
     public static void FilterByRange(Excel.Range selectedCell, bool addMode = false, bool notInMode = false, bool chooseRangeByForm = false)
@@ -549,7 +594,6 @@ public static class UtilsExcel
         }
     }
 
-
     public static void FilterPivotItems(Excel.PivotField pf, List<string> pivotItemNames)
     {
         Excel.PivotItems pis = pf.ChildItems;
@@ -752,7 +796,7 @@ public static class UtilsExcel
 
         if (headers)
             for (int c = 0; c < dt.Columns.Count; c++)
-                dataArr[0, c] = dt.Columns[c].ColumnName;
+                dataArr[0, c] = WorksheetFromTxtCreator.StripDuplicatedColumnSuffix(dt.Columns[c].ColumnName);
 
         // Convert DataTable to 2D array
         int startRow = headers ? 1 : 0;
@@ -1360,6 +1404,53 @@ public static class UtilsExcel
         }
 
         return dt;
+    }
+
+    public static bool IsValidExcelFile(string filePath)
+    {
+        if (!File.Exists(filePath)) return false;
+
+        string ext = Path.GetExtension(filePath).ToLowerInvariant();
+
+        // Skip if not a recognized Excel extension
+        if (!Utils.ExcelExt.Contains(Path.GetExtension(filePath), StringComparer.OrdinalIgnoreCase))
+            return false;
+
+        using (var fs = File.OpenRead(filePath))
+        {
+            byte[] header = new byte[8];
+            int read = fs.Read(header, 0, 8);
+            if (read < 8) return false;
+
+            if (ext == ".xls" || ext == ".xlsb" || ext == ".xlt")
+            {
+                // Check OLE Compound File signature (used by binary Excel formats)
+                return header[0] == 0xD0 && header[1] == 0xCF && header[2] == 0x11 && header[3] == 0xE0 &&
+                       header[4] == 0xA1 && header[5] == 0xB1 && header[6] == 0x1A && header[7] == 0xE1;
+            }
+            else if (ext == ".xlsx" || ext == ".xlsm" || ext == ".xltm")
+            {
+                // Check ZIP signature (used by OpenXML Excel formats)
+                if (header[0] != 0x50 || header[1] != 0x4B || header[2] != 0x03 || header[3] != 0x04) return false;
+
+                // Optionally verify key Excel-specific entries in the ZIP (more robust than signature alone)
+                fs.Position = 0;
+                try
+                {
+                    using (var zip = new ZipArchive(fs, ZipArchiveMode.Read, true))
+                    {
+                        return zip.GetEntry("xl/workbook.xml") != null ||
+                               zip.GetEntry("[Content_Types].xml") != null;
+                    }
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+
+            return false;
+        }
     }
 
     public static bool UpdateMacro(string fileName, Excel.Workbook wb)

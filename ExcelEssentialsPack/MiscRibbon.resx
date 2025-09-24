@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="formatNumberSplitButton.SuperTip" xml:space="preserve">
+    <value>Select any range and it will apply number format for numbers, date, if the field is formatted as date, text is not affected. Apply again to change the displayed precision (just format, does not modify values)</value>
+  </data>
   <data name="filterColumnInRangeAddBtn.SuperTip" xml:space="preserve">
     <value>Click below the header you want to filter. A range picker will appear. Select the range to be added to excluded from the column values, and click OK. (Works for tables and pivots, but it may be slower for pivots. Avoid applying many filters to large data pivots or save open workbooks before use.)</value>
   </data>

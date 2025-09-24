@@ -103,7 +103,7 @@ namespace ExcelEssentials.Forms
                             if (choosenDelimiter.Length != 1)
                             {
                                 MessageBox.Show("Delimiter too long or missing!", "Delimiter too long or missing!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                if(!FileManager.IsExplorerPathOpen(DownloadedFilePath))
+                                if (!FileManager.IsExplorerPathOpen(DownloadedFilePath))
                                     Process.Start("explorer.exe", Path.GetDirectoryName(DownloadedFilePath));
                                 result = MessageBox.Show("Close browser?", "Close browser", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                                 if (result == DialogResult.Yes)
@@ -144,6 +144,28 @@ namespace ExcelEssentials.Forms
                     }
                     else if (Utils.ExcelExt.Contains(Path.GetExtension(this.DownloadedFilePath), StringComparer.OrdinalIgnoreCase))
                     {
+                        if (!UtilsExcel.IsValidExcelFile(this.DownloadedFilePath))
+                        {
+                            if (Utils.IsHtmlFile(this.DownloadedFilePath))
+                            {
+                                string full = Path.GetFullPath(this.DownloadedFilePath);
+                                string newPath = Path.ChangeExtension(full, ".html");
+                                File.Move(full, newPath);
+                                var uri = new Uri(newPath).AbsoluteUri;          // -> "file:///C:/path/to/file.html"
+                                webView2.CoreWebView2.Navigate(uri);
+                                return;
+                            }
+                            else
+                            {
+                                if (!FileManager.IsExplorerPathOpen(DownloadedFilePath))
+                                    Process.Start("explorer.exe", Path.GetDirectoryName(DownloadedFilePath));
+                                result = MessageBox.Show("Close browser?", "Close browser", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                                if (result == DialogResult.Yes)
+                                    this.Close();
+                                return;
+                            }
+                        }
+
                         Excel.Application app = Globals.ThisAddIn.Application;
                         Excel.Worksheet aWs = app.ActiveSheet;
                         Excel.Workbook wb = Microsoft.VisualBasic.Interaction.GetObject(this.DownloadedFilePath) as Excel.Workbook;
@@ -223,7 +245,7 @@ namespace ExcelEssentials.Forms
                 }
             }
             else if ((sender as Microsoft.Web.WebView2.Core.CoreWebView2DownloadOperation).State == Microsoft.Web.WebView2.Core.CoreWebView2DownloadState.Completed && !FileManager.IsExplorerPathOpen(DownloadedFilePath))
-                    Process.Start("explorer.exe", Path.GetDirectoryName(DownloadedFilePath));
+                Process.Start("explorer.exe", Path.GetDirectoryName(DownloadedFilePath));
         }
 
         private async void Reload()
@@ -232,7 +254,7 @@ namespace ExcelEssentials.Forms
             {
                 webView2.CoreWebView2.DownloadStarting -= CoreWebView2_DownloadStarting;
             }
-            catch { }
+            catch(Exception) { }
 
             await webView2.EnsureCoreWebView2Async(null);
             webView2.CoreWebView2.DownloadStarting += CoreWebView2_DownloadStarting;

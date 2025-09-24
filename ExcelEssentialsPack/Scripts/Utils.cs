@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
@@ -60,28 +61,48 @@ public static class Utils
         errors = new List<string>();
         return true;
 
-/*        TSql140Parser parser = new TSql140Parser(false);
-        TSqlFragment fragment;
-        IList<ParseError> parseErrors = null;
+        /*        TSql140Parser parser = new TSql140Parser(false);
+                TSqlFragment fragment;
+                IList<ParseError> parseErrors = null;
 
-        using (TextReader reader = new StringReader(sql))
+                using (TextReader reader = new StringReader(sql))
+                {
+                    try
+                    {
+                        fragment = parser.Parse(reader, out parseErrors);
+                    }
+                    catch (StackOverflowException)
+                    { 
+                        return false; 
+                    }
+
+                    if (parseErrors != null && parseErrors.Count > 0)
+                    {
+                        errors = parseErrors.Select(e => e.Message).ToList();
+                        return false;
+                    }
+                }
+                return true;*/
+    }
+
+    public static bool IsHtmlFile(string filePath)
+    {
+        if (!File.Exists(filePath)) return false;
+
+        try
         {
-            try
+            using (StreamReader sr = new StreamReader(filePath))
             {
-                fragment = parser.Parse(reader, out parseErrors);
-            }
-            catch (StackOverflowException)
-            { 
-                return false; 
-            }
-
-            if (parseErrors != null && parseErrors.Count > 0)
-            {
-                errors = parseErrors.Select(e => e.Message).ToList();
-                return false;
+                char[] buffer = new char[1024];
+                int num = sr.ReadBlock(buffer, 0, 1024);
+                string firstPart = new string(buffer, 0, num).ToLowerInvariant();
+                return firstPart.Contains("<html") || firstPart.Contains("<!doctype html");
             }
         }
-        return true;*/
+        catch
+        {
+            return false;
+        }
     }
 
     public static T Clamp<T>(this T val, T min, T max) where T : IComparable<T>

@@ -1291,5 +1291,15 @@ namespace ExcelEssentials
             var text = $"Excel Essentials Pack v{Utils.GetVersionString(version)}";
             MessageBox.Show(text);
         }
+
+        private void renameSelectedWorksheetsButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            var app = Globals.ThisAddIn.Application;
+            var selectedSheets = app.ActiveWindow.SelectedSheets.Cast<Excel.Worksheet>();
+            if (selectedSheets.Count() <= 1)
+                selectedSheets = app.ActiveWorkbook.Sheets.Cast<Excel.Worksheet>();
+
+            UtilsExcel.RenameSelectedWorksheets(selectedSheets);
+        }
     }
 }

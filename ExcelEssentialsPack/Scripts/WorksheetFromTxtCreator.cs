@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static ScintillaNET.Style;
 using Excel = Microsoft.Office.Interop.Excel;
 
 namespace ImportTableToExcel
@@ -13,48 +14,81 @@ namespace ImportTableToExcel
     {
         public static void ImportTextFileToExcelLegacy(Excel.Worksheet worksheet, string filePath, char delimiter)
         {
-            // Create a connection string to the text file using Power Query
-            string connectionString = $"TEXT;{filePath}";
-            int columnCount;
-            using (StreamReader reader = new StreamReader(filePath))
-            {
-                string firstLine = reader.ReadLine();
-                columnCount = !string.IsNullOrEmpty(firstLine) ? firstLine.Split(delimiter).Length : 0;
-                if (columnCount < 1)
-                    throw new Exception("File empty!");
-            }
-
             try
             {
-                Excel.QueryTable queryTable = worksheet.QueryTables.Add(Connection: connectionString, Destination: worksheet.Cells[1, 1]);
-                queryTable.TextFileParseType = Excel.XlTextParsingType.xlDelimited;
-                queryTable.TextFileOtherDelimiter = delimiter.ToString();
-                queryTable.FieldNames = true;
-                queryTable.HasAutoFormat = false;
-                queryTable.PreserveFormatting = true;
-                var typesObjectsArray = new object[columnCount];
-                for (int i = 0; i < columnCount; i++)
-                    typesObjectsArray[i] = Excel.XlColumnDataType.xlTextFormat;
-                queryTable.TextFileColumnDataTypes = typesObjectsArray;
-                queryTable.TextFileTextQualifier = Excel.XlTextQualifier.xlTextQualifierNone;
-                queryTable.Refresh();
+                // Create a connection string to the text file using Power Query
+                string connectionString = $"TEXT;{filePath}";
+                int columnCount;
+                using (StreamReader reader = new StreamReader(filePath))
+                {
+                    string firstLine = reader.ReadLine();
+                    columnCount = !string.IsNullOrEmpty(firstLine) ? firstLine.Split(delimiter).Length : 0;
+                    if (columnCount < 1)
+                        throw new Exception("File empty!");
+                }
+
+                try
+                {
+                    Excel.QueryTable queryTable = worksheet.QueryTables.Add(Connection: connectionString, Destination: worksheet.Cells[1, 1]);
+                    queryTable.TextFileParseType = Excel.XlTextParsingType.xlDelimited;
+                    queryTable.TextFileOtherDelimiter = delimiter.ToString();
+                    queryTable.FieldNames = true;
+                    queryTable.HasAutoFormat = false;
+                    queryTable.PreserveFormatting = true;
+                    var typesObjectsArray = new object[columnCount];
+                    for (int i = 0; i < columnCount; i++)
+                        typesObjectsArray[i] = Excel.XlColumnDataType.xlTextFormat;
+                    queryTable.TextFileColumnDataTypes = typesObjectsArray;
+                    queryTable.TextFileTextQualifier = Excel.XlTextQualifier.xlTextQualifierNone;
+                    queryTable.Refresh();
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(ex.Message, ex);
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message, ex);
+                System.Windows.Forms.MessageBox.Show(ex.Message, "Import Error", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
+                var app = worksheet.Application;
+                app.DisplayAlerts = false;
+                worksheet.Delete();
+                app.DisplayAlerts = true;
             }
         }
 
         public static async void ImportTextFileToExcel(Excel.Worksheet worksheet, string filePath, char delimiter)
         {
-            DataTable dataTable = await ReadFileIntoDataTable(filePath, delimiter);
-            UtilsExcel.PasteDataTableToRange(dataTable, worksheet.Cells[1, 1]);
+            try
+            {
+                DataTable dataTable = await ReadFileIntoDataTable(filePath, delimiter);
+                UtilsExcel.PasteDataTableToRange(dataTable, worksheet.Cells[1, 1]);
+            }
+            catch (Exception ex)
+            {
+                System.Windows.Forms.MessageBox.Show(ex.Message, "Import Error", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
+                var app = worksheet.Application;
+                app.DisplayAlerts = false;
+                worksheet.Delete();
+                app.DisplayAlerts = true;
+            }
         }
-        
+
         public static async void ImportTextFileToExcelAdv(Excel.Worksheet worksheet, string filePath, char delimiter)
         {
-            DataTable dataTable = await ReadFileIntoDataTableAdv(filePath, delimiter.ToString());
-            UtilsExcel.PasteDataTableToRange(dataTable, worksheet.Cells[1, 1]);
+            try
+            {
+                DataTable dataTable = await ReadFileIntoDataTableAdv(filePath, delimiter.ToString());
+                UtilsExcel.PasteDataTableToRange(dataTable, worksheet.Cells[1, 1]);
+            }
+            catch (Exception ex)
+            {
+                System.Windows.Forms.MessageBox.Show(ex.Message, "Import Error", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
+                var app = worksheet.Application;
+                app.DisplayAlerts = false;
+                worksheet.Delete();
+                app.DisplayAlerts = true;
+            }
         }
 
         public static async Task<DataTable> ReadFileIntoDataTable(string filePath, char delimiter)
@@ -65,23 +99,28 @@ namespace ImportTableToExcel
             using (StreamReader sr = new StreamReader(filePath, true))
             {
                 // Read the first line to create column headers
-                string[] headers = sr.ReadLine().Split(delimiter);
-                foreach (string header in headers)
-                {
-                    dataTable.Columns.Add(header, typeof(string)); // Initially set as string
-                }
+                string headersLine = await sr.ReadLineAsync();
+                if (headersLine == null) return dataTable; // Empty file, return empty DataTable
+
+                string[] headers = headersLine.Split(delimiter);
+                PopulateDataTableWithColumnHeaders(dataTable, headers);
 
                 // Read all lines into memory
-                while (!sr.EndOfStream)
+                string line;
+                while ((line = await sr.ReadLineAsync()) != null)
                 {
-                    string[] fields = sr.ReadLine().Split(delimiter).Select(p => string.IsNullOrWhiteSpace(p) ? "" : p).ToArray();
+                    string[] fields = line.Split(delimiter).Select(p => string.IsNullOrWhiteSpace(p) ? "" : p).ToArray();
                     allData.Add(fields);
                 }
             }
 
             int? colCount = allData.FirstOrDefault()?.Length;
-            if (colCount == null || colCount != dataTable.Columns.Count || !allData.All(p => p.Length == colCount))
+
+            if (colCount == null)
                 return null;
+
+            if (colCount != dataTable.Columns.Count || !allData.All(p => p.Length == colCount))
+                throw new InvalidDataException("Row lengths do not match. A possible cause may be that the delimiter is inside the field value.");
 
             Dictionary<int, Type> columnTypes = new Dictionary<int, Type>();
             // Determine the most appropriate data type for each column
@@ -98,11 +137,12 @@ namespace ImportTableToExcel
             // Set the data types for the columns
             for (int i = 0; i < dataTable.Columns.Count; i++)
             {
+                string cleanedName = Regex.Replace(dataTable.Columns[i].ColumnName, @"[^a-zA-Z]+$", string.Empty);
                 if (
                         !(
-                            dataTable.Columns[i].ColumnName.EndsWith("ID", StringComparison.OrdinalIgnoreCase) ||
-                            dataTable.Columns[i].ColumnName.EndsWith("CODE", StringComparison.OrdinalIgnoreCase) ||
-                            dataTable.Columns[i].ColumnName.EndsWith("KEY", StringComparison.OrdinalIgnoreCase)
+                            cleanedName.EndsWith("ID", StringComparison.OrdinalIgnoreCase) ||
+                            cleanedName.EndsWith("CODE", StringComparison.OrdinalIgnoreCase) ||
+                            cleanedName.EndsWith("KEY", StringComparison.OrdinalIgnoreCase)
                         ) &&
                         columnTypes.TryGetValue(i, out Type dataType)
                    )
@@ -116,6 +156,28 @@ namespace ImportTableToExcel
             }
 
             return dataTable;
+        }
+
+        private static void PopulateDataTableWithColumnHeaders(DataTable dataTable, string[] headers)
+        {
+            Dictionary<string, int> headerCounts = new Dictionary<string, int>();
+
+            foreach (string header in headers)
+            {
+                string originalHeader = header;
+                string colName = originalHeader;
+                if (headerCounts.TryGetValue(originalHeader, out int count))
+                {
+                    count++;
+                    colName = $"{originalHeader}{{[{count}]}}";
+                    headerCounts[originalHeader] = count;
+                }
+                else
+                {
+                    headerCounts[originalHeader] = 1;
+                }
+                dataTable.Columns.Add(colName, typeof(string)); // Initially set as string
+            }
         }
 
         public static DataTable ReadFileIntoDataTableTest(string filePath, char delimiter)
@@ -178,11 +240,12 @@ namespace ImportTableToExcel
             // Set the data types for the columns
             for (int i = 0; i < dataTable.Columns.Count; i++)
             {
+                string cleanedName = Regex.Replace(dataTable.Columns[i].ColumnName, @"[^a-zA-Z]+$", string.Empty);
                 if (
                         !(
-                            dataTable.Columns[i].ColumnName.EndsWith("ID", StringComparison.OrdinalIgnoreCase) ||
-                            dataTable.Columns[i].ColumnName.EndsWith("CODE", StringComparison.OrdinalIgnoreCase) ||
-                            dataTable.Columns[i].ColumnName.EndsWith("KEY", StringComparison.OrdinalIgnoreCase)
+                            cleanedName.EndsWith("ID", StringComparison.OrdinalIgnoreCase) ||
+                            cleanedName.EndsWith("CODE", StringComparison.OrdinalIgnoreCase) ||
+                            cleanedName.EndsWith("KEY", StringComparison.OrdinalIgnoreCase)
                         ) &&
                         columnTypes.TryGetValue(i, out Type dataType)
                    )
@@ -205,7 +268,9 @@ namespace ImportTableToExcel
 
             using (StreamReader sr = new StreamReader(filePath, true))
             {
-                string headersLine = sr.ReadLine();
+                string headersLine = await sr.ReadLineAsync();
+                if (headersLine == null) return dataTable; // Empty file, return empty DataTable
+
                 List<string> headers = new List<string>();
 
                 // Regex to match quoted and unquoted fields
@@ -224,14 +289,12 @@ namespace ImportTableToExcel
                     headers.Add(header);
                 }
 
-                foreach (string header in headers)
-                {
-                    dataTable.Columns.Add(header, typeof(string)); // Initially set as string
-                }
+                Dictionary<string, int> headerCounts = new Dictionary<string, int>();
+                PopulateDataTableWithColumnHeaders(dataTable, headers.ToArray());
 
-                while (!sr.EndOfStream)
+                string line;
+                while ((line = await sr.ReadLineAsync()) != null)
                 {
-                    string line = sr.ReadLine();
                     List<string> fields = new List<string>();
 
                     matches = Regex.Matches(line, $@"""([^""]*(?:""""[^""]*)*)""|([^{Regex.Escape(delimiter)}""]+)|(?<={Regex.Escape(delimiter)})$|(?<={Regex.Escape(delimiter)})(?={Regex.Escape(delimiter)})");
@@ -265,8 +328,11 @@ namespace ImportTableToExcel
             }
 
             int? colCount = allData.FirstOrDefault()?.Length;
-            if (colCount == null || colCount != dataTable.Columns.Count || !allData.All(p => p.Length == colCount))
+            if (colCount == null)
                 return null;
+
+            if (colCount != dataTable.Columns.Count || !allData.All(p => p.Length == colCount))
+                throw new InvalidDataException("Row lengths do not match. The table in the file may not be correctly delimited.");
 
             Dictionary<int, Type> columnTypes = new Dictionary<int, Type>();
             // Determine the most appropriate data type for each column
@@ -303,6 +369,12 @@ namespace ImportTableToExcel
             return dataTable;
         }
 
+        public static string StripDuplicatedColumnSuffix(string columnName)
+        {
+            // Remove trailing {n} where n is digits
+            return Regex.Replace(columnName, @"\{\[\d+\]\}$", string.Empty);
+        }
+
         /*public static Excel.Range CreateExcelWorkbookFromTextFile(Excel.Worksheet worksheet, string filePath, string delimiter = "\t")
         {
             if (!File.Exists(filePath))
@@ -334,6 +406,6 @@ namespace ImportTableToExcel
             }
         }*/
     }
-    }
+}
 
 
