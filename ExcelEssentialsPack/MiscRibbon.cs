@@ -12,6 +12,7 @@ using System.Xml.Linq;
 using ExcelEssentials.Forms;
 using ExcelEssentials.Scripts;
 using Microsoft.Office.Tools.Ribbon;
+using static SQLite.SQLite3;
 using Color = System.Drawing.Color;
 using Excel = Microsoft.Office.Interop.Excel;
 using WTC = ImportTableToExcel.WorksheetFromTxtCreator;
@@ -901,7 +902,7 @@ namespace ExcelEssentials
         }
 
         // Define a delegate for the import methods
-        private delegate void ImportTextFileDelegate(Excel.Worksheet ws, string filePath, char delimiter);
+        private delegate Task ImportTextFileDelegate(Excel.Worksheet ws, string filePath, char delimiter);
 
         // Common method to handle file import logic
         private void ImportFilesCommon(ImportTextFileDelegate importDelegate)
@@ -959,75 +960,145 @@ namespace ExcelEssentials
                                 importDelegate(ws, filePath, delimiter);
 
                             ws.Rename(Path.GetFileNameWithoutExtension(filePath));
+                            continue;
                         }
                         else if (Utils.ExcelExt.Contains(Path.GetExtension(filePath), StringComparer.OrdinalIgnoreCase))
                         {
-                            Excel.Workbook wb = Microsoft.VisualBasic.Interaction.GetObject(filePath) as Excel.Workbook;
 
-                            int sheetCount = wb.Worksheets.Count;
-                            bool addAll = false;
-
-                            // Check if there are multiple worksheets and prompt the user
-                            if (sheetCount > 1)
+                            if (!UtilsExcel.IsValidExcelFile(filePath) && Utils.IsLikelyDelimitedTextFile(filePath, out string suggestedExtension))
                             {
-                                DialogResult result = MessageBox.Show(
-                                    $"The workbook {wb.Name} contains multiple worksheets. Do you want to add all worksheets? (Yes = Add All, No = Add First Only)", "Multiple Worksheets",
-                                    MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
-                                addAll = (result == DialogResult.Yes);
-                            }
+                                string sourcePath = filePath;
+                                string destPath = Path.ChangeExtension(sourcePath, suggestedExtension);
 
-                            if (addAll)
-                            {
-                                // Add all worksheets
-                                Excel.Worksheet lastSheet = aWs;
-                                foreach (Excel.Worksheet ws in wb.Worksheets)
+                                try
                                 {
-                                    if (ws.IsEmpty())
-                                        continue;
-
-                                    if (aWs == lastSheet)
-                                        ws.Copy(Before: aWs);
-                                    else
-                                        ws.Copy(After: lastSheet);
-
-                                    Excel.Worksheet newSheet = app.ActiveSheet as Excel.Worksheet;
-                                    if (Regex.Match(ws.Name, @"^Sheet[1-9][0-9]*$").Success)
+                                    if (File.Exists(destPath))
                                     {
-                                        newSheet.Rename(Path.GetFileNameWithoutExtension(wb.FullName), ws.Name);
+                                        DialogResult result = MessageBox.Show($"The file {sourcePath} is not valid Excel file, but looks like delimited txt file. Overwrite existing file with that extension, because it exist already?", "File rename", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                                        if (result == DialogResult.Yes)
+                                        {
+                                            // Overwrite
+                                            File.Delete(destPath);
+                                            File.Move(sourcePath, destPath);
+                                        }
+                                        else
+                                            continue;
                                     }
-                                    lastSheet = newSheet;
                                 }
-                            }
-                            else
-                            {
-                                // Add only the first not empty worksheet
-                                Excel.Worksheet ws = wb.Worksheets.Cast<Excel.Worksheet>().FirstOrDefault(p => !p.IsEmpty());
+                                catch (IOException ex)
+                                {
+                                    continue;
+                                }
 
-                                if (ws == null)
+                                char delimiter = Utils.DetermineTableDelimiter(destPath);
+                                if (delimiter == default(char))
+                                {
+                                    string choosenDelimiter = Microsoft.VisualBasic.Interaction.InputBox("Can not determine delimiter, write it below (write \\t for tab character):", "Write delimiter in ''", "", 0, 0);
+                                    choosenDelimiter = choosenDelimiter.Replace("\\t", "\t");
+                                    if (choosenDelimiter.Length > 1)
+                                        choosenDelimiter.Trim();
+
+                                    if (choosenDelimiter.Length != 1)
+                                    {
+                                        MessageBox.Show("Delimiter too long or missing!", "Delimiter too long or missing!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                        continue;
+                                    }
+                                    else
+                                        delimiter = choosenDelimiter[0];
+                                }
+
+                                Excel.Worksheet ws = (aWs.Parent as Excel.Workbook).Worksheets.Add(aWs);
+                                ws.Activate();
+                                Globals.ThisAddIn.SetDefaultZoom();
+
+                                if (File.ReadLines(destPath).LongCount() > ws.Rows.Count)
+                                {
+                                    int columnCount = 0; long rowCount = File.ReadLines(destPath).LongCount();
+                                    using (StreamReader reader = new StreamReader(destPath))
+                                    {
+                                        string firstLine = reader.ReadLine();
+                                        columnCount = !string.IsNullOrEmpty(firstLine) ? firstLine.Split(delimiter).Length : 0;
+                                    }
+                                    UtilsExcel.RunMacro("LoadTextFileIntoDataModel", new object[] { $"\"{destPath}\"", delimiter.ToString(), columnCount.ToString() });
+                                    continue;
+                                }
+                                else
+                                    importDelegate(ws, destPath, delimiter);
+
+                                ws.Rename(Path.GetFileNameWithoutExtension(destPath));
+                                continue;
+                            }
+                        }
+
+                        Excel.Workbook wb = Microsoft.VisualBasic.Interaction.GetObject(filePath) as Excel.Workbook;
+
+                        int sheetCount = wb.Worksheets.Count;
+                        bool addAll = false;
+
+                        // Check if there are multiple worksheets and prompt the user
+                        if (sheetCount > 1)
+                        {
+                            DialogResult result = MessageBox.Show(
+                                $"The workbook {wb.Name} contains multiple worksheets. Do you want to add all worksheets? (Yes = Add All, No = Add First Only)", "Multiple Worksheets",
+                                MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
+                            addAll = (result == DialogResult.Yes);
+                        }
+
+                        if (addAll)
+                        {
+                            // Add all worksheets
+                            Excel.Worksheet lastSheet = aWs;
+                            foreach (Excel.Worksheet ws in wb.Worksheets)
+                            {
+                                if (ws.IsEmpty())
                                     continue;
 
-                                ws.Copy(Before: aWs);
+                                if (aWs == lastSheet)
+                                    ws.Copy(Before: aWs);
+                                else
+                                    ws.Copy(After: lastSheet);
+
                                 Excel.Worksheet newSheet = app.ActiveSheet as Excel.Worksheet;
                                 if (Regex.Match(ws.Name, @"^Sheet[1-9][0-9]*$").Success)
                                 {
-                                    newSheet.Rename(Path.GetFileNameWithoutExtension(wb.FullName));
+                                    newSheet.Rename(Path.GetFileNameWithoutExtension(wb.FullName), ws.Name);
                                 }
+                                lastSheet = newSheet;
                             }
-
-                            wb.Close();
                         }
+                        else
+                        {
+                            // Add only the first not empty worksheet
+                            Excel.Worksheet ws = wb.Worksheets.Cast<Excel.Worksheet>().FirstOrDefault(p => !p.IsEmpty());
+
+                            if (ws == null)
+                                continue;
+
+                            ws.Copy(Before: aWs);
+                            Excel.Worksheet newSheet = app.ActiveSheet as Excel.Worksheet;
+                            if (Regex.Match(ws.Name, @"^Sheet[1-9][0-9]*$").Success)
+                            {
+                                newSheet.Rename(Path.GetFileNameWithoutExtension(wb.FullName));
+                            }
+                        }
+
+                        wb.Close();
                     }
                 }
             };
         }
 
-        // Updated event handlers
-        private void importSheetOrTxtFile_Click(object sender, RibbonControlEventArgs e)
+        private void importTxtFileWhateverItCanButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            ImportFilesCommon(WTC.ImportTextFileToExcelWhateverItCan);
+        }
+
+        private void importSheetOrTxtFileButton_Click(object sender, RibbonControlEventArgs e)
         {
             ImportFilesCommon(WTC.ImportTextFileToExcel);
         }
 
-        private void importSheetOrTxtFileAdv_Click(object sender, RibbonControlEventArgs e)
+        private void importSheetOrTxtFileAdvButton_Click(object sender, RibbonControlEventArgs e)
         {
             ImportFilesCommon(WTC.ImportTextFileToExcelAdv);
         }

@@ -7,6 +7,7 @@ namespace ExcelEssentials.Forms
     public partial class InputBoxForm : Form
     {
         public string Result => this.DialogResult == DialogResult.OK ? inputTextBox.Text : null;
+        public string TextBoxText => inputTextBox.Text;
         private bool m_multiline;
 
         public const Int32 WM_SYSCOMMAND = 0x112;

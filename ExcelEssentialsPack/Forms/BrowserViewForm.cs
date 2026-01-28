@@ -5,11 +5,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using ExcelEssentials.Scripts;
+using System.Security.Policy;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using ExcelEssentials.Scripts;
 using Excel = Microsoft.Office.Interop.Excel;
 using WTC = ImportTableToExcel.WorksheetFromTxtCreator;
-using System.Text.RegularExpressions;
 
 namespace ExcelEssentials.Forms
 {
@@ -45,8 +46,8 @@ namespace ExcelEssentials.Forms
         }
         private void BrowserViewForm_Load(object sender, EventArgs e)
         {
-            this.CenterToParent();
-            IntPtr MenuHandle = GetSystemMenu(this.Handle, false);
+            CenterToParent();
+            IntPtr MenuHandle = GetSystemMenu(Handle, false);
             InsertMenu(MenuHandle, 5, MF_BYPOSITION, ToggleTopMostMenuItem, "Pin/Unpin this window");
             InsertMenu(MenuHandle, 6, MF_BYPOSITION, CenterFormMenuItem, "Center window");
         }
@@ -72,7 +73,7 @@ namespace ExcelEssentials.Forms
 
         private void ToggleTopMost()
         {
-            this.TopMost = !this.TopMost;
+            TopMost = !TopMost;
         }
 
         private void CoreWebView2_DownloadStarting(object sender, Microsoft.Web.WebView2.Core.CoreWebView2DownloadStartingEventArgs e)
@@ -83,10 +84,22 @@ namespace ExcelEssentials.Forms
 
         }
 
-        private void Download_StateChanged(object sender, object e)
+        private async void Download_StateChanged(object sender, object e)
         {
             DialogResult result = DialogResult.None;
-            if ((sender as Microsoft.Web.WebView2.Core.CoreWebView2DownloadOperation).State == Microsoft.Web.WebView2.Core.CoreWebView2DownloadState.Completed && AutoImport)
+
+            var download = sender as Microsoft.Web.WebView2.Core.CoreWebView2DownloadOperation;
+            if (download?.State != Microsoft.Web.WebView2.Core.CoreWebView2DownloadState.Completed || !AutoImport)
+                return;
+
+            // Marshal everything after this point to the UI thread
+            if (this.InvokeRequired)  // 'this' = your Form instance
+            {
+                this.BeginInvoke(new Action(() => Download_StateChanged(sender, e)));
+                return;
+            }
+
+            if (download.State == Microsoft.Web.WebView2.Core.CoreWebView2DownloadState.Completed && AutoImport)
             {
                 try
                 {
@@ -95,23 +108,27 @@ namespace ExcelEssentials.Forms
                         char delimiter = Utils.DetermineTableDelimiter(DownloadedFilePath);
                         if (delimiter == default(char))
                         {
-                            string choosenDelimiter = Microsoft.VisualBasic.Interaction.InputBox("Can not determine delimiter, write it below (write \\t for tab character):", "Write delimiter in ''", "", 0, 0);
-                            choosenDelimiter = choosenDelimiter.Replace("\\t", "\t");
-                            if (choosenDelimiter.Length > 1)
-                                choosenDelimiter.Trim();
+                            string chosenDelimiter = Microsoft.VisualBasic.Interaction.InputBox("Can not determine delimiter, write it below (write \\t for tab character):", "Write delimiter in ''", "", 0, 0);
 
-                            if (choosenDelimiter.Length != 1)
+                            if (string.IsNullOrWhiteSpace(chosenDelimiter))
+                                return;  // User canceled
+
+                            chosenDelimiter = chosenDelimiter.Replace("\\t", "\t");
+                            if (chosenDelimiter.Length > 1)
+                                chosenDelimiter.Trim();
+
+                            if (chosenDelimiter.Length != 1)
                             {
                                 MessageBox.Show("Delimiter too long or missing!", "Delimiter too long or missing!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 if (!FileManager.IsExplorerPathOpen(DownloadedFilePath))
                                     Process.Start("explorer.exe", Path.GetDirectoryName(DownloadedFilePath));
                                 result = MessageBox.Show("Close browser?", "Close browser", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                                 if (result == DialogResult.Yes)
-                                    this.Close();
+                                    Close();
                                 return;
                             }
                             else
-                                delimiter = choosenDelimiter[0];
+                                delimiter = chosenDelimiter[0];
                         }
                         Excel.Application app = Globals.ThisAddIn.Application;
                         Excel.Worksheet aWs = app.ActiveSheet;
@@ -130,29 +147,131 @@ namespace ExcelEssentials.Forms
                             UtilsExcel.RunMacro("LoadTextFileIntoDataModel", new object[] { $"\"{DownloadedFilePath}\"", delimiter.ToString(), columnCount.ToString() });
                             result = MessageBox.Show("Delete file after import?", "Delete file", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                             if (result == DialogResult.Yes)
-                                File.Delete(this.DownloadedFilePath);
+                            {
+                                try
+                                {
+                                    File.Delete(DownloadedFilePath);
+                                }
+                                catch (IOException ex) { }
+                            }
                             return;
                         }
                         else
-                            WTC.ImportTextFileToExcel(ws, DownloadedFilePath, delimiter);
+                            await WTC.ImportTextFileToExcel(ws, DownloadedFilePath, delimiter);
 
                         ws.Rename(Path.GetFileNameWithoutExtension(DownloadedFilePath));
                         result = MessageBox.Show("Delete file after import?", "Delete file", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                         if (result == DialogResult.Yes)
-                            File.Delete(this.DownloadedFilePath);
+                        {
+                            try
+                            {
+                                File.Delete(DownloadedFilePath);
+                            }
+                            catch (IOException ex) { }
+                        }
                         return;
                     }
-                    else if (Utils.ExcelExt.Contains(Path.GetExtension(this.DownloadedFilePath), StringComparer.OrdinalIgnoreCase))
+                    else if (Utils.ExcelExt.Contains(Path.GetExtension(DownloadedFilePath), StringComparer.OrdinalIgnoreCase))
                     {
-                        if (!UtilsExcel.IsValidExcelFile(this.DownloadedFilePath))
+                        if (!UtilsExcel.IsValidExcelFile(DownloadedFilePath))
                         {
-                            if (Utils.IsHtmlFile(this.DownloadedFilePath))
+                            if (Utils.IsHtmlFile(DownloadedFilePath))
                             {
-                                string full = Path.GetFullPath(this.DownloadedFilePath);
+                                string full = Path.GetFullPath(DownloadedFilePath);
                                 string newPath = Path.ChangeExtension(full, ".html");
                                 File.Move(full, newPath);
                                 var uri = new Uri(newPath).AbsoluteUri;          // -> "file:///C:/path/to/file.html"
                                 webView2.CoreWebView2.Navigate(uri);
+                                return;
+                            }
+                            else if (Utils.IsLikelyDelimitedTextFile(DownloadedFilePath, out string suggestedExtension))
+                            {
+                                string sourcePath = DownloadedFilePath;
+                                string destPath = Path.ChangeExtension(sourcePath, suggestedExtension);
+
+                                try
+                                {
+                                    // Overwrite
+                                    if (File.Exists(destPath))
+                                        File.Delete(destPath);
+
+                                    File.Move(sourcePath, destPath);
+                                    DownloadedFilePath = destPath;
+                                }
+                                catch (IOException ex)
+                                {
+                                    if (!FileManager.IsExplorerPathOpen(DownloadedFilePath))
+                                        Process.Start("explorer.exe", Path.GetDirectoryName(DownloadedFilePath));
+                                    result = MessageBox.Show("Close browser?", "Close browser", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                                    if (result == DialogResult.Yes)
+                                        Close();
+                                    return;
+                                }
+
+                                char delimiter = Utils.DetermineTableDelimiter(DownloadedFilePath);
+                                if (delimiter == default(char))
+                                {
+                                    string chosenDelimiter = Microsoft.VisualBasic.Interaction.InputBox("Can not determine delimiter, write it below (write \\t for tab character):", "Write delimiter in ''", "", 0, 0);
+
+                                    if (string.IsNullOrWhiteSpace(chosenDelimiter))
+                                        return;  // User canceled
+
+                                    chosenDelimiter = chosenDelimiter.Replace("\\t", "\t");
+                                    if (chosenDelimiter.Length > 1)
+                                        chosenDelimiter.Trim();
+
+                                    if (chosenDelimiter.Length != 1)
+                                    {
+                                        MessageBox.Show("Delimiter too long or missing!", "Delimiter too long or missing!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                        if (!FileManager.IsExplorerPathOpen(DownloadedFilePath))
+                                            Process.Start("explorer.exe", Path.GetDirectoryName(DownloadedFilePath));
+                                        result = MessageBox.Show("Close browser?", "Close browser", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                                        if (result == DialogResult.Yes)
+                                            Close();
+                                        return;
+                                    }
+                                    else
+                                        delimiter = chosenDelimiter[0];
+                                }
+
+                                Excel.Worksheet activeWs = Globals.ThisAddIn.Application.ActiveSheet;
+                                Excel.Worksheet ws = (activeWs.Parent as Excel.Workbook).Worksheets.Add(activeWs);
+                                ws.Activate();
+                                Globals.ThisAddIn.SetDefaultZoom();
+
+                                if (File.ReadLines(DownloadedFilePath).LongCount() > ws.Rows.Count)
+                                {
+                                    int columnCount = 0; long rowCount = File.ReadLines(DownloadedFilePath).LongCount();
+                                    using (StreamReader reader = new StreamReader(DownloadedFilePath))
+                                    {
+                                        string firstLine = reader.ReadLine();
+                                        columnCount = !string.IsNullOrEmpty(firstLine) ? firstLine.Split(delimiter).Length : 0;
+                                    }
+                                    UtilsExcel.RunMacro("LoadTextFileIntoDataModel", new object[] { $"\"{DownloadedFilePath}\"", delimiter.ToString(), columnCount.ToString() });
+                                    result = MessageBox.Show("Delete file after import?", "Delete file", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                                    if (result == DialogResult.Yes)
+                                    {
+                                        try
+                                        {
+                                            File.Delete(DownloadedFilePath);
+                                        }
+                                        catch (IOException ex) { }
+                                    }
+                                    return;
+                                }
+                                else
+                                    await WTC.ImportTextFileToExcel(ws, DownloadedFilePath, delimiter);
+
+                                ws.Rename(Path.GetFileNameWithoutExtension(DownloadedFilePath));
+                                result = MessageBox.Show("Delete file after import?", "Delete file", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                                if (result == DialogResult.Yes)
+                                {
+                                    try
+                                    {
+                                        File.Delete(DownloadedFilePath);
+                                    }
+                                    catch (IOException ex) { }
+                                }
                                 return;
                             }
                             else
@@ -161,14 +280,14 @@ namespace ExcelEssentials.Forms
                                     Process.Start("explorer.exe", Path.GetDirectoryName(DownloadedFilePath));
                                 result = MessageBox.Show("Close browser?", "Close browser", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                                 if (result == DialogResult.Yes)
-                                    this.Close();
+                                    Close();
                                 return;
                             }
                         }
 
                         Excel.Application app = Globals.ThisAddIn.Application;
                         Excel.Worksheet aWs = app.ActiveSheet;
-                        Excel.Workbook wb = Microsoft.VisualBasic.Interaction.GetObject(this.DownloadedFilePath) as Excel.Workbook;
+                        Excel.Workbook wb = Microsoft.VisualBasic.Interaction.GetObject(DownloadedFilePath) as Excel.Workbook;
 
                         int sheetCount = wb.Worksheets.Count;
                         bool addAll = false;
@@ -224,7 +343,13 @@ namespace ExcelEssentials.Forms
                         result = MessageBox.Show("Delete file after import?", "Delete file", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
 
                         if (result == DialogResult.Yes)
-                            File.Delete(this.DownloadedFilePath);
+                        {
+                            try
+                            {
+                                File.Delete(DownloadedFilePath);
+                            }
+                            catch (IOException ex) { }
+                        }
 
                         return;
                     }
@@ -241,10 +366,10 @@ namespace ExcelEssentials.Forms
                         Process.Start("explorer.exe", Path.GetDirectoryName(DownloadedFilePath));
                     result = MessageBox.Show("Close browser?", "Close browser", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     if (result == DialogResult.Yes)
-                        this.Close();
+                        Close();
                 }
             }
-            else if ((sender as Microsoft.Web.WebView2.Core.CoreWebView2DownloadOperation).State == Microsoft.Web.WebView2.Core.CoreWebView2DownloadState.Completed && !FileManager.IsExplorerPathOpen(DownloadedFilePath))
+            else if (download.State == Microsoft.Web.WebView2.Core.CoreWebView2DownloadState.Completed && !FileManager.IsExplorerPathOpen(DownloadedFilePath))
                 Process.Start("explorer.exe", Path.GetDirectoryName(DownloadedFilePath));
         }
 
@@ -254,7 +379,7 @@ namespace ExcelEssentials.Forms
             {
                 webView2.CoreWebView2.DownloadStarting -= CoreWebView2_DownloadStarting;
             }
-            catch(Exception) { }
+            catch (Exception) { }
 
             await webView2.EnsureCoreWebView2Async(null);
             webView2.CoreWebView2.DownloadStarting += CoreWebView2_DownloadStarting;
@@ -285,7 +410,7 @@ namespace ExcelEssentials.Forms
 
         private void searchButton_Click(object sender, EventArgs e)
         {
-            string url = string.IsNullOrWhiteSpace(urlTextBox.Text) ? "www.gooogle.com" : urlTextBox.Text;
+            string url = string.IsNullOrWhiteSpace(urlTextBox.Text) ? "www.google.com" : urlTextBox.Text;
 
             // Check if URL starts with "www" and add "https://" prefix if needed
             if (url.StartsWith("www", StringComparison.OrdinalIgnoreCase))
@@ -331,6 +456,73 @@ namespace ExcelEssentials.Forms
         {
             if (Bookmarks.TryGetValue(bookmarksComboBox.Text, out string bookmarkUrl))
                 urlTextBox.Text = bookmarkUrl;
+        }
+
+        private void saveButton_Click(object sender, EventArgs e)
+        {
+            if (webView2.CoreWebView2 == null)
+            {
+                MessageBox.Show("Browser engine is not ready.", "Error");
+                return;
+            }
+
+            string url = webView2.CoreWebView2.Source;
+            if (string.IsNullOrEmpty(url))
+                return;
+
+            if (Bookmarks.Values.Contains(url))
+            {
+                MessageBox.Show($"Bookmarks already contain that link\n{url}", "Not saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            if (!IsValidUrl(url))
+            {
+                MessageBox.Show($"Link is not valid\n{url}", "Not saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            string name = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(new Uri(url).Host.Split('.').FirstOrDefault() ?? new Uri(url).Host);
+            string tempName = name;
+            int x = 1;
+            while (Bookmarks.ContainsKey(tempName))
+                tempName = name + x++;
+            name = tempName;
+            InputBoxForm inputBox = new InputBoxForm("Choose unique bookmark name", "Bookmark name", name);
+            inputBox.Show(this);
+            inputBox.FormClosing += (s, ce) =>
+            {
+                if (inputBox.DialogResult != DialogResult.OK)
+                    return;
+                tempName = inputBox.TextBoxText.Replace("~", "-").Trim();
+                if (Bookmarks.ContainsKey(tempName))
+                {
+                    MessageBox.Show($"Bookmarks already contain that name\n{url}", "Name not unique", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    ce.Cancel = true;
+                }
+            };
+
+            inputBox.FormClosed += (s, ce) =>
+            {
+                if (inputBox.Result != null)
+                {
+                    name = inputBox.Result.Replace("~", "-").Trim();
+                    var urlList = new List<string>
+                    {
+                        $"{name}~{url}"
+                    };
+                    try
+                    {
+                        File.AppendAllLines(Path.Combine(FileManager.PropertiesFilesPath, "WebsitesListMap.txt"), urlList);
+                        GetBookmarks();
+                        bookmarksComboBox.Items.Clear();
+                        bookmarksComboBox.Items.AddRange(Bookmarks.Keys.ToArray());
+                    }
+                    catch (IOException ex)
+                    {
+                        MessageBox.Show($"Could not save to file: {ex.Message}");
+                    }
+                }
+            };
         }
     }
 }

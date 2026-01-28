@@ -23,7 +23,7 @@ public static class Utils
 
     public static char DetermineTableDelimiter(string filePath)
     {
-        char[] delimiters = { '\t', ',', ';', '|' }; // set the candidate delimiters
+        char[] delimiters = { '\t', ',', ';', '|', '~' }; // set the candidate delimiters
 
         using (StreamReader reader = new StreamReader(filePath))
         {
@@ -103,6 +103,58 @@ public static class Utils
         {
             return false;
         }
+    }
+
+    public static bool IsLikelyDelimitedTextFile(string filePath, out string suggestedExtension)
+    {
+        suggestedExtension = ".txt"; // Default fallback
+
+        if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
+            return false;
+
+        try
+        {
+            // Read the first few lines to analyze
+            var lines = File.ReadLines(filePath).Take(5).ToList();
+
+            if (lines.Count == 0) return false;
+
+            // Check 1: Is it binary? (Simple check for null bytes)
+            // If it contains null bytes, it's likely binary (Excel, PDF, Image), not text.
+            if (lines.Any(l => l.Contains('\0'))) return false;
+
+            // Check 2: Look for delimiters
+            char[] possibleDelimiters = { ',', '\t', ';', '|', '~' };
+
+            foreach (var delimiter in possibleDelimiters)
+            {
+                // Count delimiters in the first line
+                int firstLineCount = lines[0].Count(c => c == delimiter);
+
+                // If no delimiters found, try next delimiter
+                if (firstLineCount == 0) continue;
+
+                // Check if subsequent lines have the 'roughly' same number of delimiters
+                // We allow a small margin of error or strict equality depending on strictness needed
+                bool isConsistent = lines.All(l => l.Count(c => c == delimiter) == firstLineCount);
+
+                if (isConsistent)
+                {
+                    // Map delimiter to extension
+                    if (delimiter == ',') suggestedExtension = ".csv";
+                    else suggestedExtension = ".txt";
+
+                    return true;
+                }
+            }
+        }
+        catch (Exception)
+        {
+            // If we can't read the file (permissions, locks), assume it's not a text file
+            return false;
+        }
+
+        return false;
     }
 
     public static T Clamp<T>(this T val, T min, T max) where T : IComparable<T>

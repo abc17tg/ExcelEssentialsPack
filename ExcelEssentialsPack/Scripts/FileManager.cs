@@ -16,7 +16,7 @@ namespace ExcelEssentials.Scripts
         public static string DownloadsPath => Microsoft.Win32.Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders", "{374DE290-123F-4565-9164-39C4925E467B}", String.Empty).ToString();
 
 #if DEBUG
-        public static string MacrosWbName = "MyPERSONAL.xlsb";
+        public static string MacrosWbName = "MyPERSONAL.xlsm";
         public static string FunctionsWbName = "MyFunctions.xlam";
 #else
         public static string MacrosWbName = "MyPERSONAL_Pv1.0.xlsb";

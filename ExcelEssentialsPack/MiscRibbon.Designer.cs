@@ -40,6 +40,7 @@
             this.importSheetOrTxtFileSplitButton = this.Factory.CreateRibbonSplitButton();
             this.importSheetOrTxtFileAdvButton = this.Factory.CreateRibbonButton();
             this.importTxtFileLegacyButton = this.Factory.CreateRibbonButton();
+            this.importTxtFileWhateverItCanButton = this.Factory.CreateRibbonButton();
             this.modifiersGroup = this.Factory.CreateRibbonGroup();
             this.changeToTextButton = this.Factory.CreateRibbonButton();
             this.changeToValueButton = this.Factory.CreateRibbonButton();
@@ -96,11 +97,12 @@
             this.saveSelectedWorksheetsAsXlsxSplitBtn = this.Factory.CreateRibbonSplitButton();
             this.saveAllWorksheetsAsXlsxButton = this.Factory.CreateRibbonButton();
             this.saveSelectedWorksheetsAsTxtButton = this.Factory.CreateRibbonButton();
+            this.saveThisWorksheetAsTxt = this.Factory.CreateRibbonButton();
             this.saveAllWorksheetsAsTxtButton = this.Factory.CreateRibbonButton();
             this.duplicateWorksheetsSplitBtn = this.Factory.CreateRibbonSplitButton();
             this.duplicateWorksheetsToNewWorkbookBtn = this.Factory.CreateRibbonButton();
             this.duplicateWorkbookBtn = this.Factory.CreateRibbonButton();
-            this.saveThisWorksheetAsTxt = this.Factory.CreateRibbonButton();
+            this.renameSelectedWorksheetsButton = this.Factory.CreateRibbonButton();
             this.divideTableToPartsAndSaveButton = this.Factory.CreateRibbonButton();
             this.getFilePathButton = this.Factory.CreateRibbonButton();
             this.exportMacrosButton = this.Factory.CreateRibbonButton();
@@ -177,7 +179,6 @@
             this.createMacroUpdateButton = this.Factory.CreateRibbonButton();
             this.checkMacrosButton = this.Factory.CreateRibbonButton();
             this.excelEssentialsPackInfoBtn = this.Factory.CreateRibbonButton();
-            this.renameSelectedWorksheetsButton = this.Factory.CreateRibbonButton();
             this.miscTab.SuspendLayout();
             this.importGroup.SuspendLayout();
             this.modifiersGroup.SuspendLayout();
@@ -220,13 +221,14 @@
             this.importSheetOrTxtFileSplitButton.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
             this.importSheetOrTxtFileSplitButton.Items.Add(this.importSheetOrTxtFileAdvButton);
             this.importSheetOrTxtFileSplitButton.Items.Add(this.importTxtFileLegacyButton);
+            this.importSheetOrTxtFileSplitButton.Items.Add(this.importTxtFileWhateverItCanButton);
             this.importSheetOrTxtFileSplitButton.Label = "Import worksheet or txt file";
             this.importSheetOrTxtFileSplitButton.Name = "importSheetOrTxtFileSplitButton";
             this.importSheetOrTxtFileSplitButton.OfficeImageId = "ImportOpml";
             this.importSheetOrTxtFileSplitButton.ScreenTip = "Import worksheet or txt file";
             this.importSheetOrTxtFileSplitButton.SuperTip = "Will create a window that will accept txt/csv or Excel file and will import delim" +
     "ited table or sheet(s)";
-            this.importSheetOrTxtFileSplitButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.importSheetOrTxtFile_Click);
+            this.importSheetOrTxtFileSplitButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.importSheetOrTxtFileButton_Click);
             // 
             // importSheetOrTxtFileAdvButton
             // 
@@ -237,7 +239,7 @@
             this.importSheetOrTxtFileAdvButton.ShowImage = true;
             this.importSheetOrTxtFileAdvButton.SuperTip = "Will create a window that will accept txt/csv file and will import delimited tabl" +
     "e to Excel and it should handle all text in \'\"\' quotes properly";
-            this.importSheetOrTxtFileAdvButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.importSheetOrTxtFileAdv_Click);
+            this.importSheetOrTxtFileAdvButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.importSheetOrTxtFileAdvButton_Click);
             // 
             // importTxtFileLegacyButton
             // 
@@ -249,6 +251,17 @@
             this.importTxtFileLegacyButton.SuperTip = "Will create a window that will accept txt/csv file and will import delimited tabl" +
     "e as text";
             this.importTxtFileLegacyButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.importTxtFileLegacyButton_Click);
+            // 
+            // importTxtFileWhateverItCanButton
+            // 
+            this.importTxtFileWhateverItCanButton.Label = "Import txt file without bad rows";
+            this.importTxtFileWhateverItCanButton.Name = "importTxtFileWhateverItCanButton";
+            this.importTxtFileWhateverItCanButton.OfficeImageId = "ImportOpml";
+            this.importTxtFileWhateverItCanButton.ScreenTip = "Import txt file without bad rows";
+            this.importTxtFileWhateverItCanButton.ShowImage = true;
+            this.importTxtFileWhateverItCanButton.SuperTip = "Will create a window that will accept txt/csv file and will import delimited tabl" +
+    "e to Excel skipping rows that are not delimited properly";
+            this.importTxtFileWhateverItCanButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.importTxtFileWhateverItCanButton_Click);
             // 
             // modifiersGroup
             // 
@@ -864,6 +877,18 @@
             this.saveSelectedWorksheetsAsTxtButton.SuperTip = resources.GetString("saveSelectedWorksheetsAsTxtButton.SuperTip");
             this.saveSelectedWorksheetsAsTxtButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.saveSelectedWorksheetsAsTxtButton_Click);
             // 
+            // saveThisWorksheetAsTxt
+            // 
+            this.saveThisWorksheetAsTxt.Label = "Save this sheet as txt";
+            this.saveThisWorksheetAsTxt.Name = "saveThisWorksheetAsTxt";
+            this.saveThisWorksheetAsTxt.OfficeImageId = "ExportTextFile";
+            this.saveThisWorksheetAsTxt.ScreenTip = "Save this sheet as txt";
+            this.saveThisWorksheetAsTxt.ShowImage = true;
+            this.saveThisWorksheetAsTxt.SuperTip = "Saves current sheet to tab delimited txt file and ask about saving. If any cell c" +
+    "ontains tab or new line it will warn about it and offer to remove it by insertin" +
+    "g a space if between words.";
+            this.saveThisWorksheetAsTxt.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.saveThisWorksheetAsTxt_Click);
+            // 
             // saveAllWorksheetsAsTxtButton
             // 
             this.saveAllWorksheetsAsTxtButton.Label = "Save all sheets as txt";
@@ -906,17 +931,15 @@
             this.duplicateWorkbookBtn.SuperTip = "Will duplicate whole workbook to new one and ask about saving";
             this.duplicateWorkbookBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.duplicateWorkbookBtn_Click);
             // 
-            // saveThisWorksheetAsTxt
+            // renameSelectedWorksheetsButton
             // 
-            this.saveThisWorksheetAsTxt.Label = "Save this sheet as txt";
-            this.saveThisWorksheetAsTxt.Name = "saveThisWorksheetAsTxt";
-            this.saveThisWorksheetAsTxt.OfficeImageId = "ExportTextFile";
-            this.saveThisWorksheetAsTxt.ScreenTip = "Save this sheet as txt";
-            this.saveThisWorksheetAsTxt.ShowImage = true;
-            this.saveThisWorksheetAsTxt.SuperTip = "Saves current sheet to tab delimited txt file and ask about saving. If any cell c" +
-    "ontains tab or new line it will warn about it and offer to remove it by insertin" +
-    "g a space if between words.";
-            this.saveThisWorksheetAsTxt.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.saveThisWorksheetAsTxt_Click);
+            this.renameSelectedWorksheetsButton.Label = "Rename sel sheets";
+            this.renameSelectedWorksheetsButton.Name = "renameSelectedWorksheetsButton";
+            this.renameSelectedWorksheetsButton.OfficeImageId = "Rename";
+            this.renameSelectedWorksheetsButton.ScreenTip = "Rename selected worksheets";
+            this.renameSelectedWorksheetsButton.ShowImage = true;
+            this.renameSelectedWorksheetsButton.SuperTip = "Opens a form that will allow to rename the selected worksheets in bulk";
+            this.renameSelectedWorksheetsButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.renameSelectedWorksheetsButton_Click);
             // 
             // divideTableToPartsAndSaveButton
             // 
@@ -1580,16 +1603,6 @@
             this.excelEssentialsPackInfoBtn.ShowImage = true;
             this.excelEssentialsPackInfoBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.excelEssentialsPackInfoBtn_Click);
             // 
-            // renameSelectedWorksheetsButton
-            // 
-            this.renameSelectedWorksheetsButton.Label = "Rename sel sheets";
-            this.renameSelectedWorksheetsButton.Name = "renameSelectedWorksheetsButton";
-            this.renameSelectedWorksheetsButton.OfficeImageId = "Rename";
-            this.renameSelectedWorksheetsButton.ScreenTip = "Rename selected worksheets";
-            this.renameSelectedWorksheetsButton.ShowImage = true;
-            this.renameSelectedWorksheetsButton.SuperTip = "Opens a form that will allow to rename the selected worksheets in bulk";
-            this.renameSelectedWorksheetsButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.renameSelectedWorksheetsButton_Click);
-            // 
             // MiscRibbon
             // 
             this.Name = "MiscRibbon";
@@ -1788,6 +1801,7 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonButton filterColumnNotInRangeAddBtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton filterColumnNotInRegexAddButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton renameSelectedWorksheetsButton;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton importTxtFileWhateverItCanButton;
     }
 
     partial class ThisRibbonCollection
