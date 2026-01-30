@@ -179,6 +179,7 @@
             this.createMacroUpdateButton = this.Factory.CreateRibbonButton();
             this.checkMacrosButton = this.Factory.CreateRibbonButton();
             this.excelEssentialsPackInfoBtn = this.Factory.CreateRibbonButton();
+            this.importTxtFileWithBadRecordsButton = this.Factory.CreateRibbonButton();
             this.miscTab.SuspendLayout();
             this.importGroup.SuspendLayout();
             this.modifiersGroup.SuspendLayout();
@@ -222,6 +223,7 @@
             this.importSheetOrTxtFileSplitButton.Items.Add(this.importSheetOrTxtFileAdvButton);
             this.importSheetOrTxtFileSplitButton.Items.Add(this.importTxtFileLegacyButton);
             this.importSheetOrTxtFileSplitButton.Items.Add(this.importTxtFileWhateverItCanButton);
+            this.importSheetOrTxtFileSplitButton.Items.Add(this.importTxtFileWithBadRecordsButton);
             this.importSheetOrTxtFileSplitButton.Label = "Import worksheet or txt file";
             this.importSheetOrTxtFileSplitButton.Name = "importSheetOrTxtFileSplitButton";
             this.importSheetOrTxtFileSplitButton.OfficeImageId = "ImportOpml";
@@ -254,13 +256,14 @@
             // 
             // importTxtFileWhateverItCanButton
             // 
-            this.importTxtFileWhateverItCanButton.Label = "Import txt file without bad rows";
+            this.importTxtFileWhateverItCanButton.Label = "Import txt file without bad records";
             this.importTxtFileWhateverItCanButton.Name = "importTxtFileWhateverItCanButton";
             this.importTxtFileWhateverItCanButton.OfficeImageId = "ImportOpml";
-            this.importTxtFileWhateverItCanButton.ScreenTip = "Import txt file without bad rows";
+            this.importTxtFileWhateverItCanButton.ScreenTip = "Import txt file without bad records";
             this.importTxtFileWhateverItCanButton.ShowImage = true;
             this.importTxtFileWhateverItCanButton.SuperTip = "Will create a window that will accept txt/csv file and will import delimited tabl" +
-    "e to Excel skipping rows that are not delimited properly";
+    "e to Excel skipping rows that are not delimited properly and creating BAD RECORD" +
+    "S file in the source path";
             this.importTxtFileWhateverItCanButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.importTxtFileWhateverItCanButton_Click);
             // 
             // modifiersGroup
@@ -1603,6 +1606,18 @@
             this.excelEssentialsPackInfoBtn.ShowImage = true;
             this.excelEssentialsPackInfoBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.excelEssentialsPackInfoBtn_Click);
             // 
+            // importTxtFileWithBadRecordsButton
+            // 
+            this.importTxtFileWithBadRecordsButton.Label = "Import txt file with bad records";
+            this.importTxtFileWithBadRecordsButton.Name = "importTxtFileWithBadRecordsButton";
+            this.importTxtFileWithBadRecordsButton.OfficeImageId = "ImportOpml";
+            this.importTxtFileWithBadRecordsButton.ScreenTip = "Import txt file with bad records";
+            this.importTxtFileWithBadRecordsButton.ShowImage = true;
+            this.importTxtFileWithBadRecordsButton.SuperTip = "Will create a window that will accept txt/csv file and will import the delimited " +
+    "table to Excel all as text with all the bad records that are not delimited prope" +
+    "rly";
+            this.importTxtFileWithBadRecordsButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.importTxtFileWithBadRecordsButton_Click);
+            // 
             // MiscRibbon
             // 
             this.Name = "MiscRibbon";
@@ -1802,6 +1817,7 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonButton filterColumnNotInRegexAddButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton renameSelectedWorksheetsButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton importTxtFileWhateverItCanButton;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton importTxtFileWithBadRecordsButton;
     }
 
     partial class ThisRibbonCollection

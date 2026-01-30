@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.SqlServer.Server;
 using static ScintillaNET.Style;
 using Excel = Microsoft.Office.Interop.Excel;
 
@@ -88,7 +89,7 @@ namespace ImportTableToExcel
 
                 if (missingRows > 0)
                 {
-                    MessageBox.Show(message + $"\n\n⚠️ {missingRows} rows are missing!", "Import Stats", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(message + $"\n\n⚠️ {missingRows} rows are missing!\nThey should be exported into a separate file at path:\n{Path.GetDirectoryName(filePath)}", "Import Stats", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 else
                 {
@@ -122,6 +123,23 @@ namespace ImportTableToExcel
             }
         }
 
+        public static async Task ImportTextFileWithBadRecordsToExcel(Excel.Worksheet worksheet, string filePath, char delimiter)
+        {
+            try
+            {
+                DataTable dataTable = await ReadFileIntoDataTableWithBadRecords(filePath, delimiter);
+                UtilsExcel.PasteDataTableToRange(dataTable, worksheet.Cells[1, 1]);
+            }
+            catch (Exception ex)
+            {
+                System.Windows.Forms.MessageBox.Show(ex.Message, "Import Error", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
+                var app = worksheet.Application;
+                app.DisplayAlerts = false;
+                worksheet.Delete();
+                app.DisplayAlerts = true;
+            }
+        }
+
         public static async Task ImportTextFileToExcelAdv(Excel.Worksheet worksheet, string filePath, char delimiter)
         {
             try
@@ -139,16 +157,126 @@ namespace ImportTableToExcel
             }
         }
 
+        public static async Task<DataTable> ReadFileIntoDataTableWithBadRecords(string filePath, char delimiter)
+        {
+            DataTable dataTable = new DataTable();
+            List<object[]> allData = new List<object[]>();
+            string headersLine;
+            string[] headers;
+
+            using (StreamReader sr = new StreamReader(filePath, true))
+            {
+                headersLine = await sr.ReadLineAsync();
+                if (headersLine == null)
+                    return dataTable;
+
+                headers = headersLine.Split(delimiter)
+                                     .Select(h => h.StartsWith("=\"") && h.EndsWith("\"") ? h.Substring(2, h.Length - 3) : h)
+                                     .ToArray();
+
+                string line;
+                while ((line = await sr.ReadLineAsync()) != null)
+                {
+                    string[] fields = line.Split(delimiter).Select(p => string.IsNullOrWhiteSpace(p) ? "" : p).ToArray();
+                    allData.Add(fields);
+                }
+            }
+
+            int originalColCount = headers.Length;
+            int maxColCount = originalColCount;
+            if (allData.Count > 0)
+                maxColCount = Math.Max(maxColCount, allData.Max(row => row.Length));
+
+            PopulateDataTableWithColumnHeaders(dataTable, headers);
+
+            for (int i = originalColCount; i < maxColCount; i++)
+            {
+                dataTable.Columns.Add($"Extra{i - originalColCount + 1}", typeof(string));
+            }
+
+            // Ensure all columns are of type string
+            foreach (DataColumn column in dataTable.Columns)
+            {
+                column.DataType = typeof(string);
+            }
+
+            int expectedColCount = dataTable.Columns.Count;
+
+            if (allData.Count == 0)
+                return dataTable;
+
+            var quotedColumnsToClean = new List<int>();
+            if (allData.Count > 0)
+            {
+                int rowCount = allData.Count;
+
+                for (int col = 0; col < expectedColCount; col++)
+                {
+                    string firstVal = (col < allData[0].Length) ? allData[0][col]?.ToString() : "";
+                    string lastVal = (col < allData[rowCount - 1].Length) ? allData[rowCount - 1][col]?.ToString() : "";
+
+                    if ((!string.IsNullOrEmpty(firstVal) && firstVal.StartsWith("=\"") && firstVal.EndsWith("\"")) ||
+                        (!string.IsNullOrEmpty(lastVal) && lastVal.StartsWith("=\"") && lastVal.EndsWith("\"")))
+                    {
+                        bool isConsistent = allData.All(row =>
+                        {
+                            if (col >= row.Length) return true;
+                            string val = row[col]?.ToString();
+                            return string.IsNullOrEmpty(val) || val.StartsWith("=\"");
+                        });
+
+                        if (isConsistent)
+                        {
+                            quotedColumnsToClean.Add(col);
+                        }
+                    }
+                }
+
+                if (quotedColumnsToClean.Any())
+                {
+                    allData.AsParallel().ForAll(row =>
+                    {
+                        foreach (int col in quotedColumnsToClean)
+                        {
+                            if (col < row.Length)
+                            {
+                                string val = row[col]?.ToString();
+                                if (!string.IsNullOrEmpty(val) && val.StartsWith("=\"") && val.EndsWith("\""))
+                                {
+                                    row[col] = val.Substring(2, val.Length - 3);
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+
+            foreach (var rowData in allData)
+            {
+                object[] paddedRow = new object[expectedColCount];
+                Array.Copy(rowData, paddedRow, rowData.Length);
+                for (int i = rowData.Length; i < expectedColCount; i++)
+                {
+                    paddedRow[i] = "";
+                }
+                dataTable.Rows.Add(paddedRow);
+            }
+
+            return dataTable;
+        }
+
         public static async Task<DataTable> ReadFileIntoDataTableWhateverItCan(string filePath, char delimiter)
         {
             DataTable dataTable = new DataTable();
             List<object[]> allData = new List<object[]>();
+            string headersLine;
 
             using (StreamReader sr = new StreamReader(filePath, true))
             {
                 // Read the first line to create column headers
-                string headersLine = await sr.ReadLineAsync();
-                if (headersLine == null) return dataTable; // Empty file, return empty DataTable
+                headersLine = await sr.ReadLineAsync();
+                if (headersLine == null) 
+                    return dataTable; // Empty file, return empty DataTable
 
                 string[] headers = headersLine.Split(delimiter)
                                               .Select(h => h.StartsWith("=\"") && h.EndsWith("\"") ? h.Substring(2, h.Length - 3) : h)
@@ -168,6 +296,22 @@ namespace ImportTableToExcel
             int expectedColCount = dataTable.Columns.Count;
 
             // Filter allData to keep only rows that match the expected column count
+            List<string> badRecords = allData.Where(row => row.Length != expectedColCount).Select(row => string.Join(delimiter.ToString(), row)).ToList();
+            try
+            {
+                if (badRecords.Count > 0)
+                {
+                    string directory = Path.GetDirectoryName(filePath);
+                    string baseFileName = Path.GetFileNameWithoutExtension(filePath);
+                    string timestamp = DateTime.Now.ToString("_yyyyMMdd_HHmmss");
+                    string badFileName = $"BAD_RECORDS_{baseFileName}{timestamp}.txt";
+                    string badRecordsFilePath = Path.Combine(directory, badFileName);
+
+                    File.WriteAllLines(badRecordsFilePath, badRecords.Prepend(headersLine));
+                }
+            }
+            catch (IOException) { }
+
             allData = allData.Where(row => row.Length == expectedColCount).ToList();
             if (allData.Count == 0)
                 return dataTable;

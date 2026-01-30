@@ -1088,6 +1088,11 @@ namespace ExcelEssentials
             };
         }
 
+        private void importTxtFileWithBadRecordsButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            ImportFilesCommon(WTC.ImportTextFileWithBadRecordsToExcel);
+        }
+
         private void importTxtFileWhateverItCanButton_Click(object sender, RibbonControlEventArgs e)
         {
             ImportFilesCommon(WTC.ImportTextFileToExcelWhateverItCan);
