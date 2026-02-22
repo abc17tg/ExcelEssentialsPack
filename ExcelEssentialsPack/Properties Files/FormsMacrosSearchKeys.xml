@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<FormsMacrosSearchKeys>
+  <SapS4ExtractionSearch>
+    <SearchPhrase>LoginToS4AndGet</SearchPhrase>
+    <KeepSearchPhrase>FALSE</KeepSearchPhrase>
+  </SapS4ExtractionSearch>
+  <SapS4ExtractionSearch>
+    <SearchPhrase>SAPTransactionInfo</SearchPhrase>
+    <KeepSearchPhrase>TRUE</KeepSearchPhrase>
+  </SapS4ExtractionSearch>
+  <PivotTableSearch>
+    <SearchPhrase>CreatePvFrom</SearchPhrase>
+    <KeepSearchPhrase>FALSE</KeepSearchPhrase>
+  </PivotTableSearch>
+  <RunCustom>
+    <SearchPhrase>YouNeedToCreatePhrase</SearchPhrase>
+    <KeepSearchPhrase>FALSE</KeepSearchPhrase>
+  </RunCustom>
+</FormsMacrosSearchKeys>

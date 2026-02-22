@@ -1,0 +1,26 @@
+﻿A,255,169,169,Pastel Red
+B,255,213,169,Pastel Orange
+C,255,255,169,Pastel Yellow
+D,169,255,169,Pastel Green
+E,169,255,213,Pastel Mint
+F,169,213,255,Pastel Blue
+G,213,169,255,Pastel Purple
+H,255,169,213,Pastel Pink
+I,255,194,194,Light Red
+J,255,219,194,Light Orange
+K,255,255,194,Light Yellow
+L,194,255,194,Light Green
+M,194,255,219,Light Mint
+N,194,219,255,Light Blue
+O,219,194,255,Light Purple
+P,255,194,219,Light Pink
+Q,255,220,220,Very Light Red
+R,255,232,220,Very Light Orange
+S,255,255,220,Very Light Yellow
+T,220,255,220,Very Light Green
+U,220,255,232,Very Light Mint
+V,220,232,255,Very Light Blue
+W,232,220,255,Very Light Purple
+X,255,220,232,Very Light Pink
+Y,255,235,235,Almost White Red
+Z,255,255,235,Almost White Yellow
